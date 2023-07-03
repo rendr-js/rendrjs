@@ -3,7 +3,8 @@
     "version": "0.1.167",
     "scripts": {
         "pub": "npm version patch && npx tsc && npm publish",
-        "test": "vitest && vitest typecheck"
+        "test": "vitest",
+        "test-types": "vitest typecheck"
     },
     "main": "dist/index.js",
     "devDependencies": {

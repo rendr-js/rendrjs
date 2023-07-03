@@ -1,6 +1,4 @@
 on:
-  push:
-    branches: [main]
   pull_request:
     branches: [main]
 
@@ -18,3 +16,4 @@ jobs:
       run: |
         npm ci
         npm run test
+        npm run test-types
