@@ -42,5 +42,11 @@ describe('types', () => {
 
         // @ts-expect-error
         rendr(LazyChild, { foo: 'asdf' });
+
+        rendr('div', {
+            contentEditable: true,
+            oninput: e => console.log(e.target.innerText),
+            slot: 'hi',
+        });
     });
 });
