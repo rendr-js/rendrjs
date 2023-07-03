@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
-import { useState, rendr, useEffect, Dispatch, SetStateAction, createAtom, useAtomValue, useAtomSetter, useAtom } from '..';
-import { waitFor, mount, wait } from './utils';
+import { rendr, useEffect, createAtom, useAtomValue, useAtomSetter, useAtom } from '..';
+import { waitFor, mount } from './utils';
 
 describe('atoms', () => {
     it('basic use', async () => {
