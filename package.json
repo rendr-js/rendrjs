@@ -1,0 +1,16 @@
+{
+    "name": "@rendrjs/core",
+    "version": "0.1.167",
+    "scripts": {
+        "pub": "npm version patch && npx tsc && npm publish",
+        "test": "vitest && vitest typecheck"
+    },
+    "main": "dist/index.js",
+    "devDependencies": {
+        "@types/jsdom": "^21.1.1",
+        "jsdom": "^22.1.0",
+        "typescript": "^5.1.6",
+        "vite": "^4.3.9",
+        "vitest": "^0.32.4"
+    }
+}
