@@ -8,7 +8,7 @@ Rendrjs is a JavaScript framework for building user interfaces on the web.
 
 Create a new app from the typescript template:
 ```bash
-npx degit https://github.com/rendr-js/templates/typescript my-app
+npx degit github:rendr-js/templates/typescript my-app
 cd my-app
 npm i
 npm start
