@@ -1,20 +1,22 @@
 {
     "name": "@rendrjs/core",
-    "version": "0.1.169",
+    "version": "0.1.170",
     "scripts": {
         "pub": "npm version patch && npx tsc && npm publish",
         "test": "vitest",
         "test-types": "vitest typecheck"
     },
     "type": "module",
-    "files": ["dist"],
+    "files": [
+        "dist"
+    ],
     "types": "./dist/@rendrjs/core.d.ts",
     "main": "./dist/@rendrjs/core.umd.cjs",
     "module": "./dist/@rendrjs/core.js",
     "exports": {
         ".": {
-        "import": "./dist/@rendrjs/core.js",
-        "require": "./dist/@rendrjs/core.umd.cjs"
+            "import": "./dist/@rendrjs/core.js",
+            "require": "./dist/@rendrjs/core.umd.cjs"
         }
     },
     "devDependencies": {
