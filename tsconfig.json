@@ -9,4 +9,5 @@
       "moduleResolution": "node"
     },
     "include": ["src/**/*.ts"],
+    "exclude": ["src/tests/*"]
   }

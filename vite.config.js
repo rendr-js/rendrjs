@@ -4,5 +4,4 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
   },
-  define: { __DEV__: true },
 });

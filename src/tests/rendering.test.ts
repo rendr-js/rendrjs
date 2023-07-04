@@ -1,5 +1,5 @@
 import { expect, describe, it } from 'vitest';
-import { useState, rendr } from '../../src';
+import { rendr } from '../../src';
 import { mount, waitFor } from './utils';
 
 describe('rendering', () => {

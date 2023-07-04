@@ -19,11 +19,9 @@ export interface MemoRecord {
 
 export let isUpdater = <T>(value: SetStateAction<T>): value is UpdateStateAction<T> => isFunction(value);
 
-export let useCurrentElem = () => {
-    if (__DEV__) {
-        if (!current.e) throw illegal('hook use');
-    }
-    return current.e!;
+export let useCurrentElem = (): ComponentElem => {
+    if (!current.e) throw illegal('hook use');
+    return current.e;
 };
 
 let getHookData = <T extends EffectRecord[] | MemoRecord[] | any[]>(): [T, number] => {
