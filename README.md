@@ -1,5 +1,5 @@
 # Rendrjs
-![Tests](https://github.com/rendr-js/rendrjs/actions/workflows/main.yml/badge.svg)
+[![Tests](https://github.com/rendr-js/rendrjs/actions/workflows/main.yml/badge.svg)]
 
 Rendrjs is a framework for building web user interfaces.
 
