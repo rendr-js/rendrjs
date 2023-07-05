@@ -6,6 +6,7 @@
         "test": "vitest",
         "test-types": "vitest typecheck"
     },
+    "description": "A framework for building web user interfaces",
     "main": "dist/index.js",
     "devDependencies": {
         "@types/jsdom": "^21.1.1",

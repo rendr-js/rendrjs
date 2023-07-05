@@ -1,7 +1,7 @@
 # Rendrjs
-![Tests](https://github.com/github/docs/actions/workflows/main.yml/badge.svg)
+![Tests](https://github.com/rendr-js/rendrjs/actions/workflows/main.yml/badge.svg)
 
-Rendrjs is a JavaScript framework for building user interfaces on the web.
+Rendrjs is a framework for building web user interfaces.
 
 
 ## Getting Started
