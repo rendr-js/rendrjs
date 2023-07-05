@@ -19,12 +19,12 @@ export type AtomGetter = <A>(atom: Atom<A> | ReadonlyAtom<A>) => A;
 export type ReadonlyAtom<T> = Omit<Atom<T>, 'u'> & Deriver<T>;
 export type AtomDerivation<T> = (get: AtomGetter) => T;
 
-type CreateAtom<T> = {
-    (derivation: AtomDerivation<T>): ReadonlyAtom<T>
-    (initialValue: T): Atom<T>
+type CreateAtom = {
+    <T>(derivation: AtomDerivation<T>): ReadonlyAtom<T>
+    <T>(initialValue: T): Atom<T>
 };
 
-export let createAtom: CreateAtom<any> = (config: any): any => isFunction(config) ? createDerivedAtom(config) : createStandardAtom(config);
+export let createAtom: CreateAtom = (config: any): any => isFunction(config) ? createDerivedAtom(config) : createStandardAtom(config);
 
 let createStandardAtom = <T>(initialValue: T): Atom<T> => {
     const atom: Atom<T> = {

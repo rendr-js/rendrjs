@@ -1,4 +1,4 @@
-import { lazy, rendr } from '..';
+import { createAtom, lazy, rendr, useAtom } from '..';
 import { describe, it } from 'vitest';
 
 describe('types', () => {
@@ -48,5 +48,9 @@ describe('types', () => {
             oninput: e => console.log(e.target.innerText),
             slot: 'hi',
         });
+
+        // atoms
+        const foo = createAtom<number | null>(null);
+        useAtom(foo);
     });
 });
