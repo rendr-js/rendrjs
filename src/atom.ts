@@ -12,7 +12,7 @@ export interface Atom<T> {
 }
 
 interface Deriver<T> {
-    d: AtomDerivation<T>
+    d: AtomDerivation<T> // state derivation
 }
 
 export type AtomGetter = <A>(atom: Atom<A> | ReadonlyAtom<A>) => A;
