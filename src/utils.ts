@@ -13,6 +13,6 @@ export let areDepsEqual = (a: any[], b: any[]): boolean => {
 export let $document = document;
 export let typeOf = (a: any): string => typeof a;
 export let isString = (v: any): v is string => typeOf(v) == 'string';
-export let isFunction = (v: any): v is string => typeOf(v) == 'function';
+export let isFunction = (v: any): v is Function => typeOf(v) == 'function';
 export let queueTask = (task: () => void) => queueMicrotask(task);
 export let illegal = (msg: string) => Error(`illegal ${msg}`);

@@ -1,4 +1,4 @@
-import { Atom } from './atom';
+import { Atom, ReadonlyAtom } from './atom';
 import { ComponentElem, Elem, callComponentFunc } from './elem';
 import { reconcile } from './reconcile';
 import { areDepsEqual, illegal, isFunction, queueTask } from './utils';
@@ -117,19 +117,19 @@ export let current: { e: ComponentElem | undefined } = {
 export let useAtom = <T>(atom: Atom<T>): [T, Dispatch<SetStateAction<T>>] => {
     const elem = useCurrentElem();
     useEffect(() => {
-        atom.subs.set(elem, true);
-        return () => atom.subs.delete(elem);
+        atom.c.add(elem);
+        return () => atom.c.delete(elem);
     }, [elem]);
-    return [atom.state, atom.update];
+    return [atom.s, atom.u];
 };
 
-export let useAtomSetter = <T>(atom: Atom<T>): Dispatch<SetStateAction<T>> => atom.update;
+export let useAtomSetter = <T>(atom: Atom<T>): Dispatch<SetStateAction<T>> => atom.u;
 
-export let useAtomValue = <T>(atom: Atom<T>): T => {
+export let useAtomValue = <T>(atom: Atom<T> | ReadonlyAtom<T>): T => {
     const elem = useCurrentElem();
     useEffect(() => {
-        atom.subs.set(elem, true);
-        return () => atom.subs.delete(elem);
+        atom.c.add(elem);
+        return () => atom.c.delete(elem);
     }, [elem]);
-    return atom.state;
+    return atom.s;
 };

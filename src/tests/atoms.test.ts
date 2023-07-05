@@ -1,8 +1,8 @@
 import { describe, it, expect, vi } from 'vitest';
 import { rendr, useEffect, createAtom, useAtomValue, useAtomSetter, useAtom } from '..';
-import { waitFor, mount } from './utils';
+import { waitFor, mount, wait } from './utils';
 
-describe('atoms', () => {
+describe('standard', () => {
     it('basic use', async () => {
         const atom = createAtom('foo');
         const Message = () => {
@@ -10,7 +10,7 @@ describe('atoms', () => {
             return rendr('p', { slot: msg });
         };
         const Button = () => {
-        const setMsg = useAtomSetter(atom);
+            const setMsg = useAtomSetter(atom);
             return rendr('button', {
                 slot: 'bar',
                 onclick: () => setMsg(s => s + '!'),
@@ -189,5 +189,72 @@ describe('atoms', () => {
         await waitFor(() => expect(p.textContent).toBe('foo'));
         button.click();
         await waitFor(() => expect(msgRunner).toHaveBeenCalledOnce());
+    });
+});
+
+
+describe('derived', () => {
+    it('basic use', async () => {
+        const foo = createAtom('foo');
+        const fooLength = createAtom(get => get(foo).length);
+        const Message = () => {
+            const msgLength = useAtomValue(fooLength);
+            return rendr('p', { slot: `${msgLength}` });
+        };
+        const Button = () => {
+            const setMsg = useAtomSetter(foo);
+            return rendr('button', {
+                slot: 'bar',
+                onclick: () => setMsg(s => s + '!'),
+            });
+        };
+        const Root = () => {
+            return rendr('div', { slot: [
+                rendr(Message),
+                rendr(Button),
+            ] });
+        };
+        const wrapper = mount(rendr(Root));
+        const p = wrapper.find('p')!;
+        const button = wrapper.find('button')!;
+        expect(p.textContent).toBe('3');
+        button.click();
+        await waitFor(() => expect(p.textContent).toBe('4'));
+        button.click();
+        await waitFor(() => expect(p.textContent).toBe('5'));
+    });
+
+    it('does not re-render when used atom state changes but derived atom state does not change', async () => {
+        const foo = createAtom('foo');
+        const fooLength = createAtom(get => get(foo).length);
+        const msgRunner = vi.fn();
+        const Message = () => {
+            msgRunner();
+            const msgLength = useAtomValue(fooLength);
+            return rendr('p', { slot: `${msgLength}` });
+        };
+        const Button = () => {
+            const setMsg = useAtomSetter(foo);
+            return rendr('button', {
+                slot: 'bar',
+                onclick: () => setMsg(s => s === 'foo' ? 'bar' : 'foo'),
+            });
+        };
+        const Root = () => {
+            return rendr('div', { slot: [
+                rendr(Message),
+                rendr(Button),
+            ] });
+        };
+        const wrapper = mount(rendr(Root));
+        const p = wrapper.find('p')!;
+        const button = wrapper.find('button')!;
+        expect(p.textContent).toBe('3');
+        button.click();
+        await waitFor(() => expect(p.textContent).toBe('3'));
+        button.click();
+        await waitFor(() => expect(p.textContent).toBe('3'));
+        await wait(10);
+        expect(msgRunner).toHaveBeenCalledOnce();
     });
 });
