@@ -345,6 +345,22 @@ describe('slot: keyed', () => {
         await waitFor(() => expect(p.textContent).toBe('02'));
     });
 
+    it('remove: middle component', async () => {
+        const Span = ({ slot }: { slot: string }) => rendr('span', { slot });
+        const Root = () => {
+            const [slot, setSlot] = useState<string[]>(['0', '1', '2']);
+            return rendr('p', {
+                onclick: () => setSlot(['0', '2']),
+                slot: slot.map(s => rendr(Span, { slot: s, key: s })),
+            });
+        };
+        const wrapper = mount(rendr(Root));
+        const p = wrapper.find('p')!;
+        await waitFor(() => expect(p.textContent).toBe('012'));
+        p.click();
+        await waitFor(() => expect(p.textContent).toBe('02'));
+    });
+
     it('remove and add', async () => {
         const Root = () => {
             const [slot, setSlot] = useState<string[]>(['0', '1', '2']);

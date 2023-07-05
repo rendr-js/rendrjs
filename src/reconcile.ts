@@ -164,7 +164,7 @@ let reconcileChildren = (oldElem: HTMLElementElem, newElem: HTMLElementElem) => 
     if (start >= newLength) {
         for (let i = start; i < oldLength; i++) {
             teardown(oldChn[i]);
-            oldChn[i].d?.remove();
+            getDom(oldChn[i]).remove()
         }
         return;
     }
@@ -225,6 +225,6 @@ let reconcileChildren = (oldElem: HTMLElementElem, newElem: HTMLElementElem) => 
 
     oldMap.forEach(v => {
         teardown(v);
-        v.d!.remove();
+        getDom(v).remove();
     });
 }
