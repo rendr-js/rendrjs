@@ -196,7 +196,6 @@ describe('standard', () => {
     });
 });
 
-
 describe('derived', () => {
     it('basic use', async () => {
         const foo = createAtom('foo');
