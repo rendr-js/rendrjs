@@ -1,7 +1,7 @@
 import { Dispatch, SetStateAction, isUpdater } from './hooks';
 import { ComponentElem } from './elem';
 import { callComponentFuncAndReconcile } from './reconcile';
-import { isFunction, queueTask, typeOf } from './utils';
+import { isFunction, queueTask } from './utils';
 
 export interface Atom<T> {
     s: T // state

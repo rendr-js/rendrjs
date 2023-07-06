@@ -54,6 +54,26 @@ export let useState = <S>(initialValue: S): [S, Dispatch<SetStateAction<S>>] => 
 export let useEffect = (effect: () => (void | (() => void)), deps: any[]) => {
     let [effects, cursor] = getHookData();
     if (effects.length <= cursor) {
+        let ef = { d: deps } as EffectRecord;
+        effects.push(ef);
+        queueTask(() => {
+            ef.t = effect();
+        })
+        return;
+    }
+    let ef = effects[cursor] as EffectRecord;
+    if (!areDepsEqual(deps, ef.d)) {
+        ef.d = deps;
+        queueTask(() => {
+            ef.t?.();
+            ef.t = effect();
+        });
+    }
+};
+
+export let useImmediateEffect = (effect: () => (void | (() => void)), deps: any[]) => {
+    let [effects, cursor] = getHookData();
+    if (effects.length <= cursor) {
         effects.push({ d: deps, t: effect() });
         return;
     }
@@ -116,7 +136,7 @@ export let current: { e: ComponentElem | undefined } = {
 
 export let useAtom = <T>(atom: Atom<T>): [T, Dispatch<SetStateAction<T>>] => {
     const elem = useCurrentElem();
-    useEffect(() => {
+    useImmediateEffect(() => {
         atom.c.add(elem);
         return () => atom.c.delete(elem);
     }, [elem]);
@@ -127,7 +147,7 @@ export let useAtomSetter = <T>(atom: Atom<T>): Dispatch<SetStateAction<T>> => at
 
 export let useAtomValue = <T>(atom: Atom<T> | ReadonlyAtom<T>): T => {
     const elem = useCurrentElem();
-    useEffect(() => {
+    useImmediateEffect(() => {
         atom.c.add(elem);
         return () => atom.c.delete(elem);
     }, [elem]);

@@ -124,8 +124,9 @@ describe('standard', () => {
         await waitFor(() => expect(p.textContent).toBe('foo!'));
         button.click();
         await waitFor(() => expect(p.textContent).toBe('foo!!'));
-        await waitFor(() => expect(btnRunner).toHaveBeenCalledOnce());
-        await waitFor(() => expect(compRunner).toHaveBeenCalledOnce());
+        await wait(10);
+        expect(btnRunner).toHaveBeenCalledOnce();
+        expect(compRunner).toHaveBeenCalledOnce();
     });
 
     it('does not render when state change unmounts component', async () => {
@@ -157,7 +158,8 @@ describe('standard', () => {
         await waitFor(() => expect(wrapper.find('p')!.textContent).toBe('foo!'));
         button.click();
         await waitFor(() => expect(wrapper.find('p')).toBe(null));
-        await waitFor(() => expect(msgRunner).toHaveBeenCalledOnce());
+        await wait(10);
+        expect(msgRunner).toHaveBeenCalledOnce();
     });
 
     it('does not needlessly re-render child subs of parent subs', async () => {
@@ -186,9 +188,11 @@ describe('standard', () => {
         const wrapper = mount(rendr(Root));
         const p = wrapper.find('p')!;
         const button = wrapper.find('button')!;
-        await waitFor(() => expect(p.textContent).toBe('foo'));
+        expect(p.textContent).toBe('foo');
         button.click();
-        await waitFor(() => expect(msgRunner).toHaveBeenCalledOnce());
+        await waitFor(() => expect(p.textContent).toBe('foo!'));
+        await wait(10);
+        expect(msgRunner).toHaveBeenCalledTimes(2);
     });
 });
 

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { useState, rendr, useEffect, Dispatch, SetStateAction } from '..';
+import { useState, rendr, useEffect } from '..';
 import { waitFor, mount, wait } from './utils';
 
 describe('effects', () => {
@@ -44,27 +44,27 @@ describe('effects', () => {
         expect(effect).toHaveBeenCalledOnce();
     });
 
-  it('can set state in effect with other effects after it', async () => {
-        const useFoo = () => {
-            const [, setFoo] = useState('foo');
-            useEffect(() => setFoo('bar'), []);
-            useEffect(() => {}, []);
-        };
+    it('can set state in effect with other effects after it', async () => {
+            const useFoo = () => {
+                const [, setFoo] = useState('foo');
+                useEffect(() => setFoo('bar'), []);
+                useEffect(() => {}, []);
+            };
 
-        const Root = () => {
-            useFoo();
-            return rendr('p');
-        };
-        mount(rendr(Root));
-  });
-   
-  it('throws error when used outside of component render function', async () => {
-      const fail = vi.fn();
-      try {
-          useEffect(() => undefined, []);
-      } catch (e) {
-          fail();
-      }
-      expect(fail).toHaveBeenCalledOnce();
-  });
+            const Root = () => {
+                useFoo();
+                return rendr('p');
+            };
+            mount(rendr(Root));
+    });
+    
+    it('throws error when used outside of component render function', async () => {
+        const fail = vi.fn();
+        try {
+            useEffect(() => undefined, []);
+        } catch (e) {
+            fail();
+        }
+        expect(fail).toHaveBeenCalledOnce();
+    });
 });
