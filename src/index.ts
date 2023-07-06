@@ -18,6 +18,7 @@ export {
     useCallback,
     useDeferredEffect,
     useEffect,
+    useImmediateEffect,
     useMemo,
     useRef,
     useState,
