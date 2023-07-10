@@ -39,11 +39,10 @@ let createStandardAtom = <T>(initialValue: T, options?: AtomOptions<T>): Atom<T>
         u: action => {
             let oldState = atom.s;
             atom.s = isUpdater(action) ? action(oldState) : action;
-            options?.watch?.(oldState, atom.s);
-            if (oldState === atom.s) {
-                return;
+            if (oldState !== atom.s) {
+                options?.watch?.(oldState, atom.s);
+                queueTask(atom.r);
             }
-            queueTask(atom.r);
         },
         r: () => updateAtomSubscribers(atom),
         c: new Set(),
@@ -70,8 +69,8 @@ let createDerivedAtom = <T>(derivation: AtomDerivation<T>, options?: AtomOptions
     atom.r = () => {
         let oldState = atom.s;
         atom.s = atom.d(getter);
-        options?.watch?.(oldState, atom.s);
         if (atom.s !== oldState) {
+            options?.watch?.(oldState, atom.s);
             updateAtomSubscribers(atom);
         }
     }
