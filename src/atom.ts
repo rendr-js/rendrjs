@@ -23,18 +23,23 @@ export type ReadonlyAtom<T> = Omit<Atom<T>, 'u'> & Deriver<T>;
 export type AtomDerivation<T> = (get: AtomGetter) => T;
 
 type CreateAtom = {
-    <T>(derivation: AtomDerivation<T>): ReadonlyAtom<T>
-    <T>(initialValue: T): Atom<T>
+    <T>(derivation: AtomDerivation<T>, options?: AtomOptions<T>): ReadonlyAtom<T>
+    <T>(initialValue: T, options?: AtomOptions<T>): Atom<T>
 };
 
-export let createAtom: CreateAtom = (config: any): any => isFunction(config) ? createDerivedAtom(config) : createStandardAtom(config);
+export interface AtomOptions<T> {
+    watch?: (prevState: T, newState: T) => void
+}
 
-let createStandardAtom = <T>(initialValue: T): Atom<T> => {
+export let createAtom: CreateAtom = (config: any, options?: any): any => isFunction(config) ? createDerivedAtom(config, options) : createStandardAtom(config, options);
+
+let createStandardAtom = <T>(initialValue: T, options?: AtomOptions<T>): Atom<T> => {
     const atom: Atom<T> = {
         s: initialValue,
         u: action => {
             let oldState = atom.s;
             atom.s = isUpdater(action) ? action(oldState) : action;
+            options?.watch?.(oldState, atom.s);
             if (oldState === atom.s) {
                 return;
             }
@@ -48,7 +53,7 @@ let createStandardAtom = <T>(initialValue: T): Atom<T> => {
     return atom;
 };
 
-let createDerivedAtom = <T>(derivation: AtomDerivation<T>): ReadonlyAtom<T> => {
+let createDerivedAtom = <T>(derivation: AtomDerivation<T>, options?: AtomOptions<T>): ReadonlyAtom<T> => {
     const atom: ReadonlyAtom<T> = {
         s: null as T,
         d: derivation,
@@ -65,6 +70,7 @@ let createDerivedAtom = <T>(derivation: AtomDerivation<T>): ReadonlyAtom<T> => {
     atom.r = () => {
         let oldState = atom.s;
         atom.s = atom.d(getter);
+        options?.watch?.(oldState, atom.s);
         if (atom.s !== oldState) {
             updateAtomSubscribers(atom);
         }
