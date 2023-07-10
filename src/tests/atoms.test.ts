@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { rendr, useEffect, createAtom, useAtomValue, useAtomSetter, useAtom } from '..';
 import { waitFor, mount, wait } from './utils';
+import { useAtomSelector } from '../hooks';
 
 describe('standard', () => {
     it('basic use', async () => {
@@ -259,5 +260,53 @@ describe('derived', () => {
         await waitFor(() => expect(p.textContent).toBe('3'));
         await wait(10);
         expect(msgRunner).toHaveBeenCalledOnce();
+    });
+});
+
+
+
+describe('selectors', () => {
+    it('basic use', async () => {
+        const foo = createAtom('foo');
+        const msgRunner = vi.fn();
+        const msgLenRunner = vi.fn();
+        const MessageLength = () => {
+            msgLenRunner();
+            const msgLength = useAtomSelector(foo, f => f.length);
+            return rendr('p', { slot: `${msgLength}` });
+        };
+        const Message = () => {
+            msgRunner();
+            const msg = useAtomValue(foo);
+            return rendr('span', { slot: `${msg}` });
+        };
+        const Button = () => {
+            const setMsg = useAtomSetter(foo);
+            return rendr('button', {
+                slot: 'bar',
+                onclick: () => setMsg(s => s === 'foo' ? 'bar' : s === 'bar' ? 'foobar' : 'foo'),
+            });
+        };
+        const Root = () => {
+            return rendr('div', { slot: [
+                rendr(Message),
+                rendr(MessageLength),
+                rendr(Button),
+            ] });
+        };
+        const wrapper = mount(rendr(Root));
+        const p = wrapper.find('p')!;
+        const span = wrapper.find('span')!;
+        const button = wrapper.find('button')!;
+        expect(span.textContent).toBe('foo');
+        expect(p.textContent).toBe('3');
+        button.click();
+        await waitFor(() => expect(p.textContent).toBe('3'));
+        await waitFor(() => expect(span.textContent).toBe('bar'));
+        button.click();
+        await waitFor(() => expect(p.textContent).toBe('6'));
+        await waitFor(() => expect(span.textContent).toBe('foobar'));
+        expect(msgRunner).toHaveBeenCalledTimes(3);
+        expect(msgLenRunner).toHaveBeenCalledTimes(2);
     });
 });

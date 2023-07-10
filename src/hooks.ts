@@ -134,22 +134,37 @@ export let current: { e: ComponentElem | undefined } = {
     e: undefined,
 };
 
-export let useAtom = <T>(atom: Atom<T>): [T, Dispatch<SetStateAction<T>>] => {
+let useAtomSubscription = <T>(atom: Atom<T> | ReadonlyAtom<T>) => {
     const elem = useCurrentElem();
     useImmediateEffect(() => {
         atom.c.add(elem);
         return () => atom.c.delete(elem);
     }, [elem]);
+};
+
+export let useAtom = <T>(atom: Atom<T>): [T, Dispatch<SetStateAction<T>>] => {
+    useAtomSubscription(atom);
     return [atom.s, atom.u];
 };
 
 export let useAtomSetter = <T>(atom: Atom<T>): Dispatch<SetStateAction<T>> => atom.u;
 
 export let useAtomValue = <T>(atom: Atom<T> | ReadonlyAtom<T>): T => {
+    useAtomSubscription(atom);
+    return atom.s;
+};
+
+export let useAtomSelector = <T, R>(atom: Atom<T> | ReadonlyAtom<T>, selector: (state: T) => R): R => {
     const elem = useCurrentElem();
     useImmediateEffect(() => {
-        atom.c.add(elem);
+        let selected = selector(atom.s);
+        let selects = atom.f.get(elem);
+        if (!selects) {
+            atom.f.set(elem, [[selected, selector]]);
+        } else {
+            selects.push([selected, selector]);
+        }
         return () => atom.c.delete(elem);
-    }, [elem]);
-    return atom.s;
+    }, [elem, selector]);
+    return selector(atom.s);
 };
