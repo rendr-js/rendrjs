@@ -263,8 +263,6 @@ describe('derived', () => {
     });
 });
 
-
-
 describe('selectors', () => {
     it('basic use', async () => {
         const foo = createAtom('foo');
@@ -308,5 +306,55 @@ describe('selectors', () => {
         await waitFor(() => expect(span.textContent).toBe('foobar'));
         expect(msgRunner).toHaveBeenCalledTimes(3);
         expect(msgLenRunner).toHaveBeenCalledTimes(2);
+    });
+});
+
+describe('watch', () => {
+    it('basic use', async () => {
+        const watch = vi.fn((prev, next) => {});
+        const msgAtom = createAtom('foo', { watch: (prev, next) => watch(prev, next) });
+        const Root = () => {
+            const [msg, setMsg] = useAtom(msgAtom);
+            return rendr('div', { slot: [
+                rendr('span', { slot: msg }),
+                rendr('button', {
+                    slot: 'bar',
+                    onclick: () => setMsg(s => s === 'foo' ? 'bar' : 'foo'),
+                }),
+            ] });
+        };
+        const wrapper = mount(rendr(Root));
+        const button = wrapper.find('button')!;
+        button.click();
+        button.click();
+        await wait(10);
+        expect(watch).toHaveBeenCalledTimes(2);
+        expect(watch).toHaveBeenNthCalledWith(1, 'foo', 'bar');
+        expect(watch).toHaveBeenNthCalledWith(2, 'bar', 'foo');
+    });
+
+    it('derived atom', async () => {
+        const watch = vi.fn((prev, next) => {});
+        const msgAtom = createAtom('foo');
+        const msgLenAtom = createAtom(get => get(msgAtom).length, { watch: (prev, next) => watch(prev, next) });
+        const Root = () => {
+            const [msg, setMsg] = useAtom(msgAtom);
+            const msgLen = useAtomValue(msgLenAtom);
+            return rendr('div', { slot: [
+                rendr('span', { slot: `${msg}: ${msgLen}` }),
+                rendr('button', {
+                    slot: 'bar',
+                    onclick: () => setMsg(s => s === 'foo' ? 'foobar' : 'foo'),
+                }),
+            ] });
+        };
+        const wrapper = mount(rendr(Root));
+        const button = wrapper.find('button')!;
+        button.click();
+        button.click();
+        await wait(10);
+        expect(watch).toHaveBeenCalledTimes(2);
+        expect(watch).toHaveBeenNthCalledWith(1, 3, 6);
+        expect(watch).toHaveBeenNthCalledWith(2, 6, 3);
     });
 });

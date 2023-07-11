@@ -51,6 +51,6 @@ describe('types', () => {
 
         // atoms
         const foo = createAtom<number | null>(null);
-        useAtom(foo);
+        let use = () => useAtom(foo);
     });
 });

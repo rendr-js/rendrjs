@@ -202,10 +202,10 @@ let reconcileChildren = (oldElem: HTMLElementElem, newElem: HTMLElementElem) => 
             continue;
         }
         let currDomNode = oldElem.d.childNodes[start]; // with frags, start + offset
-        if (!oldMap.size) {
-            moveBefore(oldElem.d, newChn, oldChn, start, currDomNode, createDom(newChd));
-            continue;
-        }
+        // if (!oldMap.size) {
+        //     moveBefore(oldElem.d, newChn, oldChn, start, currDomNode, createDom(newChd));
+        //     continue;
+        // }
         let oldChd = oldMap.get(newChd.k!);
         if (oldChd) {
             oldMap.delete(newChd.k!);

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { useState, rendr, useEffect, Slot } from '..';
-import { waitFor, mount } from './utils';
+import { waitFor, mount, wait } from './utils';
 
 describe('slot: non-keyed', () => {
     it('string change', async () => {
@@ -686,5 +686,47 @@ describe('memo', () => {
         const p = wrapper.find('p')!;
         p.click();
         await waitFor(() => expect(p.textContent).toBe('m:10'));
+    });
+});
+
+describe('non-list keys', () => {
+    it('recreates for new key', async () => {
+        interface Props {
+            onclick: () => void
+            slot: Slot
+        }
+        const effect = vi.fn();
+        const Para = ({ onclick, slot }: Props) => {
+            return rendr('p', { slot, onclick });
+        };
+        const Span = ({ onclick, slot }: Props) => {
+            useEffect(effect, []);
+            return rendr('span', { slot, onclick });
+        };
+        const Root = () => {
+            const [cnt, setCnt] = useState(0);
+            return rendr('div', {
+                slot: [
+                    rendr(Para, {
+                        onclick: () => setCnt(c => c + 1),
+                        slot: `para: ${cnt}`,
+                    }),
+                    rendr(Span, {
+                        key: `span: ${cnt}`,
+                        onclick: () => setCnt(c => c + 1),
+                        slot: `span: ${cnt}`,
+                    }),
+                ],
+            });
+        };
+        const wrapper = mount(rendr(Root));
+        await waitFor(() => expect(effect).toHaveBeenCalledOnce());
+        expect(wrapper.find('p')!.textContent).toBe('para: 0');
+        expect(wrapper.find('span')!.textContent).toBe('span: 0');
+        wrapper.find('p')!.click();
+        await wait(10);
+        expect(wrapper.find('p')!.textContent).toBe('para: 1');
+        expect(wrapper.find('span')!.textContent).toBe('span: 1');
+        expect(effect).toHaveBeenCalledTimes(2);
     });
 });
