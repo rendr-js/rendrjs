@@ -344,17 +344,17 @@ describe('watch', () => {
                 rendr('span', { slot: `${msg}: ${msgLen}` }),
                 rendr('button', {
                     slot: 'bar',
-                    onclick: () => setMsg(s => s === 'foo' ? 'foobar' : 'foo'),
+                    onclick: () => setMsg(s => s === 'foo' ? 'foobar' : 'foobarbaz'),
                 }),
             ] });
         };
         const wrapper = mount(rendr(Root));
         const button = wrapper.find('button')!;
         button.click();
+        await wait(10);
+        expect(watch).toHaveBeenNthCalledWith(1, 3, 6);
         button.click();
         await wait(10);
-        expect(watch).toHaveBeenCalledTimes(2);
-        expect(watch).toHaveBeenNthCalledWith(1, 3, 6);
-        expect(watch).toHaveBeenNthCalledWith(2, 6, 3);
+        expect(watch).toHaveBeenNthCalledWith(2, 6, 9);
     });
 });

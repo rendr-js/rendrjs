@@ -1,7 +1,7 @@
 import { Dispatch, SetStateAction, isUpdater } from './hooks';
 import { ComponentElem } from './elem';
 import { callComponentFuncAndReconcile } from './reconcile';
-import { isFunction } from './utils';
+import { isFunction, queueTask } from './utils';
 
 export type AtomSelector<T, R> = (state: T) => R
 
@@ -41,7 +41,7 @@ let createStandardAtom = <T>(initialValue: T, options?: AtomOptions<T>): Atom<T>
             atom.s = isUpdater(action) ? action(oldState) : action;
             if (oldState !== atom.s) {
                 options?.watch?.(oldState, atom.s);
-                atom.r();
+                queueTask(atom.r);
             }
         },
         r: () => updateAtomSubscribers(atom),
