@@ -10,7 +10,6 @@ let teardown = (elem: Elem) => {
             for (let i = elem.h.length - 1; i >= 0; i--) {
                 elem.h[i]?.t?.();
             }
-            elem.h.length = 0;
         }
         teardown(elem.v);
     } else if (elem.c) {
