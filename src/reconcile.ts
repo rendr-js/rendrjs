@@ -6,9 +6,10 @@ type HTMLElementElem = Elem & { d: HTMLElement };
 let teardown = (elem: Elem) => {
     if (elem.r) elem.r.current = undefined;
     if (elem.v) {
+        elem.u = true;
         if (elem.h) {
-            for (let i = elem.h.length - 1; i >= 0; i--) {
-                elem.h[i]?.t?.();
+            while (elem.h.length) {
+                elem.h.pop()?.t?.();
             }
         }
         teardown(elem.v);
@@ -17,10 +18,6 @@ let teardown = (elem: Elem) => {
             teardown(elem.c[i]);
         }
     }
-}
-
-let unmount = (elem: Elem): void => {
-    elem.u = true;
 }
 
 let getDom = (elem: Elem): ChildNode => {
@@ -35,7 +32,6 @@ export let reconcile = (oldElem: Elem, newElem: Elem): void => {
     if (oldElem.t !== newElem.t) {
         teardown(oldElem);
         getDom(oldElem).replaceWith(createDom(newElem));
-        unmount(oldElem);
         return;
     }
     if (isString(oldElem.t)) {
@@ -52,8 +48,6 @@ let reconcileTextElems = (oldElem: Elem, newElem: Elem) => {
         (oldElem.d as Text).data = newElem.p;
     }
 };
-
-// TODO: are nested .h hooks transfered or do they need to be?
 
 let reconcileComponents = (oldElem: ComponentElem, newElem: ComponentElem) => {
     newElem.h = oldElem.h;

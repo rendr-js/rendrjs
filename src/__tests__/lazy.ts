@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { useState, rendr, lazy, CSSProperties } from '..';
-import { waitFor, mount } from './utils';
+import { useState, rendr, lazy, CSSProperties, useEffect, Slot } from '..';
+import { waitFor, mount, wait } from './utils';
 
 describe('lazy', () => {
     it('root element is component', async () => {
