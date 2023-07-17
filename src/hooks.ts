@@ -24,10 +24,10 @@ export let useCurrentElem = (): ComponentElem => {
     return current.e;
 };
 
-let getHookData = <T extends EffectRecord[] | MemoRecord[] | any[]>(): [T, number] => {
+let getHookData = <T extends EffectRecord[] | MemoRecord[] | any[]>(): [T, number, ComponentElem] => {
     let elem = useCurrentElem();
     if (!elem.h) elem.h = [];
-    return [elem.h as T, elem.i!++];
+    return [elem.h as T, elem.i!++, elem];
 };
 
 export let useState = <S>(initialValue: S): [S, Dispatch<SetStateAction<S>>] => {
@@ -52,12 +52,12 @@ export let useState = <S>(initialValue: S): [S, Dispatch<SetStateAction<S>>] => 
 };
 
 export let useEffect = (effect: () => (void | (() => void)), deps: any[]) => {
-    let [effects, cursor] = getHookData();
+    let [effects, cursor, elem] = getHookData();
     if (effects.length <= cursor) {
         let ef = { d: deps } as EffectRecord;
         effects.push(ef);
         queueTask(() => {
-            ef.t = effect();
+            if (!elem.u) ef.t = effect();
         })
         return;
     }
@@ -66,7 +66,7 @@ export let useEffect = (effect: () => (void | (() => void)), deps: any[]) => {
         ef.d = deps;
         queueTask(() => {
             ef.t?.();
-            ef.t = effect();
+            if (!elem.u) ef.t = effect();
         });
     }
 };

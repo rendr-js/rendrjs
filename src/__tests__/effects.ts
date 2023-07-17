@@ -45,17 +45,57 @@ describe('effects', () => {
     });
 
     it('can set state in effect with other effects after it', async () => {
-            const useFoo = () => {
-                const [, setFoo] = useState('foo');
-                useEffect(() => setFoo('bar'), []);
-                useEffect(() => {}, []);
+        const useFoo = () => {
+            const [, setFoo] = useState('foo');
+            useEffect(() => setFoo('bar'), []);
+            useEffect(() => {}, []);
+        };
+
+        const Root = () => {
+            useFoo();
+            return rendr('p');
+        };
+        mount(rendr(Root));
+    });
+
+    it('can set state in effect when effect is caused by multiple upstream set states', async () => {
+        const Child = ({ bar }: { bar: string }) => {
+            const [foo, setFoo] = useState(bar);
+            console.log('Child()');
+
+            useEffect(() => {
+                console.log('Child.effect()');
+                setFoo(bar);
+                return () => console.log('Child.effect.teardown()');
+            }, [foo]);
+
+            return rendr('p', { slot: foo });
+        };
+
+        // TODO: try update child w/effect, remove it immediately so effect runs after removal
+
+        const Root = () => {
+            const [show, setShow] = useState(true);
+
+            const handleClick = () => {
+                // TODO: we need more than one queue that includes the reconciliation,
+                // probably use an atom
+                setShow(false);
+                setShow(true);
+                setShow(false);
             };
 
-            const Root = () => {
-                useFoo();
-                return rendr('p');
-            };
-            mount(rendr(Root));
+            if (!show) {
+                console.log('Root(); no show');
+                return rendr('p', { slot: 'none', onclick: handleClick });
+            }
+
+            console.log('Root(); show');
+            return rendr('div', { slot: rendr(Child, { bar: `${show}` }), onclick: handleClick });
+        };
+        const wrapper = mount(rendr(Root));
+        wrapper.find('div')!.click();
+        await wait(10);
     });
     
     it('throws error when used outside of component render function', async () => {
