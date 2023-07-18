@@ -125,9 +125,9 @@ export let useRef = <T>(initialValue: T): Ref<T> => useMemo<Ref<T>>(() => ({ cur
 let flush = (elem: Elem) => {
     let tip = elem.q?.pop();
     if (!tip) return;
+    elem.q!.length = 0;
     reconcile(elem.v!, tip);
     elem.v = tip;
-    elem.q!.length = 0;
 };
 
 export let current: { e: ComponentElem | undefined } = {

@@ -56,6 +56,9 @@ let reconcileComponents = (oldElem: ComponentElem, newElem: ComponentElem) => {
         newElem.v = oldElem.v;
         return;
     }
+    if (oldElem.q) {
+        oldElem.q.length = 0;
+    }
     callComponentFuncAndReconcile(oldElem, newElem);
 }
 
