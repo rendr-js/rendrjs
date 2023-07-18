@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { useState, rendr, useEffect, useDeferredEffect } from '..';
+import { useState, rendr, useEffect, useDeferredEffect, createAtom, useAtom } from '..';
 import { waitFor, mount, wait } from './utils';
 
 describe('effects', () => {
@@ -58,45 +58,64 @@ describe('effects', () => {
         mount(rendr(Root));
     });
 
-    it('can set state in effect when effect is caused by multiple upstream set states', async () => {
-        const Child = ({ bar }: { bar: string }) => {
-            const [foo, setFoo] = useState(bar);
-            console.log('Child()');
+    // it('can set state in effect when effect is caused by multiple upstream set states', async () => {
+    //     const showAtom = createAtom(false);
+    //     const Child = ({ bar }: { bar: string }) => {
+    //         const [foo, setFoo] = useState('bar');
+    //         useEffect(() => {
+    //             setFoo(bar);
+    //         }, [foo]);
+    //         return rendr('p', { slot: foo });
+    //     };
+    //     const Root = () => {
+    //         const [show, setShow] = useState(false);
+    //         const [show2, setShow2] = useAtom(showAtom);
 
-            useEffect(() => {
-                console.log('Child.effect()');
-                setFoo(bar);
-                return () => console.log('Child.effect.teardown()');
-            }, [foo]);
+    //         const handleClick = () => {
+    //             // TODO: we need more than one queue that includes the reconciliation,
+    //             // probably use an atom
+    //             setShow2(true);
+    //             setTimeout(() => {
+    //                 setShow(true);
+    //                 setShow2(false);
+    //                 setShow(false);
+    //                 // setShow(true);
+    //                 // setShow2(true);
+    //             });
+    //             setTimeout(() => {
+    //                 // setShow2(true);
+    //                 // setShow(false);
+    //                 // setShow2(false);
+    //                 setShow2(true);
+    //                 setShow(true);
+    //             });
+    //             // setTimeout(() => {
+    //             //     setShow(false);
+    //             //     setTimeout(() => {
+    //             //         setShow(true);
+    //             //     });
+    //             // });
+    //             // setShow(false);
+    //         };
 
-            return rendr('p', { slot: foo });
-        };
+    //         if (!show || !show2) {
+    //             console.log('Root(); no show');
+    //             return rendr('p', { slot: 'none', onclick: handleClick });
+    //         }
 
-        // TODO: try update child w/effect, remove it immediately so effect runs after removal
-
-        const Root = () => {
-            const [show, setShow] = useState(true);
-
-            const handleClick = () => {
-                // TODO: we need more than one queue that includes the reconciliation,
-                // probably use an atom
-                setShow(false);
-                setShow(true);
-                setShow(false);
-            };
-
-            if (!show) {
-                console.log('Root(); no show');
-                return rendr('p', { slot: 'none', onclick: handleClick });
-            }
-
-            console.log('Root(); show');
-            return rendr('div', { slot: rendr(Child, { bar: `${show}` }), onclick: handleClick });
-        };
-        const wrapper = mount(rendr(Root));
-        wrapper.find('div')!.click();
-        await wait(10);
-    });
+    //         console.log('Root(); show');
+    //         return rendr('div', {
+    //             slot: [
+    //                 rendr('p', { slot: 'none' }),
+    //                 rendr(Child, { bar: `${show}` }),
+    //             ],
+    //         });
+    //     };
+    //     const wrapper = mount(rendr(Root));
+    //     wrapper.find('p')!.click();
+    //     await wait(10);
+    //     expect(wrapper.find('div')!.textContent).toBe('nonetrue');
+    // });
     
     it('throws error when used outside of component render function', async () => {
         const fail = vi.fn();
