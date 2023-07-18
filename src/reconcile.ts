@@ -7,6 +7,7 @@ let teardown = (elem: Elem) => {
     if (elem.r) elem.r.current = undefined;
     if (elem.v) {
         elem.u = true;
+        if (elem.q) elem.q.length = 0;
         if (elem.h) {
             while (elem.h.length) {
                 elem.h.pop()?.t?.();
@@ -56,7 +57,6 @@ let reconcileComponents = (oldElem: ComponentElem, newElem: ComponentElem) => {
         return;
     }
     callComponentFuncAndReconcile(oldElem, newElem);
-    if (oldElem.q) oldElem.q.length = 0;
 }
 
 export let callComponentFuncAndReconcile = (oldElem: ComponentElem, newElem: ComponentElem) => {
