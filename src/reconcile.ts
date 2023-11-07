@@ -124,7 +124,7 @@ let moveBefore = (parent: ParentNode, newChn: Elem[], oldChn: Elem[], i: number,
     insertBefore(parent, currDomNode, movingDomNode);
     if (newChn[i+1]?.k !== oldChn[i]?.k) {
         if (oldPos) {
-            insertBefore(parent, currDomNode, oldPos);
+            insertBefore(parent, oldPos, currDomNode);
         } else if (currDomNode !== parent.lastChild) {
             appendChild(parent, currDomNode);
         }
