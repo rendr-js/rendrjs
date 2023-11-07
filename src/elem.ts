@@ -1,6 +1,6 @@
 import { current, Ref } from './hooks';
 import { setAttr } from './reconcile';
-import { $document, appendChild, isString, length, setRef } from './utils';
+import { $document, appendChild, isListenerAttr, isString, length, setRef } from './utils';
 
 export type Component<T> = (props: T) => SlotElem;
 export type ComponentElem<T = any> = Elem<T> & { t: Component<T> };
@@ -60,9 +60,9 @@ export let callComponentFunc = <T>(elem: ComponentElem<T>): Elem => {
     return normalizeSlotElem(vd);
 }
 
-let undefineableAttributes: Record<string, boolean> = {
-    onclick: true,
-};
+// let undefineableAttributes: Record<string, boolean> = {
+//     onclick: true,
+// };
 
 type EventHandler<
     TargetType extends string,
@@ -128,7 +128,7 @@ let element = <Tag extends keyof HTMLElementTagNameMap | keyof SVGElementTagName
     };
     let prop: string & keyof (typeof attrs);
     for (prop in attrs) {
-        if (prop === 'key' || prop === 'slot' || prop === 'ref' || prop === 'memo' || (!undefineableAttributes[prop] && attrs[prop] === undefined)) {
+        if (prop === 'key' || prop === 'slot' || prop === 'ref' || prop === 'memo' || (!isListenerAttr(prop) && attrs[prop] === undefined)) {
             continue;
         }
         elem.p[prop] = attrs[prop];

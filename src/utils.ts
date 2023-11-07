@@ -26,3 +26,6 @@ export let insertBefore = (parent: Node, ref: Node, child: Node) => parent.inser
 export let getCurrent = <T>(ref: Ref<T>): T => ref.current;
 export let setCurrent = <T>(ref: Ref<T>, val: T) => ref.current = val;
 export let setRef = <T>(elem: ComponentElem | Elem, val: T) => elem.r ? setCurrent(elem.r, val) : undefined;
+export let remove = (node: ChildNode) => node.remove();
+export let removeAttribute = (e: Element, attr: string) => e.removeAttribute(attr);
+export let isListenerAttr = (attr: string) => attr.startsWith('on');

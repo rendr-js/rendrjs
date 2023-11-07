@@ -25,11 +25,11 @@ describe('states', () => {
                 return 'none';
             }
             return rendr('span', {
-                className: 'foo',
+                class: 'foo',
                 slot: [
                     fooBar,
                     rendr('span', {
-                        className: 'close',
+                        class: 'close',
                         slot: 'close',
                         onclick: () => setOpen(false),
                     }),
@@ -40,11 +40,11 @@ describe('states', () => {
         const Root = () => {
             const [open, setOpen] = useState(false);
             return rendr('p', {
-                className: 'root',
+                class: 'root',
                 slot: [
                     rendr(Foo, { open, setOpen }),
                     rendr('span', {
-                        className: 'opener',
+                        class: 'opener',
                         slot: 'open',
                         onclick: () => setOpen(true),
                     })

@@ -598,7 +598,7 @@ describe('attributes', () => {
             const [className, setClassName] = useState('foo');
             return rendr('p', {
                 slot: 'bar',
-                className,
+                class: className,
                 onclick: () => setClassName(c => c + '-'),
             });
         };
@@ -613,7 +613,7 @@ describe('attributes', () => {
             const [className, setClassName] = useState<string | undefined>('foo');
             return rendr('p', {
                 slot: 'bar',
-                className,
+                class: className,
                 onclick: () => setClassName(undefined),
             });
         };

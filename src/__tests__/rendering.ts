@@ -11,9 +11,10 @@ describe('rendering', () => {
     });
 
     it('class', async () => {
-        const Root = () => rendr('p', { className: 'foo' });
+        const Root = () => rendr('p', { class: 'foo' });
         const wrapper = mount(rendr(Root));
         const p = wrapper.find('p')!;
+        console.log(p);
         await waitFor(() => expect(p.className).toBe('foo'));
     });
 
