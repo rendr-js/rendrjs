@@ -1,6 +1,6 @@
 import { current, Ref } from './hooks';
 import { setAttr } from './reconcile';
-import { $document, isString } from './utils';
+import { $document, appendChild, isString, length, setRef } from './utils';
 
 export type Component<T> = (props: T) => SlotElem;
 export type ComponentElem<T = any> = Elem<T> & { t: Component<T> };
@@ -141,7 +141,7 @@ let element = <Tag extends keyof HTMLElementTagNameMap | keyof SVGElementTagName
         } else if (!Array.isArray(elem.c)) {
             elem.c = [elem.c] as Elem[];
         } else {
-            for (let i = elem.c.length - 1; i >= 0; i--) {
+            for (let i = length(elem.c) - 1; i >= 0; i--) {
                 elem.c[i] = normalizeSlotElem(elem.c[i]);
             }
         }
@@ -172,13 +172,13 @@ export let createDom = <T>(elem: Elem<T>, ns?: string | undefined): ChildNode =>
         } else {
             ns = getNameSpace(elem as { t: string }) ?? ns;
             elem.d = ns ? $document.createElementNS(ns, elem.t) : $document.createElement(elem.t);
-            if (elem.r) elem.r.current = elem.d;
+            setRef(elem, elem.d);
             for (let attr in elem.p) {
                 setAttr(elem.d as Element, attr, elem.p[attr]);
             }
             if (elem.c) {
-                for (let i = 0; i < elem.c.length; i++) {
-                    elem.d.appendChild(createDom(elem.c[i], ns));
+                for (let i = 0; i < length(elem.c); i++) {
+                    appendChild(elem.d, createDom(elem.c[i], ns));
                 }
             }
         }

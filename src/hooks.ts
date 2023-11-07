@@ -1,7 +1,7 @@
 import { Atom, ReadonlyAtom } from './atom';
 import { ComponentElem, Elem, callComponentFunc } from './elem';
 import { reconcile } from './reconcile';
-import { areDepsEqual, illegal, isFunction, queueTask } from './utils';
+import { areDepsEqual, getCurrent, illegal, isFunction, length, queueTask, setCurrent, setRef, truncateElemQ } from './utils';
 
 export type UpdateStateAction<S> = (state: S) => S;
 export type SetStateAction<S> = S | UpdateStateAction<S>;
@@ -32,13 +32,13 @@ let getHookData = <T extends EffectRecord[] | MemoRecord[] | any[]>(): [T, numbe
 
 export let useState = <S>(initialValue: S): [S, Dispatch<SetStateAction<S>>] => {
     let [states, cursor] = getHookData();
-    if (states.length <= cursor) {
+    if (length(states) <= cursor) {
         states.push(initialValue);
     }
     let ref = useRef(current.e!);
-    ref.current = current.e!;
+    setCurrent(ref, current.e!);
     let setState = useCallback((action: SetStateAction<S>) => {
-        let elem = ref.current;
+        let elem = getCurrent(ref);
         if (elem.u) throw illegal('set state');
         let newValue: S = isUpdater(action) ? action(states[cursor]) : action;
         if (states[cursor] !== newValue) {
@@ -53,7 +53,7 @@ export let useState = <S>(initialValue: S): [S, Dispatch<SetStateAction<S>>] => 
 
 export let useEffect = (effect: () => (void | (() => void)), deps: any[]) => {
     let [effects, cursor, elem] = getHookData();
-    if (effects.length <= cursor) {
+    if (length(effects) <= cursor) {
         let ef = { d: deps } as EffectRecord;
         effects.push(ef);
         queueTask(() => {
@@ -73,7 +73,7 @@ export let useEffect = (effect: () => (void | (() => void)), deps: any[]) => {
 
 export let useImmediateEffect = (effect: () => (void | (() => void)), deps: any[]) => {
     let [effects, cursor] = getHookData();
-    if (effects.length <= cursor) {
+    if (length(effects) <= cursor) {
         effects.push({ d: deps, t: effect() });
         return;
     }
@@ -88,8 +88,8 @@ export let useImmediateEffect = (effect: () => (void | (() => void)), deps: any[
 export let useDeferredEffect = (effect: () => (void | (() => void)), deps: any[]) => {
     const first = useRef(false);
     useEffect(() => {
-        if (!first.current) {
-            first.current = true;
+        if (!getCurrent(first)) {
+            setCurrent(first, true);
             return;
         }
         effect();
@@ -98,7 +98,7 @@ export let useDeferredEffect = (effect: () => (void | (() => void)), deps: any[]
 
 export let useMemo = <T>(create: () => T, deps: any[]): T => {
     let [memos, cursor] = getHookData();
-    if (memos.length <= cursor) {
+    if (length(memos) <= cursor) {
         let value = create();
         memos.push({
             d: deps,
@@ -125,7 +125,7 @@ export let useRef = <T>(initialValue: T): Ref<T> => useMemo<Ref<T>>(() => ({ cur
 let flush = (elem: Elem) => {
     let tip = elem.q?.pop();
     if (!tip) return;
-    elem.q!.length = 0;
+    truncateElemQ(elem);
     reconcile(elem.v!, tip);
     elem.v = tip;
 };

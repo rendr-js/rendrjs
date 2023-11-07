@@ -1,21 +1,21 @@
 import { ComponentElem, createDom, Elem, callComponentFunc, TEXT_NODE_TYPE } from './elem';
-import { areDepsEqual, isString } from './utils';
+import { appendChild, areDepsEqual, insertBefore, isString, length, setCurrent, setRef, truncateElemQ } from './utils';
 
 type HTMLElementElem = Elem & { d: HTMLElement };
 
 let teardown = (elem: Elem) => {
-    if (elem.r) elem.r.current = undefined;
+    setRef(elem, undefined);
     if (elem.v) {
         elem.u = true;
-        if (elem.q) elem.q.length = 0;
+        truncateElemQ(elem);
         if (elem.h) {
-            while (elem.h.length) {
+            while (length(elem.h)) {
                 elem.h.pop()?.t?.();
             }
         }
         teardown(elem.v);
     } else if (elem.c) {
-        for (let i = elem.c.length - 1; i >= 0; i--) {
+        for (let i = length(elem.c) - 1; i >= 0; i--) {
             teardown(elem.c[i]);
         }
     }
@@ -56,9 +56,7 @@ let reconcileComponents = (oldElem: ComponentElem, newElem: ComponentElem) => {
         newElem.v = oldElem.v;
         return;
     }
-    if (oldElem.q) {
-        oldElem.q.length = 0;
-    }
+    truncateElemQ(oldElem);
     callComponentFuncAndReconcile(oldElem, newElem);
 }
 
@@ -119,20 +117,20 @@ let reconcileAttributes = (oldElem: HTMLElementElem, newElem: HTMLElementElem) =
 
 let reconcileReference = (oldElem: Elem, newElem: Elem) => {
     if (newElem.r) {
-        newElem.r.current = oldElem.d;
-    } else if (oldElem.r) {
-        oldElem.r.current = undefined;
+        setCurrent(newElem.r, oldElem.d);
+    } else {
+        setRef(oldElem, undefined);
     }
 }
 
 let moveBefore = (parent: ParentNode, newChn: Elem[], oldChn: Elem[], i: number, currDomNode: ChildNode, movingDomNode: ChildNode) => {
     let oldPos = movingDomNode.nextSibling;
-    parent.insertBefore(movingDomNode, currDomNode);
+    insertBefore(parent, currDomNode, movingDomNode);
     if (newChn[i+1]?.k !== oldChn[i]?.k) {
         if (oldPos) {
-            parent.insertBefore(currDomNode, oldPos);
+            insertBefore(parent, currDomNode, oldPos);
         } else if (currDomNode !== parent.lastChild) {
-            parent.appendChild(currDomNode);
+            appendChild(parent, currDomNode);
         }
     }
 }
@@ -141,8 +139,8 @@ let reconcileChildren = (oldElem: HTMLElementElem, newElem: HTMLElementElem) => 
     let newChn = newElem.c ?? [];
     let oldChn = oldElem.c ?? [];
     let start = 0;
-    let oldLength = oldChn.length;
-    let newLength = newChn.length;
+    let oldLength = length(oldChn);
+    let newLength = length(newChn);
     
     // prefix
     for (
@@ -195,7 +193,7 @@ let reconcileChildren = (oldElem: HTMLElementElem, newElem: HTMLElementElem) => 
     for (; start <= newLength; start++) {
         let newChd = newChn[start];
         if (!oldChn[start]) {
-            oldElem.d.appendChild(createDom(newChd));
+            appendChild(oldElem.d, createDom(newChd));
             continue;
         }
         let currDomNode = oldElem.d.childNodes[start]; // with frags, start + offset

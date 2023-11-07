@@ -1,5 +1,6 @@
 import { Elem, createDom } from './elem';
+import { appendChild } from './utils';
 
 export let mount = (root: HTMLElement, elem: Elem) => {
-    root.appendChild(createDom(elem));
+    appendChild(root, createDom(elem));
 };

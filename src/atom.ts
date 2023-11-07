@@ -1,7 +1,7 @@
 import { Dispatch, SetStateAction, isUpdater } from './hooks';
 import { ComponentElem } from './elem';
 import { callComponentFuncAndReconcile } from './reconcile';
-import { isFunction, queueTask } from './utils';
+import { isFunction, length, queueTask } from './utils';
 
 export type AtomSelector<T, R> = (state: T) => R
 
@@ -85,7 +85,7 @@ let updateAtomSubscribers = <T>(atom: Atom<T> | ReadonlyAtom<T>): void => {
     }
     atom.a.forEach(a => a.r());
     for (let [component, selects] of [...atom.f.entries()]) {
-        for (let i = selects.length - 1; i >= 0; i--) {
+        for (let i = length(selects) - 1; i >= 0; i--) {
             let [selected, selector] = selects[i];
             let newSelected = selector(atom.s);
             if (selected !== newSelected) {
