@@ -79,7 +79,7 @@ export let setAttr = (dom: Element, attr: string, prop: any) => {
             dom.style[styleProp] = prop[styleProp];
         }
     } else {
-        let isAttrClass = attr == 'class';
+        let isAttrClass = attr === 'class';
         let setDirectly = isAttrClass || isListenerAttr(attr);
         if (setDirectly) {
             if (isAttrClass) {
@@ -192,11 +192,7 @@ let reconcileChildren = (oldElem: HTMLElementElem, newElem: HTMLElementElem) => 
             appendChild(oldElem.d, createDom(newChd));
             continue;
         }
-        let currDomNode = oldElem.d.childNodes[start]; // with frags, start + offset
-        // if (!oldMap.size) {
-        //     moveBefore(oldElem.d, newChn, oldChn, start, currDomNode, createDom(newChd));
-        //     continue;
-        // }
+        let currDomNode = oldElem.d.childNodes[start];
         let oldChd = oldMap.get(newChd.k!);
         if (oldChd) {
             oldMap.delete(newChd.k!);
