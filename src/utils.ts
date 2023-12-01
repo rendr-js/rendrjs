@@ -1,17 +1,7 @@
 import { ComponentElem, Elem } from './elem';
 import { Ref } from './hooks';
 
-export let areDepsEqual = (a: any[], b: any[]): boolean => {
-    if (length(a) !== length(b)) {
-        return false;
-    }
-    for (let i = length(a) - 1; i >= 0; i--) {
-        if (a[i] !== b[i]) {
-            return false;
-        }
-    }
-    return true;
-}
+export let areDepsEqual = (a: any[], b: any[]): boolean => length(a) === length(b) && a.every((x, i) => a[i] === b[i]);
 
 export let $document = document;
 export let typeOf = (a: any): string => typeof a;

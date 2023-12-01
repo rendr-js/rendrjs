@@ -26,7 +26,7 @@ export let useCurrentElem = (): ComponentElem => {
 
 let getHookData = <T extends EffectRecord[] | MemoRecord[] | any[]>(): [T, number, ComponentElem] => {
     let elem = useCurrentElem();
-    if (!elem.h) elem.h = [];
+    elem.h ??= [];
     return [elem.h as T, elem.i!++, elem];
 };
 
@@ -43,7 +43,7 @@ export let useState = <S>(initialValue: S): [S, Dispatch<SetStateAction<S>>] => 
         let newValue: S = isUpdater(action) ? action(states[cursor]) : action;
         if (states[cursor] !== newValue) {
             states[cursor] = newValue;
-            if (!elem.q) elem.q = [];
+            elem.q ??= [];
             elem.q!.push(callComponentFunc(elem));
             queueTask(() => flush(elem));
         }
@@ -124,10 +124,11 @@ export let useRef = <T>(initialValue: T): Ref<T> => useMemo<Ref<T>>(() => ({ val
 
 let flush = (elem: Elem) => {
     let tip = elem.q?.pop();
-    if (!tip) return;
-    truncateElemQ(elem);
-    reconcile(elem.v!, tip);
-    elem.v = tip;
+    if (tip) {
+        truncateElemQ(elem);
+        reconcile(elem.v!, tip);
+        elem.v = tip;
+    }
 };
 
 export let current: { e: ComponentElem | undefined } = {

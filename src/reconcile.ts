@@ -8,16 +8,10 @@ let teardown = (elem: Elem) => {
     if (elem.v) {
         elem.u = true;
         truncateElemQ(elem);
-        if (elem.h) {
-            while (length(elem.h)) {
-                elem.h.pop()?.t?.();
-            }
-        }
+        elem.h?.forEach(h => h.t?.());
         teardown(elem.v);
-    } else if (elem.c) {
-        for (let i = length(elem.c) - 1; i >= 0; i--) {
-            teardown(elem.c[i]);
-        }
+    } else {
+        elem.c?.forEach(teardown);
     }
 }
 
@@ -33,15 +27,13 @@ export let reconcile = (oldElem: Elem, newElem: Elem): void => {
     if (oldElem.t !== newElem.t) {
         teardown(oldElem);
         getDom(oldElem).replaceWith(createDom(newElem));
-        return;
-    }
-    if (isString(oldElem.t)) {
+    } else if (isString(oldElem.t)) {
         newElem.d = oldElem.d;
         if (oldElem.t === TEXT_NODE_TYPE) return reconcileTextElems(oldElem, newElem);
         reconcileVdomElems(oldElem as HTMLElementElem, newElem as HTMLElementElem);
-        return;
+    } else {
+        reconcileComponents(oldElem as ComponentElem, newElem as ComponentElem);
     }
-    reconcileComponents(oldElem as ComponentElem, newElem as ComponentElem);
 }
 
 let reconcileTextElems = (oldElem: Elem, newElem: Elem) => {

@@ -109,18 +109,14 @@ export type SVGElementAttributes<Tag extends string & keyof SVGElementTagNameMap
     NarrowedSVGEventHandler<'click', Tag, 'currentTarget'>;
 
 let element = <Tag extends keyof HTMLElementTagNameMap | keyof SVGElementTagNameMap, Attrs extends RendrAttributes = Tag extends keyof HTMLElementTagNameMap ? HTMLElementAttributes<Tag> : Tag extends keyof SVGElementTagNameMap ? SVGElementAttributes<Tag> : never>(ty: Tag, attrs?: Attrs): Elem<Tag> => {
+    let elem: Elem = { t: ty };
     if (!attrs) {
-        return {
-            t: ty,
-        };
+        return elem;
     }
-    let elem = {
-        t: ty,
-        p: {} as { [key: string]: any },
-        k: attrs.key,
-        c: attrs.slot,
-        r: attrs.ref,
-    };
+    elem.p = {} as { [key: string]: any };
+    elem.k = attrs.key;
+    elem.c = attrs.slot as Elem[];
+    elem.r = attrs.ref;
     deleteObjectProperty(attrs, 'key');
     deleteObjectProperty(attrs, 'ref');
     for (let prop in attrs) {
@@ -159,13 +155,12 @@ let nameSpaceMap: { [key: string]: string } = {
     math: nameSpacePrefix + '1998/Math/MathML',
 };
 
-let getNameSpace = (elem: Elem & { t: string }): string | undefined => elem.p?.xmlns || nameSpaceMap[elem.t];
-
 export let createDom = <T>(elem: Elem<T>, ns?: string | undefined): ChildNode => {
     if (elem.t === TEXT_NODE_TYPE) {
         elem.d = $document.createTextNode(elem.p as string);
     } else if (isString(elem.t)) {
-        ns = getNameSpace(elem as { t: string }) ?? ns;
+        // @ts-expect-error
+        ns = elem.p?.xmlns ?? nameSpaceMap[elem.t] ?? ns;
         elem.d = ns ? $document.createElementNS(ns, elem.t) : $document.createElement(elem.t);
         setRef(elem, elem.d);
         for (let attr in elem.p) {
