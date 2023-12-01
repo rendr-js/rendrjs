@@ -1,10 +1,10 @@
 import { ComponentElem, createDom, Elem, callComponentFunc, TEXT_NODE_TYPE } from './elem';
-import { appendChild, areDepsEqual, deleteObjectProperty, insertBefore, isString, length, remove, removeAttribute, setCurrent, setRef, truncateElemQ } from './utils';
+import { appendChild, areDepsEqual, deleteObjectProperty, insertBefore, isString, length, remove, removeAttribute, setCurrent, setRef, truncateElemQ, undef } from './utils';
 
 type HTMLElementElem = Elem & { d: HTMLElement };
 
 let teardown = (elem: Elem) => {
-    setRef(elem, undefined);
+    setRef(elem, undef);
     if (elem.v) {
         elem.u = true;
         truncateElemQ(elem);
@@ -93,7 +93,7 @@ let reconcileAttributes = (oldElem: HTMLElementElem, newElem: HTMLElementElem) =
         }
     }
     for (let attr in oldElem.p) {
-        if (newElem.p[attr] === undefined) {
+        if (newElem.p[attr] === undef) {
             removeAttribute(oldElem.d, attr);
         }
     }
@@ -103,7 +103,7 @@ let reconcileReference = (oldElem: Elem, newElem: Elem) => {
     if (newElem.r) {
         setCurrent(newElem.r, oldElem.d);
     } else {
-        setRef(oldElem, undefined);
+        setRef(oldElem, undef);
     }
 }
 
@@ -132,7 +132,7 @@ let reconcileChildren = (oldElem: HTMLElementElem, newElem: HTMLElementElem) => 
     ;
         start < newLength &&
         start < oldLength &&
-        (newChd.k === undefined || newChd.k === oldChd.k)
+        (newChd.k === undef || newChd.k === oldChd.k)
     ;
         oldChd = oldChn[start], newChd = newChn[start]
     ) {
@@ -156,7 +156,7 @@ let reconcileChildren = (oldElem: HTMLElementElem, newElem: HTMLElementElem) => 
     ;
         newLength > start &&
         oldLength >= start &&
-        (newChd.k === undefined || newChd.k === oldChd.k)
+        (newChd.k === undef || newChd.k === oldChd.k)
     ;
         oldChd = oldChn[oldLength], newChd = newChn[newLength]
     ) {

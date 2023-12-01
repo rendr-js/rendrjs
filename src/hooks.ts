@@ -1,7 +1,7 @@
 import { Atom, ReadonlyAtom } from './atom';
 import { ComponentElem, Elem, callComponentFunc } from './elem';
 import { reconcile } from './reconcile';
-import { areDepsEqual, getCurrent, illegal, isFunction, length, queueTask, setCurrent, setRef, truncateElemQ } from './utils';
+import { areDepsEqual, getCurrent, illegal, isFunction, length, queueTask, setCurrent, setRef, truncateElemQ, undef } from './utils';
 
 export type UpdateStateAction<S> = (state: S) => S;
 export type SetStateAction<S> = S | UpdateStateAction<S>;
@@ -131,7 +131,7 @@ let flush = (elem: Elem) => {
 };
 
 export let current: { e: ComponentElem | undefined } = {
-    e: undefined,
+    e: undef,
 };
 
 let useAtomSubscription = <T>(atom: Atom<T> | ReadonlyAtom<T>) => {

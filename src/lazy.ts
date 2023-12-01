@@ -1,5 +1,6 @@
 import { useEffect, useState } from './hooks';
 import { Component, SlotElem, component } from './elem';
+import { undef } from './utils';
 
 export interface LazyConfig<T> {
     import: () => Promise<{ default: Component<T> }>
@@ -12,7 +13,7 @@ type Lazy = {
 };
 
 export let lazy: Lazy = <T>(config: LazyConfig<T>): Component<T> => {
-    let comp: any = undefined;
+    let comp: any = undef;
     return (props: any) => {
         let [slot, setSlot] = useState({ val: comp ?? (() => config.fallback) });
         useEffect(() => {

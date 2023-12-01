@@ -29,3 +29,4 @@ export let setRef = <T>(elem: ComponentElem | Elem, val: T) => elem.r ? setCurre
 export let remove = (node: ChildNode) => node.remove();
 export let removeAttribute = (e: Element, attr: string) => e.removeAttribute(attr);
 export let deleteObjectProperty = <T extends { [key: string]: any }, K extends keyof T>(obj: T, property: K) => delete obj[property];
+export let undef = undefined;

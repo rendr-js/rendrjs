@@ -1,6 +1,6 @@
 import { current, Ref } from './hooks';
 import { setAttr } from './reconcile';
-import { $document, appendChild, deleteObjectProperty, isString, length, setRef } from './utils';
+import { $document, appendChild, deleteObjectProperty, isString, length, setRef, undef } from './utils';
 
 export type Component<T> = (props: T) => SlotElem;
 export type ComponentElem<T = any> = Elem<T> & { t: Component<T> };
@@ -136,7 +136,7 @@ let element = <Tag extends keyof HTMLElementTagNameMap | keyof SVGElementTagName
                     elem.c[i] = normalizeSlotElem(elem.c[i]);
                 }
             }
-        } else if (attrs[prop] !== undefined) {
+        } else if (attrs[prop] !== undef) {
             elem.p[prop] = attrs[prop];
         }
     }
@@ -151,7 +151,7 @@ let normalizeSlotElem = (elem: SlotElem): Elem => {
 
 let createTextElem = (p: string) => ({ t: TEXT_NODE_TYPE, p });
 
-let isFalsySlotElem = (elem: any): elem is null | undefined | boolean => elem === undefined || elem === null || elem === false || elem === true;
+let isFalsySlotElem = (elem: any): elem is null | undefined | boolean => elem === undef || elem === null || elem === false || elem === true;
 
 let nameSpacePrefix = 'http://www.w3.org/';
 let nameSpaceMap: { [key: string]: string } = {
