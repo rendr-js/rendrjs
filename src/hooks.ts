@@ -1,7 +1,7 @@
 import { Atom, ReadonlyAtom } from './atom';
 import { ComponentElem, Elem, callComponentFunc } from './elem';
 import { reconcile } from './reconcile';
-import { areDepsEqual, getCurrent, illegal, isFunction, length, queueTask, setCurrent, setRef, truncateElemQ, undef } from './utils';
+import { areDepsEqual, getRefValue, illegal, isFunction, length, queueTask, setRefValue, setRef, truncateElemQ, undef } from './utils';
 
 export type UpdateStateAction<S> = (state: S) => S;
 export type SetStateAction<S> = S | UpdateStateAction<S>;
@@ -36,9 +36,9 @@ export let useState = <S>(initialValue: S): [S, Dispatch<SetStateAction<S>>] => 
         states.push(initialValue);
     }
     let ref = useRef(current.e!);
-    setCurrent(ref, current.e!);
+    setRefValue(ref, current.e!);
     let setState = useCallback((action: SetStateAction<S>) => {
-        let elem = getCurrent(ref);
+        let elem = getRefValue(ref);
         if (elem.u) throw illegal('set state');
         let newValue: S = isUpdater(action) ? action(states[cursor]) : action;
         if (states[cursor] !== newValue) {
@@ -88,8 +88,8 @@ export let useImmediateEffect = (effect: () => (void | (() => void)), deps: any[
 export let useDeferredEffect = (effect: () => (void | (() => void)), deps: any[]) => {
     let first = useRef(false);
     useEffect(() => {
-        if (!getCurrent(first)) {
-            setCurrent(first, true);
+        if (!getRefValue(first)) {
+            setRefValue(first, true);
             return;
         }
         effect();
@@ -117,10 +117,10 @@ export let useMemo = <T>(create: () => T, deps: any[]): T => {
 export let useCallback = <T extends Function>(cb: T, deps: any[]): T => useMemo(() => cb, deps);
 
 export interface Ref<T = any> {
-    current: T
+    value: T
 }
 
-export let useRef = <T>(initialValue: T): Ref<T> => useMemo<Ref<T>>(() => ({ current: initialValue }), []);
+export let useRef = <T>(initialValue: T): Ref<T> => useMemo<Ref<T>>(() => ({ value: initialValue }), []);
 
 let flush = (elem: Elem) => {
     let tip = elem.q?.pop();

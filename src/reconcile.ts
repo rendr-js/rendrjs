@@ -1,5 +1,5 @@
 import { ComponentElem, createDom, Elem, callComponentFunc, TEXT_NODE_TYPE } from './elem';
-import { appendChild, areDepsEqual, deleteObjectProperty, insertBefore, isString, length, remove, removeAttribute, setCurrent, setRef, truncateElemQ, undef } from './utils';
+import { appendChild, areDepsEqual, deleteObjectProperty, insertBefore, isString, length, remove, removeAttribute, setRefValue, setRef, truncateElemQ, undef } from './utils';
 
 type HTMLElementElem = Elem & { d: HTMLElement };
 
@@ -101,7 +101,7 @@ let reconcileAttributes = (oldElem: HTMLElementElem, newElem: HTMLElementElem) =
 
 let reconcileReference = (oldElem: Elem, newElem: Elem) => {
     if (newElem.r) {
-        setCurrent(newElem.r, oldElem.d);
+        setRefValue(newElem.r, oldElem.d);
     } else {
         setRef(oldElem, undef);
     }
