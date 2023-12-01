@@ -19,7 +19,7 @@ describe('rendering', () => {
     });
 
     it('style', async () => {
-        const Root = () => rendr('p', { style: { margin: '10px' } });
+        const Root = () => rendr('p', { style: 'margin: 10px' });
         const wrapper = mount(rendr(Root));
         const p = wrapper.find('p')!;
         await waitFor(() => expect(p.style.margin).toBe('10px'));

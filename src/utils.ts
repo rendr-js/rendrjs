@@ -1,5 +1,5 @@
-import { ComponentElem, Elem } from "./elem";
-import { Ref } from "./hooks";
+import { ComponentElem, Elem } from './elem';
+import { Ref } from './hooks';
 
 export let areDepsEqual = (a: any[], b: any[]): boolean => {
     if (length(a) !== length(b)) {
@@ -28,4 +28,4 @@ export let setCurrent = <T>(ref: Ref<T>, val: T) => ref.current = val;
 export let setRef = <T>(elem: ComponentElem | Elem, val: T) => elem.r ? setCurrent(elem.r, val) : undefined;
 export let remove = (node: ChildNode) => node.remove();
 export let removeAttribute = (e: Element, attr: string) => e.removeAttribute(attr);
-export let isListenerAttr = (attr: string) => attr.startsWith('on');
+export let deleteObjectProperty = <T extends { [key: string]: any }, K extends keyof T>(obj: T, property: K) => delete obj[property];

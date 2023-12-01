@@ -86,7 +86,7 @@ export let useImmediateEffect = (effect: () => (void | (() => void)), deps: any[
 };
 
 export let useDeferredEffect = (effect: () => (void | (() => void)), deps: any[]) => {
-    const first = useRef(false);
+    let first = useRef(false);
     useEffect(() => {
         if (!getCurrent(first)) {
             setCurrent(first, true);
@@ -135,7 +135,7 @@ export let current: { e: ComponentElem | undefined } = {
 };
 
 let useAtomSubscription = <T>(atom: Atom<T> | ReadonlyAtom<T>) => {
-    const elem = useCurrentElem();
+    let elem = useCurrentElem();
     useImmediateEffect(() => {
         atom.c.add(elem);
         return () => atom.c.delete(elem);
@@ -155,7 +155,7 @@ export let useAtomValue = <T>(atom: Atom<T> | ReadonlyAtom<T>): T => {
 };
 
 export let useAtomSelector = <T, R>(atom: Atom<T> | ReadonlyAtom<T>, selector: (state: T) => R): R => {
-    const elem = useCurrentElem();
+    let elem = useCurrentElem();
     useImmediateEffect(() => {
         let selected = selector(atom.s);
         let selects = atom.f.get(elem);

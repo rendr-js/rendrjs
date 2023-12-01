@@ -1,6 +1,6 @@
 import { current, Ref } from './hooks';
 import { setAttr } from './reconcile';
-import { $document, appendChild, isListenerAttr, isString, length, setRef } from './utils';
+import { $document, appendChild, deleteObjectProperty, isString, length, setRef } from './utils';
 
 export type Component<T> = (props: T) => SlotElem;
 export type ComponentElem<T = any> = Elem<T> & { t: Component<T> };
@@ -60,10 +60,6 @@ export let callComponentFunc = <T>(elem: ComponentElem<T>): Elem => {
     return normalizeSlotElem(vd);
 }
 
-// let undefineableAttributes: Record<string, boolean> = {
-//     onclick: true,
-// };
-
 type EventHandler<
     TargetType extends string,
     EventName extends keyof HTMLElementEventMap,
@@ -101,16 +97,15 @@ type BooleanValueHTMLElementAttributes = 'contentEditable';
 type RendrAttributes = object & { slot?: Slot, ref?: Ref, key?: string };
 
 export type HTMLElementAttributes<Tag extends string & keyof HTMLElementTagNameMap> =
-    Omit<Partial<HTMLElementTagNameMap[Tag]>, BooleanValueHTMLElementAttributes | 'style' | 'slot' | 'onclick' | 'oninput'> &
-    { style?: CSSProperties } &
+    Omit<Partial<HTMLElementTagNameMap[Tag]>, BooleanValueHTMLElementAttributes | 'style' | 'slot' | 'onclick' | 'oninput' | 'className'> &
+    { style?: CSSStyleDeclaration | string, class?: string } &
     { [key in BooleanValueHTMLElementAttributes]?: boolean } &
     NarrowedEventHandler<'input', Tag, 'target'> &
     NarrowedEventHandler<'click', Tag, 'currentTarget'>;
 
 export type SVGElementAttributes<Tag extends string & keyof SVGElementTagNameMap> =
-    Omit<Partial<SVGElementTagNameMap[Tag]>, 'style' | 'slot' | 'onclick'> &
-    { style?: CSSProperties } &
-    { slot?: Slot, ref?: Ref, key?: string } &
+    Omit<Partial<SVGElementTagNameMap[Tag]>, 'style' | 'slot' | 'onclick' | 'className'> &
+    { style?: CSSStyleDeclaration | string, class?: string, slot?: Slot, ref?: Ref, key?: string } &
     NarrowedSVGEventHandler<'click', Tag, 'currentTarget'>;
 
 let element = <Tag extends keyof HTMLElementTagNameMap | keyof SVGElementTagNameMap, Attrs extends RendrAttributes = Tag extends keyof HTMLElementTagNameMap ? HTMLElementAttributes<Tag> : Tag extends keyof SVGElementTagNameMap ? SVGElementAttributes<Tag> : never>(ty: Tag, attrs?: Attrs): Elem<Tag> => {
@@ -126,34 +121,35 @@ let element = <Tag extends keyof HTMLElementTagNameMap | keyof SVGElementTagName
         c: attrs.slot,
         r: attrs.ref,
     };
-    let prop: string & keyof (typeof attrs);
-    for (prop in attrs) {
-        if (prop === 'key' || prop === 'slot' || prop === 'ref' || prop === 'memo' || (!isListenerAttr(prop) && attrs[prop] === undefined)) {
-            continue;
-        }
-        elem.p[prop] = attrs[prop];
-    }
-    if ('slot' in attrs) {
-        if (isFalsySlotElem(elem.c)) {
-            elem.c = [{ t: TEXT_NODE_TYPE, p: '' }];
-        } else if (isString(elem.c)) {
-            elem.c = [{ t: TEXT_NODE_TYPE, p: elem.c }];
-        } else if (!Array.isArray(elem.c)) {
-            elem.c = [elem.c] as Elem[];
-        } else {
-            for (let i = length(elem.c) - 1; i >= 0; i--) {
-                elem.c[i] = normalizeSlotElem(elem.c[i]);
+    deleteObjectProperty(attrs, 'key');
+    deleteObjectProperty(attrs, 'ref');
+    for (let prop in attrs) {
+        if (prop === 'slot') {
+            if (isFalsySlotElem(elem.c)) {
+                elem.c = [createTextElem('')];
+            } else if (isString(elem.c)) {
+                elem.c = [createTextElem(elem.c)];
+            } else if (!Array.isArray(elem.c)) {
+                elem.c = [elem.c] as Elem[];
+            } else {
+                for (let i = length(elem.c) - 1; i >= 0; i--) {
+                    elem.c[i] = normalizeSlotElem(elem.c[i]);
+                }
             }
+        } else if (attrs[prop] !== undefined) {
+            elem.p[prop] = attrs[prop];
         }
     }
     return elem as Elem;
 }
 
 let normalizeSlotElem = (elem: SlotElem): Elem => {
-    if (isFalsySlotElem(elem)) return { t: TEXT_NODE_TYPE, p: '' };
-    if (isString(elem)) return { t: TEXT_NODE_TYPE, p: elem };
+    if (isFalsySlotElem(elem)) return createTextElem('');
+    if (isString(elem)) return createTextElem(elem);
     return elem;
 };
+
+let createTextElem = (p: string) => ({ t: TEXT_NODE_TYPE, p });
 
 let isFalsySlotElem = (elem: any): elem is null | undefined | boolean => elem === undefined || elem === null || elem === false || elem === true;
 
@@ -174,7 +170,7 @@ export let createDom = <T>(elem: Elem<T>, ns?: string | undefined): ChildNode =>
             elem.d = ns ? $document.createElementNS(ns, elem.t) : $document.createElement(elem.t);
             setRef(elem, elem.d);
             for (let attr in elem.p) {
-                setAttr(elem.d as Element, attr, elem.p[attr]);
+                setAttr(elem.d as HTMLElement, attr, elem.p[attr]);
             }
             if (elem.c) {
                 for (let i = 0; i < length(elem.c); i++) {

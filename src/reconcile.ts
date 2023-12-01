@@ -1,5 +1,5 @@
 import { ComponentElem, createDom, Elem, callComponentFunc, TEXT_NODE_TYPE } from './elem';
-import { appendChild, areDepsEqual, insertBefore, isListenerAttr, isString, length, remove, removeAttribute, setCurrent, setRef, truncateElemQ } from './utils';
+import { appendChild, areDepsEqual, deleteObjectProperty, insertBefore, isString, length, remove, removeAttribute, setCurrent, setRef, truncateElemQ } from './utils';
 
 type HTMLElementElem = Elem & { d: HTMLElement };
 
@@ -72,36 +72,24 @@ let reconcileVdomElems = (oldElem: HTMLElementElem, newElem: HTMLElementElem) =>
     reconcileChildren(oldElem, newElem);
 }
 
-export let setAttr = (dom: Element, attr: string, prop: any) => {
-    if (attr == 'style') {
-        for (let styleProp in prop) {
-            // @ts-expect-error
-            dom.style[styleProp] = prop[styleProp];
-        }
+export let setAttr = (dom: HTMLElement, attr: string, prop: any) => {
+    if (attr === 'class') {
+        dom.className = prop;
+    } else if (!attr.indexOf('on')) {
+        // @ts-expect-error
+        dom[attr] = prop;
+    } else if (prop) {
+        dom.setAttribute(attr, prop);
     } else {
-        let isAttrClass = attr === 'class';
-        let setDirectly = isAttrClass || isListenerAttr(attr);
-        if (setDirectly) {
-            if (isAttrClass) {
-                attr = 'className';
-            }
-            // @ts-expect-error
-            dom[attr] = prop;
-        } else {
-            if (prop) {
-                dom.setAttribute(attr, prop);
-            } else {
-                removeAttribute(dom, attr);
-            }
-        }
+        removeAttribute(dom, attr);
     }
 };
 
 let reconcileAttributes = (oldElem: HTMLElementElem, newElem: HTMLElementElem) => {
     for (let attr in newElem.p) {
-        let prop = newElem.p[attr];
-        if (prop !== oldElem.p[attr]) {
-            setAttr(oldElem.d, attr, prop);
+        let newAttrVal = newElem.p[attr];
+        if (newAttrVal !== oldElem.p[attr]) {
+            setAttr(oldElem.d, attr, newAttrVal);
         }
     }
     for (let attr in oldElem.p) {
@@ -177,12 +165,12 @@ let reconcileChildren = (oldElem: HTMLElementElem, newElem: HTMLElementElem) => 
         newLength--;
     }
 
-    let oldMap = new Map<string, Elem>();
+    let oldMap: { [key: string]: Elem<any> } = {};
     for (let i = start; i <= oldLength; i++) {
         let oldChd = oldChn[i];
         let newChd = newChn[i];
         if (oldChd.k && (!newChd || oldChd.k !== newChd.k)) {
-            oldMap.set(oldChd.k, oldChd);
+            oldMap[oldChd.k] = oldChd;
         }
     }
 
@@ -193,9 +181,9 @@ let reconcileChildren = (oldElem: HTMLElementElem, newElem: HTMLElementElem) => 
             continue;
         }
         let currDomNode = oldElem.d.childNodes[start];
-        let oldChd = oldMap.get(newChd.k!);
+        let oldChd = oldMap[newChd.k!];
         if (oldChd) {
-            oldMap.delete(newChd.k!);
+            deleteObjectProperty(oldMap, newChd.k!);
             if (currDomNode !== oldChd.d!) {
                 moveBefore(oldElem.d, newChn, oldChn, start, currDomNode, getDom(oldChd));
             }
@@ -210,8 +198,8 @@ let reconcileChildren = (oldElem: HTMLElementElem, newElem: HTMLElementElem) => 
         moveBefore(oldElem.d, newChn, oldChn, start, currDomNode, createDom(newChd));
     }
 
-    oldMap.forEach(v => {
-        teardown(v);
-        remove(getDom(v));
-    });
+    for (let key in oldMap) {
+        teardown(oldMap[key]);
+        remove(getDom(oldMap[key]));
+    }
 }

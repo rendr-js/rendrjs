@@ -14,7 +14,7 @@ type Lazy = {
 export let lazy: Lazy = <T>(config: LazyConfig<T>): Component<T> => {
     let comp: any = undefined;
     return (props: any) => {
-        const [slot, setSlot] = useState({ val: comp ?? (() => config.fallback) });
+        let [slot, setSlot] = useState({ val: comp ?? (() => config.fallback) });
         useEffect(() => {
             if (!comp) {
                 config.import().then(e => {

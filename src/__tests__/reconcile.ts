@@ -628,7 +628,7 @@ describe('attributes', () => {
             const [margin, setMargin] = useState(10);
             return rendr('p', {
                 slot: 'bar',
-                style: { margin: `${margin}px` },
+                style: `margin: ${margin}px`,
                 onclick: () => setMargin(c => c * 2),
             });
         };

@@ -34,7 +34,7 @@ export interface AtomOptions<T> {
 export let createAtom: CreateAtom = (config: any, options?: any): any => isFunction(config) ? createDerivedAtom(config, options) : createStandardAtom(config, options);
 
 let createStandardAtom = <T>(initialValue: T, options?: AtomOptions<T>): Atom<T> => {
-    const atom: Atom<T> = {
+    let atom: Atom<T> = {
         s: initialValue,
         u: action => {
             let oldState = atom.s;
@@ -53,7 +53,7 @@ let createStandardAtom = <T>(initialValue: T, options?: AtomOptions<T>): Atom<T>
 };
 
 let createDerivedAtom = <T>(derivation: AtomDerivation<T>, options?: AtomOptions<T>): ReadonlyAtom<T> => {
-    const atom: ReadonlyAtom<T> = {
+    let atom: ReadonlyAtom<T> = {
         s: null as T,
         d: derivation,
         r: null as unknown as () => void,
