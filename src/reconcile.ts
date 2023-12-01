@@ -1,5 +1,5 @@
 import { ComponentElem, createDom, Elem, callComponentFunc, TEXT_NODE_TYPE } from './elem';
-import { appendChild, areDepsEqual, deleteObjectProperty, insertBefore, isString, length, remove, removeAttribute, setRefValue, setRef, truncateElemQ, undef } from './utils';
+import { appendChild, areDepsEqual, deleteObjectProperty, insertBefore, isString, length, remove, removeAttribute, setRefValue, setRef, truncateElemQ, undef, forEach } from './utils';
 
 type HTMLElementElem = Elem & { d: HTMLElement };
 
@@ -8,10 +8,10 @@ let teardown = (elem: Elem) => {
     if (elem.v) {
         elem.u = true;
         truncateElemQ(elem);
-        elem.h?.forEach(h => h.t?.());
+        forEach(elem.h, h => h.t?.());
         teardown(elem.v);
     } else {
-        elem.c?.forEach(teardown);
+        forEach(elem.c, teardown);
     }
 }
 

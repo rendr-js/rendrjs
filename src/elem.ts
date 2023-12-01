@@ -1,6 +1,6 @@
 import { current, Ref } from './hooks';
 import { setAttr } from './reconcile';
-import { $document, appendChild, deleteObjectProperty, isString, length, setRef, undef } from './utils';
+import { $document, appendChild, deleteObjectProperty, forEach, isString, length, setRef, undef } from './utils';
 
 export type Component<T> = (props: T) => SlotElem;
 export type ComponentElem<T = any> = Elem<T> & { t: Component<T> };
@@ -166,9 +166,7 @@ export let createDom = <T>(elem: Elem<T>, ns?: string | undefined): ChildNode =>
         for (let attr in elem.p) {
             setAttr(elem.d as HTMLElement, attr, elem.p[attr]);
         }
-        for (let i = 0; i < length(elem.c ?? []); i++) {
-            appendChild(elem.d, createDom(elem.c![i], ns));
-        }
+        forEach(elem.c, c => appendChild(elem.d!, createDom(c, ns)));
     } else {
         elem.v = callComponentFunc(elem as ComponentElem<T>);
         return createDom(elem.v, ns);
