@@ -151,7 +151,7 @@ let normalizeSlotElem = (elem: SlotElem): Elem => {
 
 let createTextElem = (p: string) => ({ t: TEXT_NODE_TYPE, p });
 
-let isFalsySlotElem = (elem: any): elem is null | undefined | boolean => elem === undef || elem === null || elem === false || elem === true;
+let isFalsySlotElem = (elem: any): elem is null | undefined | boolean => !elem || elem === true;
 
 let nameSpacePrefix = 'http://www.w3.org/';
 let nameSpaceMap: { [key: string]: string } = {
@@ -159,24 +159,20 @@ let nameSpaceMap: { [key: string]: string } = {
     math: nameSpacePrefix + '1998/Math/MathML',
 };
 
-let getNameSpace = (elem: Elem & { t: string }): string | undefined => (elem.p && elem.p.xmlns) || nameSpaceMap[elem.t];
+let getNameSpace = (elem: Elem & { t: string }): string | undefined => elem.p?.xmlns || nameSpaceMap[elem.t];
 
 export let createDom = <T>(elem: Elem<T>, ns?: string | undefined): ChildNode => {
-   if (isString(elem.t)) {
-        if (elem.t === TEXT_NODE_TYPE) {
-            elem.d = $document.createTextNode(elem.p as string);
-        } else {
-            ns = getNameSpace(elem as { t: string }) ?? ns;
-            elem.d = ns ? $document.createElementNS(ns, elem.t) : $document.createElement(elem.t);
-            setRef(elem, elem.d);
-            for (let attr in elem.p) {
-                setAttr(elem.d as HTMLElement, attr, elem.p[attr]);
-            }
-            if (elem.c) {
-                for (let i = 0; i < length(elem.c); i++) {
-                    appendChild(elem.d, createDom(elem.c[i], ns));
-                }
-            }
+    if (elem.t === TEXT_NODE_TYPE) {
+        elem.d = $document.createTextNode(elem.p as string);
+    } else if (isString(elem.t)) {
+        ns = getNameSpace(elem as { t: string }) ?? ns;
+        elem.d = ns ? $document.createElementNS(ns, elem.t) : $document.createElement(elem.t);
+        setRef(elem, elem.d);
+        for (let attr in elem.p) {
+            setAttr(elem.d as HTMLElement, attr, elem.p[attr]);
+        }
+        for (let i = 0; i < length(elem.c ?? []); i++) {
+            appendChild(elem.d, createDom(elem.c![i], ns));
         }
     } else {
         elem.v = callComponentFunc(elem as ComponentElem<T>);
