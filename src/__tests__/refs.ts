@@ -8,7 +8,7 @@ describe('refs', () => {
             const ref = useRef('foo');
             return rendr('p', {
                 id: 'foo',
-                slot: ref.current,
+                slot: ref.value,
             });
         };
         const wrapper = mount(rendr(Root));
@@ -23,7 +23,7 @@ describe('refs', () => {
                 id: 'foo',
                 ref,
                 slot: 'bar',
-                onclick: () => ref.current ? ref.current.id = 'baz' : undefined,
+                onclick: () => ref.value ? ref.value.id = 'baz' : undefined,
             });
         };
         const wrapper = mount(rendr(Root));
@@ -41,7 +41,7 @@ describe('refs', () => {
                 ref: hasRef ? ref : undefined,
                 slot: 'bar',
                 onclick: () => {
-                    if (ref.current) ref.current.id += '-';
+                    if (ref.value) ref.value.id += '-';
                     setHasRef(h => !h);
                 },
             });
@@ -66,7 +66,7 @@ describe('refs', () => {
                 ref: hasRef ? ref : undefined,
                 slot,
                 onclick: () => {
-                    setSlot(ref.current ? 'had' : 'had-not');
+                    setSlot(ref.value ? 'had' : 'had-not');
                     setHasRef(h => !h);
                 },
             });
@@ -92,7 +92,7 @@ describe('refs', () => {
                     slot,
                 ],
                 onclick: () => {
-                    setSlot(ref.current ? 'had' : 'had-not');
+                    setSlot(ref.value ? 'had' : 'had-not');
                     setHasRef(h => !h);
                 },
             });
