@@ -34,8 +34,22 @@ export let reconcile = (oldElem: Elem, newElem: Elem): void => {
                 (oldElem.d as Text).data = newElem.p;
             }
         } else {
-            reconcileAttributes(oldElem as HTMLElementElem, newElem as HTMLElementElem);
-            reconcileReference(oldElem, newElem);
+            for (let attr in newElem.p) {
+                let newAttrVal = newElem.p[attr];
+                if (newAttrVal !== oldElem.p[attr]) {
+                    setAttr((oldElem as HTMLElementElem).d, attr, newAttrVal);
+                }
+            }
+            for (let attr in oldElem.p) {
+                if (newElem.p[attr] === undef) {
+                    removeAttribute((oldElem as HTMLElementElem).d, attr);
+                }
+            }
+            if (newElem.r) {
+                setRefValue(newElem.r, oldElem.d);
+            } else {
+                setRef(oldElem, undef);
+            }
             reconcileChildren(oldElem as HTMLElementElem, newElem as HTMLElementElem);
         }
     } else {
@@ -67,28 +81,6 @@ export let setAttr = (dom: HTMLElement, attr: string, prop: any) => {
         removeAttribute(dom, attr);
     }
 };
-
-let reconcileAttributes = (oldElem: HTMLElementElem, newElem: HTMLElementElem) => {
-    for (let attr in newElem.p) {
-        let newAttrVal = newElem.p[attr];
-        if (newAttrVal !== oldElem.p[attr]) {
-            setAttr(oldElem.d, attr, newAttrVal);
-        }
-    }
-    for (let attr in oldElem.p) {
-        if (newElem.p[attr] === undef) {
-            removeAttribute(oldElem.d, attr);
-        }
-    }
-}
-
-let reconcileReference = (oldElem: Elem, newElem: Elem) => {
-    if (newElem.r) {
-        setRefValue(newElem.r, oldElem.d);
-    } else {
-        setRef(oldElem, undef);
-    }
-}
 
 let moveBefore = (parent: ParentNode, newChn: Elem[], oldChn: Elem[], i: number, currDomNode: ChildNode, movingDomNode: ChildNode) => {
     let oldPos = movingDomNode.nextSibling;
