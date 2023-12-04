@@ -20,7 +20,7 @@ export interface MemoRecord {
 export let isUpdater = <T>(value: SetStateAction<T>): value is UpdateStateAction<T> => isFunction(value);
 
 export let useCurrentElem = (): ComponentElem => {
-    if (!current.e) throw illegal('hook use');
+    if (!current.e) throw illegal('hook');
     return current.e;
 };
 
