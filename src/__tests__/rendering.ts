@@ -14,8 +14,14 @@ describe('rendering', () => {
         const Root = () => rendr('p', { class: 'foo' });
         const wrapper = mount(rendr(Root));
         const p = wrapper.find('p')!;
-        console.log(p);
         await waitFor(() => expect(p.className).toBe('foo'));
+    });
+
+    it('aria-hidden', async () => {
+        const Root = () => rendr('p', { class: 'foo', ariaHidden: true });
+        const wrapper = mount(rendr(Root));
+        const p = wrapper.find('p')!;
+        await waitFor(() => expect(p.ariaHidden).toBe(true));
     });
 
     it('style', async () => {
@@ -27,14 +33,14 @@ describe('rendering', () => {
 
     it('conditional', async () => {
         const Root = () => {
-        return rendr('p', {
-            slot: [
-            null && rendr('span', { slot: 'foo' }),
-            undefined && rendr('span', { slot: 'bar' }),
-            false && rendr('span', { slot: 'bat' }),
-            true && rendr('span', { slot: 'baz' }),
-            ],
-        });
+            return rendr('p', {
+                slot: [
+                    null && rendr('span', { slot: 'foo' }),
+                    undefined && rendr('span', { slot: 'bar' }),
+                    false && rendr('span', { slot: 'bat' }),
+                    true && rendr('span', { slot: 'baz' }),
+                ],
+            });
         };
         const wrapper = mount(rendr(Root));
         const p = wrapper.find('p')!;

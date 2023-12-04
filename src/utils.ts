@@ -21,3 +21,4 @@ export let removeAttribute = (e: Element, attr: string) => e.removeAttribute(att
 export let deleteObjectProperty = <T extends { [key: string]: any }, K extends keyof T>(obj: T, property: K) => delete obj[property];
 export let undef = undefined;
 export let forEach = <T>(a: T[] | Set<T> | undefined, fn: (t: T) => any) => a?.forEach(fn);
+export let indexOf = <T>(a: T[] | string, item: any) => a.indexOf(item);
