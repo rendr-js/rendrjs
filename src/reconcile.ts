@@ -97,7 +97,7 @@ let reconcileChildren = (oldElem: HTMLElementElem, newElem: HTMLElementElem) => 
     let oldChn = oldElem.c ?? [];
     let newLength = length(newChn);
     if (!length(newChn)) {
-        oldElem.d.innerText = '';
+        oldElem.d.innerHTML = '';
         forEach(oldChn, teardown);
         return;
     }
