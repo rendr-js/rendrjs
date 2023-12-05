@@ -10,7 +10,7 @@ export let isFunction = (v: any): v is Function => typeOf(v) === 'function';
 export let queueTask = (task: () => void) => queueMicrotask(task);
 export let illegal = (msg: string) => Error(`bad ${msg}`);
 export let length = (arg: string | any[]) => arg.length;
-export let truncateElemQ = (elem: ComponentElem | Elem) => elem.q ? elem.q.length = 0 : undef;
+export let truncate = (v: any[] | undefined) => v ? v.length = 0 : undef;
 export let appendChild = (node: Node, child: Node) => node.appendChild(child);
 export let insertBefore = (parent: Node, ref: Node, child: Node) => parent.insertBefore(child, ref);
 export let getRefValue = <T>(ref: Ref<T>): T => ref.value;
