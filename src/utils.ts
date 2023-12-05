@@ -8,7 +8,7 @@ export let typeOf = (a: any): string => typeof a;
 export let isString = (v: any): v is string => typeOf(v) === 'string';
 export let isFunction = (v: any): v is Function => typeOf(v) === 'function';
 export let queueTask = (task: () => void) => queueMicrotask(task);
-export let illegal = (msg: string) => Error(`bad ${msg}`);
+export let illegal = (msg: string) => `bad ${msg}`;
 export let length = (arg: string | any[]) => arg.length;
 export let truncate = (v: any[] | undefined) => v ? v.length = 0 : undef;
 export let appendChild = (node: Node, child: Node) => node.appendChild(child);
