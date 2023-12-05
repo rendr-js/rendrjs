@@ -1,7 +1,7 @@
 import { Atom, ReadonlyAtom } from './atom';
 import { ComponentElem, Elem, callComponentFunc } from './elem';
-import { reconcile } from './reconcile';
-import { areDepsEqual, getRefValue, illegal, isFunction, length, queueTask, setRefValue, setRef, truncateElemQ, undef, STATIC_EMPTY_ARRAY } from './utils';
+import { reconcile, returnObj } from './reconcile';
+import { areDepsEqual, getRefValue, illegal, isFunction, length, queueTask, setRefValue, setRef, truncateElemQ, undef, STATIC_EMPTY_ARRAY, forEach } from './utils';
 
 export type UpdateStateAction<S> = (state: S) => S;
 export type SetStateAction<S> = S | UpdateStateAction<S>;
@@ -125,6 +125,7 @@ export let useRef = <T>(initialValue: T): Ref<T> => useMemo<Ref<T>>(() => ({ val
 let flush = (elem: Elem) => {
     let tip = elem.q?.pop();
     if (tip) {
+        forEach(elem.q, e => e.s ? undef : returnObj(e));
         truncateElemQ(elem);
         reconcile(elem.v!, tip);
         elem.v = tip;

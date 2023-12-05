@@ -61,6 +61,9 @@ export let reconcile = (oldElem: Elem, newElem: Elem): void => {
             callComponentFuncAndReconcile(oldElem as ComponentElem, newElem as ComponentElem);
         }
     }
+    if (!oldElem.s) {
+        returnObj(oldElem);
+    }
 }
 
 export let callComponentFuncAndReconcile = (oldElem: ComponentElem, newElem: ComponentElem) => {
@@ -91,6 +94,20 @@ let moveBefore = (parent: ParentNode, newChn: Elem[], oldChn: Elem[], i: number,
         }
     }
 }
+
+type ChilrenMap = { [key: string]: Elem<any> };
+let objStore: any[] = [];
+export let getObj = (): any => {
+    let tip = objStore.pop();
+    if (tip) return tip;
+    return {};
+};
+export let returnObj = (map: any): void => {
+    for (let key in map) {
+        deleteObjectProperty(map, key as keyof typeof map);
+    }
+    objStore.push(map);
+};
 
 let reconcileChildren = (oldElem: HTMLElementElem, newElem: HTMLElementElem) => {
     let newChn = newElem.c ?? STATIC_EMPTY_ARRAY;
@@ -142,7 +159,7 @@ let reconcileChildren = (oldElem: HTMLElementElem, newElem: HTMLElementElem) => 
         newLength--;
     }
 
-    let oldMap: { [key: string]: Elem<any> } = {};
+    let oldMap = getObj() as ChilrenMap;
     for (let i = start; i <= oldLength; i++) {
         let oldChd = oldChn[i];
         let newChd = newChn[i];
@@ -179,4 +196,5 @@ let reconcileChildren = (oldElem: HTMLElementElem, newElem: HTMLElementElem) => 
         remove(getDom(oldMap[key]));
         teardown(oldMap[key]);
     }
+    returnObj(oldMap);
 }

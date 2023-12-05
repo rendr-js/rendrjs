@@ -1,5 +1,5 @@
 import { current, Ref } from './hooks';
-import { setAttr } from './reconcile';
+import { getObj, setAttr } from './reconcile';
 import { $document, appendChild, deleteObjectProperty, forEach, isString, length, setRef, undef } from './utils';
 
 export type Component<T> = (props: T) => SlotElem;
@@ -17,6 +17,7 @@ export interface Elem<T = any> {
     d?: ChildNode // dom
     c?: Elem[] // children
     u?: boolean // unmounted
+    s?: boolean // singleton
 
     // component data
     v?: Elem // virtual dom
@@ -44,12 +45,22 @@ type RendrComponent = {
     (ty: Component<void>, props?: { key?: string, memo?: any[] }): Elem<void>
 };
 
-export let component: RendrComponent = (ty: any, props?: any): any => ({
-    t: ty,
-    p: props,
-    k: props?.key,
-    m: props?.memo,
-});
+// export let component: RendrComponent = (ty: any, props?: any): any => ({
+//     t: ty,
+//     p: props,
+//     k: props?.key,
+//     m: props?.memo,
+// });
+
+export let component: RendrComponent = (ty: any, props?: any): any => {
+    let elem = getObj();
+    elem.s = current.e === undef;
+    elem.t = ty;
+    elem.p = props;
+    elem.k = props?.key;
+    elem.m = props?.memo;
+    return elem;
+};
 
 export let callComponentFunc = <T>(elem: ComponentElem<T>): Elem => {
     let prev = current.e;
@@ -109,7 +120,9 @@ export type SVGElementAttributes<Tag extends string & keyof SVGElementTagNameMap
     NarrowedSVGEventHandler<'click', Tag, 'currentTarget'>;
 
 let element = <Tag extends keyof HTMLElementTagNameMap | keyof SVGElementTagNameMap, Attrs extends RendrAttributes = Tag extends keyof HTMLElementTagNameMap ? HTMLElementAttributes<Tag> : Tag extends keyof SVGElementTagNameMap ? SVGElementAttributes<Tag> : never>(ty: Tag, attrs?: Attrs): Elem<Tag> => {
-    let elem: Elem = { t: ty };
+    let elem: Elem = getObj();
+    elem.t = ty;
+    elem.s = current.e === undef;
     if (!attrs) {
         return elem;
     }
