@@ -113,27 +113,24 @@ let element = <Tag extends keyof HTMLElementTagNameMap | keyof SVGElementTagName
     if (!attrs) {
         return elem;
     }
-    elem.p = {} as { [key: string]: any };
+    elem.p = attrs;
     elem.k = attrs.key;
     elem.c = attrs.slot as Elem[];
     elem.r = attrs.ref;
     deleteObjectProperty(attrs, 'key');
     deleteObjectProperty(attrs, 'ref');
-    for (let prop in attrs) {
-        if (prop === 'slot') {
-            if (isFalsySlotElem(elem.c)) {
-                elem.c = [createTextElem('')];
-            } else if (isString(elem.c)) {
-                elem.c = [createTextElem(elem.c)];
-            } else if (!Array.isArray(elem.c)) {
-                elem.c = [elem.c] as Elem[];
-            } else {
-                for (let i = length(elem.c) - 1; i >= 0; i--) {
-                    elem.c[i] = normalizeSlotElem(elem.c[i]);
-                }
+    deleteObjectProperty(attrs, 'slot');
+    if (elem.c !== undef) {
+        if (isFalsySlotElem(elem.c)) {
+            elem.c = [createTextElem('')];
+        } else if (isString(elem.c)) {
+            elem.c = [createTextElem(elem.c)];
+        } else if (!Array.isArray(elem.c)) {
+            elem.c = [elem.c] as Elem[];
+        } else {
+            for (let i = length(elem.c) - 1; i >= 0; i--) {
+                elem.c[i] = normalizeSlotElem(elem.c[i]);
             }
-        } else if (attrs[prop] !== undef) {
-            elem.p[prop] = attrs[prop];
         }
     }
     return elem as Elem;
