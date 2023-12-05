@@ -95,9 +95,14 @@ let moveBefore = (parent: ParentNode, newChn: Elem[], oldChn: Elem[], i: number,
 let reconcileChildren = (oldElem: HTMLElementElem, newElem: HTMLElementElem) => {
     let newChn = newElem.c ?? [];
     let oldChn = oldElem.c ?? [];
+    let newLength = length(newChn);
+    if (!length(newChn)) {
+        oldElem.d.innerHTML = '';
+        forEach(oldChn, teardown);
+        return;
+    }
     let start = 0;
     let oldLength = length(oldChn);
-    let newLength = length(newChn);
     
     // prefix
     for (
@@ -112,11 +117,10 @@ let reconcileChildren = (oldElem: HTMLElementElem, newElem: HTMLElementElem) => 
         reconcile(oldChd, newChd);
         start++;
     }
-
     if (start >= newLength) {
         for (let i = start; i < oldLength; i++) {
-            teardown(oldChn[i]);
             remove(getDom(oldChn[i]));
+            teardown(oldChn[i]);
         }
         return;
     }
@@ -172,7 +176,7 @@ let reconcileChildren = (oldElem: HTMLElementElem, newElem: HTMLElementElem) => 
     }
 
     for (let key in oldMap) {
-        teardown(oldMap[key]);
         remove(getDom(oldMap[key]));
+        teardown(oldMap[key]);
     }
 }

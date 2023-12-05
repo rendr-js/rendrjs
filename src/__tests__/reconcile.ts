@@ -52,6 +52,21 @@ describe('slot: non-keyed', () => {
         await waitFor(() => expect(p.textContent).toBe(''));
     });
 
+    it('remove: all', async () => {
+        const Root = () => {
+            const [slot, setSlot] = useState<string[]>(['0', '1', '2']);
+            return rendr('p', {
+                onclick: () => setSlot([]),
+                slot,
+            });
+        };
+        const wrapper = mount(rendr(Root));
+        const p = wrapper.find('p')!;
+        await waitFor(() => expect(p.textContent).toBe('012'));
+        p.click();
+        await waitFor(() => expect(p.textContent).toBe(''));
+    });
+
     it('remove: front', async () => {
         const Root = () => {
             const [slot, setSlot] = useState<string[]>(['0', '1']);
