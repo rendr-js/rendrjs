@@ -1,7 +1,7 @@
 import { Atom, ReadonlyAtom } from './atom';
 import { ComponentElem, Elem, callComponentFunc } from './elem';
 import { reconcile } from './reconcile';
-import { areDepsEqual, getRefValue, illegal, isFunction, length, queueTask, setRefValue, setRef, truncateElemQ, undef } from './utils';
+import { areDepsEqual, getRefValue, illegal, isFunction, length, queueTask, setRefValue, setRef, truncateElemQ, undef, STATIC_EMPTY_ARRAY } from './utils';
 
 export type UpdateStateAction<S> = (state: S) => S;
 export type SetStateAction<S> = S | UpdateStateAction<S>;
@@ -47,7 +47,7 @@ export let useState = <S>(initialValue: S): [S, Dispatch<SetStateAction<S>>] => 
             elem.q!.push(callComponentFunc(elem));
             queueTask(() => flush(elem));
         }
-    }, []);
+    }, STATIC_EMPTY_ARRAY);
     return [states[cursor], setState];
 };
 
@@ -120,7 +120,7 @@ export interface Ref<T = any> {
     value: T
 }
 
-export let useRef = <T>(initialValue: T): Ref<T> => useMemo<Ref<T>>(() => ({ value: initialValue }), []);
+export let useRef = <T>(initialValue: T): Ref<T> => useMemo<Ref<T>>(() => ({ value: initialValue }), STATIC_EMPTY_ARRAY);
 
 let flush = (elem: Elem) => {
     let tip = elem.q?.pop();

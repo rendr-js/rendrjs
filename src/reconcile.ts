@@ -1,5 +1,5 @@
 import { ComponentElem, createDom, Elem, callComponentFunc, TEXT_NODE_TYPE } from './elem';
-import { appendChild, areDepsEqual, deleteObjectProperty, insertBefore, isString, length, remove, removeAttribute, setRefValue, setRef, truncateElemQ, undef, forEach, indexOf } from './utils';
+import { appendChild, areDepsEqual, deleteObjectProperty, insertBefore, isString, length, remove, removeAttribute, setRefValue, setRef, truncateElemQ, undef, forEach, indexOf, STATIC_EMPTY_ARRAY } from './utils';
 
 type HTMLElementElem = Elem & { d: HTMLElement };
 
@@ -93,8 +93,8 @@ let moveBefore = (parent: ParentNode, newChn: Elem[], oldChn: Elem[], i: number,
 }
 
 let reconcileChildren = (oldElem: HTMLElementElem, newElem: HTMLElementElem) => {
-    let newChn = newElem.c ?? [];
-    let oldChn = oldElem.c ?? [];
+    let newChn = newElem.c ?? STATIC_EMPTY_ARRAY;
+    let oldChn = oldElem.c ?? STATIC_EMPTY_ARRAY;
     let newLength = length(newChn);
     let oldLength = length(oldChn);
     if (newLength === 0 && oldLength > 0) {

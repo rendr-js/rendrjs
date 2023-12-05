@@ -1,6 +1,6 @@
 import { useEffect, useState } from './hooks';
 import { Component, SlotElem, component } from './elem';
-import { undef } from './utils';
+import { STATIC_EMPTY_ARRAY, undef } from './utils';
 
 export interface LazyConfig<T> {
     import: () => Promise<{ default: Component<T> }>
@@ -23,7 +23,7 @@ export let lazy: Lazy = <T>(config: LazyConfig<T>): Component<T> => {
                     comp = e.default;
                 });
             }
-        }, []);
+        }, STATIC_EMPTY_ARRAY);
         return component(slot.val, props);
     };
 };

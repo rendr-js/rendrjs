@@ -22,3 +22,4 @@ export let deleteObjectProperty = <T extends { [key: string]: any }, K extends k
 export let undef = undefined;
 export let forEach = <T>(a: T[] | Set<T> | undefined, fn: (t: T) => any) => a?.forEach(fn);
 export let indexOf = <T>(a: T[] | string, item: any) => a.indexOf(item);
+export let STATIC_EMPTY_ARRAY = [];
