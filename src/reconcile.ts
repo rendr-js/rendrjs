@@ -96,13 +96,13 @@ let reconcileChildren = (oldElem: HTMLElementElem, newElem: HTMLElementElem) => 
     let newChn = newElem.c ?? [];
     let oldChn = oldElem.c ?? [];
     let newLength = length(newChn);
-    if (!length(newChn)) {
+    let oldLength = length(oldChn);
+    if (newLength === 0 && oldLength > 0) {
         oldElem.d.innerHTML = '';
         forEach(oldChn, teardown);
         return;
     }
     let start = 0;
-    let oldLength = length(oldChn);
     
     // prefix
     for (
