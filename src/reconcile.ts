@@ -8,7 +8,7 @@ let teardown = (elem: Elem) => {
     if (elem.v) {
         elem.u = true;
         truncate(elem.q);
-        forEach(elem.h, h => h.t?.());
+        forEach(elem.h, h => h?.t?.());
         teardown(elem.v);
     } else {
         forEach(elem.c, teardown);

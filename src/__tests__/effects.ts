@@ -27,6 +27,31 @@ describe('effects', () => {
         await waitFor(() => expect(td).toHaveBeenCalledOnce());
     });
 
+    it('doesn\'t throw in teardown if state is null', async () => {
+        const td = vi.fn();
+        const effect = vi.fn();
+        const Child = () => {
+            useState(null);
+            useEffect(() => {
+                effect();
+                return td;
+            }, []);
+            return rendr('span', { slot: 'span' });
+        };
+        const Root = () => {
+            const [ty, setTy] = useState('comp');
+            return rendr('p', {
+                onclick: () => setTy(t => t === 'comp' ? 'string' : 'comp'),
+                slot: ty === 'comp' ? rendr(Child) : 'bar',
+            });
+        };
+        const wrapper = mount(rendr(Root));
+        const p = wrapper.find('p')!;
+        await waitFor(() => expect(effect).toHaveBeenCalledOnce());
+        p.click();
+        await waitFor(() => expect(td).toHaveBeenCalledOnce());
+    });
+
     it('runs no-dep effect only once', async () => {
         const effect = vi.fn();
         const Root = () => {
@@ -58,65 +83,6 @@ describe('effects', () => {
         mount(rendr(Root));
     });
 
-    // it('can set state in effect when effect is caused by multiple upstream set states', async () => {
-    //     const showAtom = createAtom(false);
-    //     const Child = ({ bar }: { bar: string }) => {
-    //         const [foo, setFoo] = useState('bar');
-    //         useEffect(() => {
-    //             setFoo(bar);
-    //         }, [foo]);
-    //         return rendr('p', { slot: foo });
-    //     };
-    //     const Root = () => {
-    //         const [show, setShow] = useState(false);
-    //         const [show2, setShow2] = useAtom(showAtom);
-
-    //         const handleClick = () => {
-    //             // TODO: we need more than one queue that includes the reconciliation,
-    //             // probably use an atom
-    //             setShow2(true);
-    //             setTimeout(() => {
-    //                 setShow(true);
-    //                 setShow2(false);
-    //                 setShow(false);
-    //                 // setShow(true);
-    //                 // setShow2(true);
-    //             });
-    //             setTimeout(() => {
-    //                 // setShow2(true);
-    //                 // setShow(false);
-    //                 // setShow2(false);
-    //                 setShow2(true);
-    //                 setShow(true);
-    //             });
-    //             // setTimeout(() => {
-    //             //     setShow(false);
-    //             //     setTimeout(() => {
-    //             //         setShow(true);
-    //             //     });
-    //             // });
-    //             // setShow(false);
-    //         };
-
-    //         if (!show || !show2) {
-    //             console.log('Root(); no show');
-    //             return rendr('p', { slot: 'none', onclick: handleClick });
-    //         }
-
-    //         console.log('Root(); show');
-    //         return rendr('div', {
-    //             slot: [
-    //                 rendr('p', { slot: 'none' }),
-    //                 rendr(Child, { bar: `${show}` }),
-    //             ],
-    //         });
-    //     };
-    //     const wrapper = mount(rendr(Root));
-    //     wrapper.find('p')!.click();
-    //     await wait(10);
-    //     expect(wrapper.find('div')!.textContent).toBe('nonetrue');
-    // });
-    
     it('throws error when used outside of component render function', async () => {
         const fail = vi.fn();
         try {
