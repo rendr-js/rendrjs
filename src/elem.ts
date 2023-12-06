@@ -26,25 +26,25 @@ export interface Elem<T = any> {
     m?: any[] // memo
 }
 
-type Rendr = {
-    <Tag extends keyof HTMLElementTagNameMap | keyof SVGElementTagNameMap, Attrs extends RendrAttributes = Tag extends keyof HTMLElementTagNameMap ? HTMLElementAttributes<Tag> : Tag extends keyof SVGElementTagNameMap ? SVGElementAttributes<Tag> : never>(ty: Tag, attrs?: Attrs): Elem<Tag>
-    <T extends { [key: string]: any }>(ty: Component<T>, props: T & { key?: string, memo?: any[] }): ComponentElem<T>
-    (ty: Component<void>, props?: { key?: string, memo?: any[] }): ComponentElem<void>
-};
+// export type Rendr = {
+//     <Tag extends keyof HTMLElementTagNameMap | keyof SVGElementTagNameMap, Attrs extends RendrAttributes = Tag extends keyof HTMLElementTagNameMap ? HTMLElementAttributes<Tag> : Tag extends keyof SVGElementTagNameMap ? SVGElementAttributes<Tag> : never>(ty: Tag, attrs?: Attrs): Elem<Tag>
+//     <T extends { [key: string]: any }>(ty: Component<T>, props: T & { key?: string, memo?: any[] }): ComponentElem<T>
+//     (ty: Component<void>, props?: { key?: string, memo?: any[] }): ComponentElem<void>
+// };
 
-export let rendr: Rendr = (ty: any, props?: any): any => {
-    if (isString(ty)) {
-        return element(ty as keyof HTMLElementTagNameMap | keyof SVGElementTagNameMap, props);
-    }
-    return component(ty, props);
-};
+// export let rendr: Rendr = (ty: any, props?: any): any => {
+//     if (isString(ty)) {
+//         return element(ty as keyof HTMLElementTagNameMap | keyof SVGElementTagNameMap, props);
+//     }
+//     return component(ty, props);
+// };
 
 type RendrComponent = {
     <T extends { [key: string]: any }>(ty: Component<T>, props: T & { key?: string, memo?: any[] }): Elem<T>
     (ty: Component<void>, props?: { key?: string, memo?: any[] }): Elem<void>
 };
 
-export let component: RendrComponent = (ty: any, props?: any): any => ({
+export let rendr: RendrComponent = (ty: any, props?: any): any => ({
     t: ty,
     p: props,
     k: props?.key,
@@ -108,7 +108,7 @@ export type SVGElementAttributes<Tag extends string & keyof SVGElementTagNameMap
     { style?: CSSStyleDeclaration | string, class?: string, slot?: Slot, ref?: Ref, key?: string } &
     NarrowedSVGEventHandler<'click', Tag, 'currentTarget'>;
 
-let element = <Tag extends keyof HTMLElementTagNameMap | keyof SVGElementTagNameMap, Attrs extends RendrAttributes = Tag extends keyof HTMLElementTagNameMap ? HTMLElementAttributes<Tag> : Tag extends keyof SVGElementTagNameMap ? SVGElementAttributes<Tag> : never>(ty: Tag, attrs?: Attrs): Elem<Tag> => {
+export let element = <Tag extends keyof HTMLElementTagNameMap | keyof SVGElementTagNameMap, Attrs extends RendrAttributes = Tag extends keyof HTMLElementTagNameMap ? HTMLElementAttributes<Tag> : Tag extends keyof SVGElementTagNameMap ? SVGElementAttributes<Tag> : never>(ty: Tag, attrs?: Attrs): Elem<Tag> => {
     let elem: Elem = { t: ty };
     if (!attrs) {
         return elem;

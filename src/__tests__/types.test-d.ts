@@ -1,10 +1,10 @@
-import { createAtom, lazy, rendr, useAtom } from '..';
+import { createAtom, lazy, rendr, useAtom, div, p, input, button } from '..';
 import { describe, it } from 'vitest';
 
 describe('types', () => {
     it('event listeners', () => {
-        rendr('input', { style: { margin: '10px' }, oninput: e => console.log(e.target.value), slot: 'bar' });
-        rendr('button', { style: { margin: '10px' }, onclick: e => console.log(e.currentTarget.id), slot: 'bar' });
+        input({ style: { margin: '10px' }, oninput: e => console.log(e.target.value), slot: 'bar' });
+        button({ style: { margin: '10px' }, onclick: e => console.log(e.currentTarget.id), slot: 'bar' });
     });
 
 
@@ -32,10 +32,10 @@ describe('types', () => {
         // @ts-expect-error
         rendr(Foo, {});
 
-        const Child = () => rendr('div', { slot: 'foo', onclick, id: 'foo' });
+        const Child = () => div({ slot: 'foo', onclick, id: 'foo' });
         const LazyChild = lazy({
             import: () => new Promise<{ default: typeof Child}>(r => setTimeout(() => r({ default: Child }), 10)),
-            fallback: rendr('p', { slot: 'loading' }),
+            fallback: p({ slot: 'loading' }),
         });
 
         rendr(LazyChild);
@@ -43,7 +43,7 @@ describe('types', () => {
         // @ts-expect-error
         rendr(LazyChild, { foo: 'asdf' });
 
-        rendr('div', {
+        div({
             contentEditable: true,
             oninput: e => console.log(e.target.innerText),
             slot: 'hi',

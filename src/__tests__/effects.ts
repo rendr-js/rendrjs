@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { useState, rendr, useEffect, useDeferredEffect, createAtom, useAtom } from '..';
+import { useState, rendr, useEffect, useDeferredEffect, createAtom, useAtom, span, p } from '..';
 import { waitFor, mount, wait } from './utils';
 
 describe('effects', () => {
@@ -11,19 +11,19 @@ describe('effects', () => {
                 effect();
                 return td;
             }, []);
-            return rendr('span', { slot: 'span' });
+            return span({ slot: 'span' });
         };
         const Root = () => {
             const [ty, setTy] = useState('comp');
-            return rendr('p', {
+            return p({
                 onclick: () => setTy(t => t === 'comp' ? 'string' : 'comp'),
                 slot: ty === 'comp' ? rendr(Child) : 'bar',
             });
         };
         const wrapper = mount(rendr(Root));
-        const p = wrapper.find('p')!;
+        const para = wrapper.find('p')!;
         await waitFor(() => expect(effect).toHaveBeenCalledOnce());
-        p.click();
+        para.click();
         await waitFor(() => expect(td).toHaveBeenCalledOnce());
     });
 
@@ -36,19 +36,19 @@ describe('effects', () => {
                 effect();
                 return td;
             }, []);
-            return rendr('span', { slot: 'span' });
+            return span({ slot: 'span' });
         };
         const Root = () => {
             const [ty, setTy] = useState('comp');
-            return rendr('p', {
+            return p({
                 onclick: () => setTy(t => t === 'comp' ? 'string' : 'comp'),
                 slot: ty === 'comp' ? rendr(Child) : 'bar',
             });
         };
         const wrapper = mount(rendr(Root));
-        const p = wrapper.find('p')!;
+        const para = wrapper.find('p')!;
         await waitFor(() => expect(effect).toHaveBeenCalledOnce());
-        p.click();
+        para.click();
         await waitFor(() => expect(td).toHaveBeenCalledOnce());
     });
 
@@ -57,14 +57,14 @@ describe('effects', () => {
         const Root = () => {
             const [slot, setSlot] = useState('foo');
             useEffect(effect, []);
-            return rendr('p', {
+            return p({
                 onclick: () => setSlot(s => s + '-'),
                 slot,
             });
         };
         const wrapper = mount(rendr(Root));
-        const p = wrapper.find('p')!;
-        p.click();
+        const para = wrapper.find('p')!;
+        para.click();
         await wait(10);
         expect(effect).toHaveBeenCalledOnce();
     });
@@ -78,7 +78,7 @@ describe('effects', () => {
 
         const Root = () => {
             useFoo();
-            return rendr('p');
+            return p();
         };
         mount(rendr(Root));
     });
@@ -102,15 +102,15 @@ describe('effects', () => {
                 deps.push(i);
             }
             useEffect(effect, deps);
-            return rendr('p', {
+            return p({
                 onclick: () => setCnt(c => c + 1),
                 slot: 'foo',
             });
         };
         const wrapper = mount(rendr(Root));
-        const p = wrapper.find('p')!;
+        const para = wrapper.find('p')!;
         await waitFor(() => expect(effect).toHaveBeenCalledOnce());
-        p.click();
+        para.click();
         await waitFor(() => expect(effect).toHaveBeenCalledTimes(2));
     });
 
@@ -123,15 +123,15 @@ describe('effects', () => {
                 deps.push(i);
             }
             useEffect(effect, deps);
-            return rendr('p', {
+            return p({
                 onclick: () => setCnt(c => c - 1),
                 slot: 'foo',
             });
         };
         const wrapper = mount(rendr(Root));
-        const p = wrapper.find('p')!;
+        const para = wrapper.find('p')!;
         await waitFor(() => expect(effect).toHaveBeenCalledOnce());
-        p.click();
+        para.click();
         await waitFor(() => expect(effect).toHaveBeenCalledTimes(2));
     });
 
@@ -144,15 +144,15 @@ describe('effects', () => {
                 effect();
                 return td;
             }, [cnt]);
-            return rendr('p', {
+            return p({
                 onclick: () => setCnt(c => c + 1),
                 slot: 'foo',
             });
         };
         const wrapper = mount(rendr(Root));
-        const p = wrapper.find('p')!;
+        const para = wrapper.find('p')!;
         await waitFor(() => expect(effect).toHaveBeenCalledOnce());
-        p.click();
+        para.click();
         await waitFor(() => expect(td).toHaveBeenCalledOnce());
         await waitFor(() => expect(effect).toHaveBeenCalledTimes(2));
     });
@@ -162,18 +162,18 @@ describe('effects', () => {
         const Root = () => {
             const [slot, setSlot] = useState('foo');
             useDeferredEffect(effect, [slot]);
-            return rendr('p', {
+            return p({
                 onclick: () => setSlot(s => s + '-'),
                 slot,
             });
         };
         const wrapper = mount(rendr(Root));
-        const p = wrapper.find('p')!;
+        const para = wrapper.find('p')!;
         expect(effect).not.toHaveBeenCalled();
-        p.click();
+        para.click();
         await wait(10);
         expect(effect).toHaveBeenCalledTimes(1);
-        p.click();
+        para.click();
         await wait(10);
         expect(effect).toHaveBeenCalledTimes(2);
     });

@@ -35,3 +35,4 @@ export {
     LazyConfig,
     lazy,
 } from './lazy';
+export * from './tags';

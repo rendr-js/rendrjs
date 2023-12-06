@@ -1,16 +1,16 @@
 import { describe, it, expect, vi } from 'vitest';
-import { useState, rendr, useMemo } from '..';
+import { useState, rendr, useMemo, p } from '..';
 import { mount, wait } from './utils';
 
 describe('refs', () => {
     it('initializes memo correctly', () => {
         const Root = () => {
         const slot = useMemo(() => 'foo', []);
-            return rendr('p', { slot });
+            return p({ slot });
         };
         const wrapper = mount(rendr(Root));
-        const p = wrapper.find('p')!;
-        expect(p.textContent).toBe('foo');
+        const para = wrapper.find('p')!;
+        expect(para.textContent).toBe('foo');
     });
     
     it('initializes memo only once with no deps', async () => {
@@ -18,14 +18,14 @@ describe('refs', () => {
         const Root = () => {
             const [, set] = useState(0);
             const slot = useMemo(memo, []);
-            return rendr('p', {
+            return p({
                 slot,
                 onclick: () => set(v => v + 1),
             });
         };
         const wrapper = mount(rendr(Root));
-        const p = wrapper.find('p')!;
-        p.click();
+        const para = wrapper.find('p')!;
+        para.click();
         await wait(10);
         expect(memo).toHaveBeenCalledOnce();
     });
@@ -35,15 +35,15 @@ describe('refs', () => {
       const Root = () => {
           const [cnt, setCnt] = useState(0);
           const slot = useMemo(memo, [cnt]);
-          return rendr('p', {
+          return p({
               slot,
               onclick: () => setCnt(v => v + 1),
           });
       };
       const wrapper = mount(rendr(Root));
-      const p = wrapper.find('p')!;
+      const para = wrapper.find('p')!;
       expect(memo).toHaveBeenCalledOnce();
-      p.click();
+      para.click();
       await wait(10);
       expect(memo).toHaveBeenCalledTimes(2);
   });

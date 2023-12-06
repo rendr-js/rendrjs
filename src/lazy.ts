@@ -1,5 +1,5 @@
 import { useEffect, useState } from './hooks';
-import { Component, SlotElem, component } from './elem';
+import { Component, SlotElem, rendr } from './elem';
 import { STATIC_EMPTY_ARRAY, undef } from './utils';
 
 export interface LazyConfig<T> {
@@ -24,6 +24,6 @@ export let lazy: Lazy = <T>(config: LazyConfig<T>): Component<T> => {
                 });
             }
         }, STATIC_EMPTY_ARRAY);
-        return component(slot.val, props);
+        return rendr(slot.val, props);
     };
 };
