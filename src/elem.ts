@@ -94,7 +94,7 @@ export type CSSProperties = Partial<CSSStyleDeclaration> & Record<string, string
 
 type BooleanValueHTMLElementAttributes = 'contentEditable';
 
-type RendrAttributes = object & { slot?: Slot, ref?: Ref, key?: string };
+export type RendrAttributes = object & { slot?: Slot, ref?: Ref, key?: string };
 
 export type HTMLElementAttributes<Tag extends string & keyof HTMLElementTagNameMap> =
     Omit<Partial<HTMLElementTagNameMap[Tag]>, BooleanValueHTMLElementAttributes | 'style' | 'slot' | 'onclick' | 'oninput' | 'className'> &

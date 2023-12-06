@@ -17,6 +17,13 @@ describe('rendering', () => {
         await waitFor(() => expect(para.className).toBe('foo'));
     });
 
+    it('class undefined', async () => {
+        const Root = () => p({ class: undefined });
+        const wrapper = mount(rendr(Root));
+        const para = wrapper.find('p')!;
+        await waitFor(() => expect(para.className).toBe(''));
+    });
+
     it('aria-hidden', async () => {
         const Root = () => p({ class: 'foo', ariaHidden: true });
         const wrapper = mount(rendr(Root));
