@@ -35,9 +35,8 @@ export let reconcile = (oldElem: Elem, newElem: Elem): void => {
             }
         } else {
             for (let attr in newElem.p) {
-                let newAttrVal = newElem.p[attr];
-                if (newAttrVal !== oldElem.p[attr]) {
-                    setAttr((oldElem as HTMLElementElem).d, attr, newAttrVal);
+                if (newElem.p[attr] !== oldElem.p[attr]) {
+                    setAttr((oldElem as HTMLElementElem).d, attr, newElem.p[attr]);
                 }
             }
             for (let attr in oldElem.p) {
