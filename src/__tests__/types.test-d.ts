@@ -3,8 +3,8 @@ import { describe, it } from 'vitest';
 
 describe('types', () => {
     it('event listeners', () => {
-        input({ style: { margin: '10px' }, oninput: e => console.log(e.target.value), slot: 'bar' });
-        button({ style: { margin: '10px' }, onclick: e => console.log(e.currentTarget.id), slot: 'bar' });
+        input({ style: 'margin: 10px', oninput: e => console.log(e.target.value), slot: 'bar' });
+        button({ style: 'margin: 10px', onclick: e => console.log(e.currentTarget.id), slot: 'bar' });
     });
 
 
