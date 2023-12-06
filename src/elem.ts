@@ -108,7 +108,7 @@ export type SVGElementAttributes<Tag extends string & keyof SVGElementTagNameMap
     { style?: CSSStyleDeclaration | string, class?: string, slot?: Slot, ref?: Ref, key?: string } &
     NarrowedSVGEventHandler<'click', Tag, 'currentTarget'>;
 
-let element = <Tag extends keyof HTMLElementTagNameMap | keyof SVGElementTagNameMap, Attrs extends RendrAttributes = Tag extends keyof HTMLElementTagNameMap ? HTMLElementAttributes<Tag> : Tag extends keyof SVGElementTagNameMap ? SVGElementAttributes<Tag> : never>(ty: Tag, attrs?: Attrs): Elem<Tag> => {
+export let element = <Tag extends keyof HTMLElementTagNameMap | keyof SVGElementTagNameMap, Attrs extends RendrAttributes = Tag extends keyof HTMLElementTagNameMap ? HTMLElementAttributes<Tag> : Tag extends keyof SVGElementTagNameMap ? SVGElementAttributes<Tag> : never>(ty: Tag, attrs?: Attrs): Elem<Tag> => {
     let elem: Elem = { t: ty };
     if (!attrs) {
         return elem;
