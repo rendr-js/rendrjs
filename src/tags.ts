@@ -1,7 +1,12 @@
 import { element } from './elem';
 
-let tag = (tag: Parameters<typeof element>[0]) => (attrs: Parameters<typeof element>[1]) => element(tag, attrs);
+let tag = (tag: Parameters<typeof element>[0]) => (attrs?: any): ReturnType<typeof element> => element(tag, attrs);
 
+// SVG Elements
+export let svg = tag('svg');
+export let rect = tag('rect');
+
+// HTML elements
 export let a = tag('a');
 export let b = tag('b');
 export let i = tag('i');

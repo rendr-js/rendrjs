@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { rendr, useEffect, createAtom, useAtomValue, useAtomSetter, useAtom } from '..';
+import { rendr, useEffect, createAtom, useAtomValue, useAtomSetter, useAtom, button, p, div, span } from '..';
 import { waitFor, mount, wait } from './utils';
 import { useAtomSelector } from '../hooks';
 
@@ -8,40 +8,40 @@ describe('standard', () => {
         const atom = createAtom('foo');
         const Message = () => {
             const msg = useAtomValue(atom);
-            return rendr('p', { slot: msg });
+            return p({ slot: msg });
         };
         const Button = () => {
             const setMsg = useAtomSetter(atom);
-            return rendr('button', {
+            return button({
                 slot: 'bar',
                 onclick: () => setMsg(s => s + '!'),
             });
         };
         const Root = () => {
-            return rendr('div', { slot: [
+            return div({ slot: [
                 rendr(Message),
                 rendr(Button),
             ] });
         };
         const wrapper = mount(rendr(Root));
-        const p = wrapper.find('p')!;
-        const button = wrapper.find('button')!;
-        expect(p.textContent).toBe('foo');
-        button.click();
-        await waitFor(() => expect(p.textContent).toBe('foo!'));
-        button.click();
-        await waitFor(() => expect(p.textContent).toBe('foo!!'));
+        const para = wrapper.find('p')!;
+        const btn = wrapper.find('button')!;
+        expect(para.textContent).toBe('foo');
+        btn.click();
+        await waitFor(() => expect(para.textContent).toBe('foo!'));
+        btn.click();
+        await waitFor(() => expect(para.textContent).toBe('foo!!'));
     });
 
     it('can set in effect from subscriber', async () => {
         const atom = createAtom('foo');
         const Message = () => {
             const msg = useAtomValue(atom);
-            return rendr('p', { slot: msg });
+            return p({ slot: msg });
         };
         const Button = () => {
             const setMsg = useAtomSetter(atom);
-            return rendr('button', {
+            return button({
                 slot: 'bar',
                 onclick: () => setMsg(s => s + '!'),
             });
@@ -49,49 +49,49 @@ describe('standard', () => {
         const Root = () => {
             const [, setMsg] = useAtom(atom);
             useEffect(() => setMsg('bar'), []);
-            return rendr('div', { slot: [
+            return div({ slot: [
                 rendr(Message),
                 rendr(Button),
             ] });
         };
         const wrapper = mount(rendr(Root));
-        const p = wrapper.find('p')!;
-        const button = wrapper.find('button')!;
-        await waitFor(() => expect(p.textContent).toBe('bar'));
-        button.click();
-        await waitFor(() => expect(p.textContent).toBe('bar!'));
-        button.click();
-        await waitFor(() => expect(p.textContent).toBe('bar!!'));
+        const para = wrapper.find('p')!;
+        const btn = wrapper.find('button')!;
+        await waitFor(() => expect(para.textContent).toBe('bar'));
+        btn.click();
+        await waitFor(() => expect(para.textContent).toBe('bar!'));
+        btn.click();
+        await waitFor(() => expect(para.textContent).toBe('bar!!'));
     });
 
     it('updates within memo component', async () => {
         const atom = createAtom('foo');
         const Message = () => {
             const msg = useAtomValue(atom);
-            return rendr('p', { slot: msg });
+            return p({ slot: msg });
         };
         const memo = () => rendr(Message);
         const Button = () => {
             const setMsg = useAtomSetter(atom);
-            return rendr('button', {
+            return button({
                 slot: 'bar',
                 onclick: () => setMsg(s => s + '!'),
             });
         };
         const Root = () => {
-            return rendr('div', { slot: [
+            return div({ slot: [
                 rendr(memo, { memo: [] }),
                 rendr(Button),
             ] });
         };
         const wrapper = mount(rendr(Root));
-        const p = wrapper.find('p')!;
-        const button = wrapper.find('button')!;
-        await waitFor(() => expect(p.textContent).toBe('foo'));
-        button.click();
-        await waitFor(() => expect(p.textContent).toBe('foo!'));
-        button.click();
-        await waitFor(() => expect(p.textContent).toBe('foo!!'));
+        const para = wrapper.find('p')!;
+        const btn = wrapper.find('button')!;
+        await waitFor(() => expect(para.textContent).toBe('foo'));
+        btn.click();
+        await waitFor(() => expect(para.textContent).toBe('foo!'));
+        btn.click();
+        await waitFor(() => expect(para.textContent).toBe('foo!!'));
     });
 
     it('does not re-render parents', async () => {
@@ -100,31 +100,31 @@ describe('standard', () => {
         const compRunner = vi.fn();
         const Message = () => {
             const msg = useAtomValue(atom);
-            return rendr('p', { slot: msg });
+            return p({ slot: msg });
         };
         const Button = () => {
             btnRunner();
             const setMsg = useAtomSetter(atom);
-            return rendr('button', {
+            return button({
                 slot: 'bar',
                 onclick: () => setMsg(s => s + '!'),
             });
         };
         const Root = () => {
             compRunner();
-            return rendr('div', { slot: [
+            return div({ slot: [
                 rendr(Message),
                 rendr(Button),
             ] });
         };
         const wrapper = mount(rendr(Root));
-        const p = wrapper.find('p')!;
-        const button = wrapper.find('button')!;
-        await waitFor(() => expect(p.textContent).toBe('foo'));
-        button.click();
-        await waitFor(() => expect(p.textContent).toBe('foo!'));
-        button.click();
-        await waitFor(() => expect(p.textContent).toBe('foo!!'));
+        const para = wrapper.find('p')!;
+        const btn = wrapper.find('button')!;
+        await waitFor(() => expect(para.textContent).toBe('foo'));
+        btn.click();
+        await waitFor(() => expect(para.textContent).toBe('foo!'));
+        btn.click();
+        await waitFor(() => expect(para.textContent).toBe('foo!!'));
         await wait(10);
         expect(btnRunner).toHaveBeenCalledOnce();
         expect(compRunner).toHaveBeenCalledOnce();
@@ -136,28 +136,28 @@ describe('standard', () => {
         const Message = () => {
             msgRunner();
             const msg = useAtomValue(atom);
-            return rendr('p', { slot: msg });
+            return p({ slot: msg });
         };
         const Button = () => {
             const setMsg = useAtomSetter(atom);
-            return rendr('button', {
+            return button({
                 slot: 'bar',
                 onclick: () => setMsg(s => s + '!'),
             });
         };
         const Root = () => {
             const msg = useAtomValue(atom);
-            return rendr('div', { slot: [
+            return div({ slot: [
                 msg.length % 2 === 0 && rendr(Message),
                 rendr(Button),
             ] });
         };
         const wrapper = mount(rendr(Root));
-        const button = wrapper.find('button')!;
+        const btn = wrapper.find('button')!;
         expect(wrapper.find('p')).toBe(null);
-        button.click();
+        btn.click();
         await waitFor(() => expect(wrapper.find('p')!.textContent).toBe('foo!'));
-        button.click();
+        btn.click();
         await waitFor(() => expect(wrapper.find('p')).toBe(null));
         await wait(10);
         expect(msgRunner).toHaveBeenCalledOnce();
@@ -169,11 +169,11 @@ describe('standard', () => {
         const Message = () => {
             msgRunner();
             const msg = useAtomValue(atom);
-            return rendr('p', { slot: msg });
+            return p({ slot: msg });
         };
         const Button = () => {
             const setMsg = useAtomSetter(atom);
-            return rendr('button', {
+            return button({
                 slot: 'bar',
                 onclick: () => setMsg(s => s + '!'),
             });
@@ -181,17 +181,17 @@ describe('standard', () => {
         const Root = () => {
             const msg = useAtomValue(atom);
             if (msg === 'never') console.log('never');
-            return rendr('div', { slot: [
+            return div({ slot: [
                 rendr(Message),
                 rendr(Button),
             ] });
         };
         const wrapper = mount(rendr(Root));
-        const p = wrapper.find('p')!;
-        const button = wrapper.find('button')!;
-        expect(p.textContent).toBe('foo');
-        button.click();
-        await waitFor(() => expect(p.textContent).toBe('foo!'));
+        const para = wrapper.find('p')!;
+        const btn = wrapper.find('button')!;
+        expect(para.textContent).toBe('foo');
+        btn.click();
+        await waitFor(() => expect(para.textContent).toBe('foo!'));
         await wait(10);
         expect(msgRunner).toHaveBeenCalledTimes(2);
     });
@@ -203,29 +203,29 @@ describe('derived', () => {
         const fooLength = createAtom(get => get(foo).length);
         const Message = () => {
             const msgLength = useAtomValue(fooLength);
-            return rendr('p', { slot: `${msgLength}` });
+            return p({ slot: `${msgLength}` });
         };
         const Button = () => {
             const setMsg = useAtomSetter(foo);
-            return rendr('button', {
+            return button({
                 slot: 'bar',
                 onclick: () => setMsg(s => s + '!'),
             });
         };
         const Root = () => {
-            return rendr('div', { slot: [
+            return div({ slot: [
                 rendr(Message),
                 rendr(Button),
             ] });
         };
         const wrapper = mount(rendr(Root));
-        const p = wrapper.find('p')!;
-        const button = wrapper.find('button')!;
-        expect(p.textContent).toBe('3');
-        button.click();
-        await waitFor(() => expect(p.textContent).toBe('4'));
-        button.click();
-        await waitFor(() => expect(p.textContent).toBe('5'));
+        const para = wrapper.find('p')!;
+        const btn = wrapper.find('button')!;
+        expect(para.textContent).toBe('3');
+        btn.click();
+        await waitFor(() => expect(para.textContent).toBe('4'));
+        btn.click();
+        await waitFor(() => expect(para.textContent).toBe('5'));
     });
 
     it('does not re-render when used atom state changes but derived atom state does not change', async () => {
@@ -235,29 +235,29 @@ describe('derived', () => {
         const Message = () => {
             msgRunner();
             const msgLength = useAtomValue(fooLength);
-            return rendr('p', { slot: `${msgLength}` });
+            return p({ slot: `${msgLength}` });
         };
         const Button = () => {
             const setMsg = useAtomSetter(foo);
-            return rendr('button', {
+            return button({
                 slot: 'bar',
                 onclick: () => setMsg(s => s === 'foo' ? 'bar' : 'foo'),
             });
         };
         const Root = () => {
-            return rendr('div', { slot: [
+            return div({ slot: [
                 rendr(Message),
                 rendr(Button),
             ] });
         };
         const wrapper = mount(rendr(Root));
-        const p = wrapper.find('p')!;
-        const button = wrapper.find('button')!;
-        expect(p.textContent).toBe('3');
-        button.click();
-        await waitFor(() => expect(p.textContent).toBe('3'));
-        button.click();
-        await waitFor(() => expect(p.textContent).toBe('3'));
+        const para = wrapper.find('p')!;
+        const btn = wrapper.find('button')!;
+        expect(para.textContent).toBe('3');
+        btn.click();
+        await waitFor(() => expect(para.textContent).toBe('3'));
+        btn.click();
+        await waitFor(() => expect(para.textContent).toBe('3'));
         await wait(10);
         expect(msgRunner).toHaveBeenCalledOnce();
     });
@@ -271,39 +271,39 @@ describe('selectors', () => {
         const MessageLength = () => {
             msgLenRunner();
             const msgLength = useAtomSelector(foo, f => f.length);
-            return rendr('p', { slot: `${msgLength}` });
+            return p({ slot: `${msgLength}` });
         };
         const Message = () => {
             msgRunner();
             const msg = useAtomValue(foo);
-            return rendr('span', { slot: `${msg}` });
+            return span({ slot: `${msg}` });
         };
         const Button = () => {
             const setMsg = useAtomSetter(foo);
-            return rendr('button', {
+            return button({
                 slot: 'bar',
                 onclick: () => setMsg(s => s === 'foo' ? 'bar' : s === 'bar' ? 'foobar' : 'foo'),
             });
         };
         const Root = () => {
-            return rendr('div', { slot: [
+            return div({ slot: [
                 rendr(Message),
                 rendr(MessageLength),
                 rendr(Button),
             ] });
         };
         const wrapper = mount(rendr(Root));
-        const p = wrapper.find('p')!;
-        const span = wrapper.find('span')!;
-        const button = wrapper.find('button')!;
-        expect(span.textContent).toBe('foo');
-        expect(p.textContent).toBe('3');
-        button.click();
-        await waitFor(() => expect(p.textContent).toBe('3'));
-        await waitFor(() => expect(span.textContent).toBe('bar'));
-        button.click();
-        await waitFor(() => expect(p.textContent).toBe('6'));
-        await waitFor(() => expect(span.textContent).toBe('foobar'));
+        const para = wrapper.find('p')!;
+        const spn = wrapper.find('span')!;
+        const btn = wrapper.find('button')!;
+        expect(spn.textContent).toBe('foo');
+        expect(para.textContent).toBe('3');
+        btn.click();
+        await waitFor(() => expect(para.textContent).toBe('3'));
+        await waitFor(() => expect(spn.textContent).toBe('bar'));
+        btn.click();
+        await waitFor(() => expect(para.textContent).toBe('6'));
+        await waitFor(() => expect(spn.textContent).toBe('foobar'));
         expect(msgRunner).toHaveBeenCalledTimes(3);
         expect(msgLenRunner).toHaveBeenCalledTimes(2);
     });
@@ -315,18 +315,18 @@ describe('watch', () => {
         const msgAtom = createAtom('foo', { watch: (prev, next) => watch(prev, next) });
         const Root = () => {
             const [msg, setMsg] = useAtom(msgAtom);
-            return rendr('div', { slot: [
-                rendr('span', { slot: msg }),
-                rendr('button', {
+            return div({ slot: [
+                span({ slot: msg }),
+                button({
                     slot: 'bar',
                     onclick: () => setMsg(s => s === 'foo' ? 'bar' : 'foo'),
                 }),
             ] });
         };
         const wrapper = mount(rendr(Root));
-        const button = wrapper.find('button')!;
-        button.click();
-        button.click();
+        const btn = wrapper.find('button')!;
+        btn.click();
+        btn.click();
         await wait(10);
         expect(watch).toHaveBeenCalledTimes(2);
         expect(watch).toHaveBeenNthCalledWith(1, 'foo', 'bar');
@@ -340,20 +340,20 @@ describe('watch', () => {
         const Root = () => {
             const [msg, setMsg] = useAtom(msgAtom);
             const msgLen = useAtomValue(msgLenAtom);
-            return rendr('div', { slot: [
-                rendr('span', { slot: `${msg}: ${msgLen}` }),
-                rendr('button', {
+            return div({ slot: [
+                span({ slot: `${msg}: ${msgLen}` }),
+                button({
                     slot: 'bar',
                     onclick: () => setMsg(s => s === 'foo' ? 'foobar' : 'foobarbaz'),
                 }),
             ] });
         };
         const wrapper = mount(rendr(Root));
-        const button = wrapper.find('button')!;
-        button.click();
+        const btn = wrapper.find('button')!;
+        btn.click();
         await wait(10);
         expect(watch).toHaveBeenNthCalledWith(1, 3, 6);
-        button.click();
+        btn.click();
         await wait(10);
         expect(watch).toHaveBeenNthCalledWith(2, 6, 9);
     });

@@ -1,25 +1,25 @@
 import { describe, it, expect, vi } from 'vitest';
-import { useState, rendr, useRef } from '..';
+import { useState, rendr, useRef, p, span } from '..';
 import { waitFor, mount } from './utils';
 
 describe('refs', () => {
     it('sets ref on initial render', async () => {
         const Root = () => {
             const ref = useRef('foo');
-            return rendr('p', {
+            return p({
                 id: 'foo',
                 slot: ref.value,
             });
         };
         const wrapper = mount(rendr(Root));
-        const p = wrapper.find('p')!;
-        await waitFor(() => expect(p.textContent).toBe('foo'));
+        const para = wrapper.find('p')!;
+        await waitFor(() => expect(para.textContent).toBe('foo'));
     });
 
     it('sets element ref on initial render', async () => {
         const Root = () => {
             const ref = useRef<HTMLParagraphElement | undefined>(undefined);
-            return rendr('p', {
+            return p({
                 id: 'foo',
                 ref,
                 slot: 'bar',
@@ -27,16 +27,16 @@ describe('refs', () => {
             });
         };
         const wrapper = mount(rendr(Root));
-        const p = wrapper.find('p')!;
-        p.click();
-        await waitFor(() => expect(p.id).toBe('baz'));
+        const para = wrapper.find('p')!;
+        para.click();
+        await waitFor(() => expect(para.id).toBe('baz'));
     });
 
     it('updates element ref during reconciliation', async () => {
         const Root = () => {
             const [hasRef, setHasRef] = useState(true);
             const ref = useRef<HTMLParagraphElement | undefined>(undefined);
-            return rendr('p', {
+            return p({
                 id: 'foo',
                 ref: hasRef ? ref : undefined,
                 slot: 'bar',
@@ -47,14 +47,14 @@ describe('refs', () => {
             });
         };
         const wrapper = mount(rendr(Root));
-        const p = wrapper.find('p')!;
-        await waitFor(() => expect(p.id).toBe('foo'));
-        p.click();
-        await waitFor(() => expect(p.id).toBe('foo-'));
-        p.click();
-        await waitFor(() => expect(p.id).toBe('foo-'));
-        p.click();
-        await waitFor(() => expect(p.id).toBe('foo--'));
+        const para = wrapper.find('p')!;
+        await waitFor(() => expect(para.id).toBe('foo'));
+        para.click();
+        await waitFor(() => expect(para.id).toBe('foo-'));
+        para.click();
+        await waitFor(() => expect(para.id).toBe('foo-'));
+        para.click();
+        await waitFor(() => expect(para.id).toBe('foo--'));
     });
 
     it('removes element ref', async () => {
@@ -62,7 +62,7 @@ describe('refs', () => {
             const ref = useRef<HTMLParagraphElement | undefined>(undefined);
             const [hasRef, setHasRef] = useState(true);
             const [slot, setSlot] = useState('');
-            return rendr('p', {
+            return p({
                 ref: hasRef ? ref : undefined,
                 slot,
                 onclick: () => {
@@ -72,13 +72,13 @@ describe('refs', () => {
             });
         };
         const wrapper = mount(rendr(Root));
-        const p = wrapper.find('p')!;
-        p.click();
-        await waitFor(() => expect(p.textContent).toBe('had'));
-        p.click();
-        await waitFor(() => expect(p.textContent).toBe('had-not'));
-        p.click();
-        await waitFor(() => expect(p.textContent).toBe('had'));
+        const para = wrapper.find('p')!;
+        para.click();
+        await waitFor(() => expect(para.textContent).toBe('had'));
+        para.click();
+        await waitFor(() => expect(para.textContent).toBe('had-not'));
+        para.click();
+        await waitFor(() => expect(para.textContent).toBe('had'));
     });
 
     it('removes element ref by elem removal', async () => {
@@ -86,9 +86,9 @@ describe('refs', () => {
             const ref = useRef<HTMLSpanElement | undefined>(undefined);
             const [hasRef, setHasRef] = useState(true);
             const [slot, setSlot] = useState('');
-            return rendr('p', {
+            return p({
                 slot: [
-                    hasRef ? rendr('span', { ref }) : undefined,
+                    hasRef ? span({ ref }) : undefined,
                     slot,
                 ],
                 onclick: () => {
@@ -98,13 +98,13 @@ describe('refs', () => {
             });
         };
         const wrapper = mount(rendr(Root));
-        const p = wrapper.find('p')!;
-        p.click();
-        await waitFor(() => expect(p.textContent).toBe('had'));
-        p.click();
-        await waitFor(() => expect(p.textContent).toBe('had-not'));
-        p.click();
-        await waitFor(() => expect(p.textContent).toBe('had'));
+        const para = wrapper.find('p')!;
+        para.click();
+        await waitFor(() => expect(para.textContent).toBe('had'));
+        para.click();
+        await waitFor(() => expect(para.textContent).toBe('had-not'));
+        para.click();
+        await waitFor(() => expect(para.textContent).toBe('had'));
     });
 
     it('throws error when used outside of component render function', () => {

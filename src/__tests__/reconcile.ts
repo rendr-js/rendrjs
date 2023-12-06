@@ -1,314 +1,314 @@
 import { describe, it, expect, vi } from 'vitest';
-import { useState, rendr, useEffect, Slot } from '..';
+import { useState, rendr, useEffect, Slot, p, span, button, div, section, h1 } from '..';
 import { waitFor, mount, wait } from './utils';
 
 describe('slot: non-keyed', () => {
     it('string change', async () => {
         const Root = () => {
             const [slot, setSlot] = useState('foo');
-            return rendr('p', {
+            return p({
                 onclick: () => setSlot('bar'),
                 slot,
             });
         };
         const wrapper = mount(rendr(Root));
-        const p = wrapper.find('p')!;
-        await waitFor(() => expect(p.textContent).toBe('foo'));
-        p.click();
-        await waitFor(() => expect(p.textContent).toBe('bar'));
+        const para = wrapper.find('p')!;
+        await waitFor(() => expect(para.textContent).toBe('foo'));
+        para.click();
+        await waitFor(() => expect(para.textContent).toBe('bar'));
     });
 
     it('string and elem', async () => {
         const Root = () => {
             const [ty, setTy] = useState('elem');
-            return rendr('p', {
+            return p({
                 onclick: () => setTy(t => t === 'elem' ? 'string' : 'elem'),
-                slot: ty === 'elem' ? rendr('span', { slot: 'foo' }) : 'bar',
+                slot: ty === 'elem' ? span({ slot: 'foo' }) : 'bar',
             });
         };
         const wrapper = mount(rendr(Root));
-        const p = wrapper.find('p')!;
-        await waitFor(() => expect(p.textContent).toBe('foo'));
-        p.click();
-        await waitFor(() => expect(p.textContent).toBe('bar'));
-        p.click();
-        await waitFor(() => expect(p.textContent).toBe('foo'));
+        const para = wrapper.find('p')!;
+        await waitFor(() => expect(para.textContent).toBe('foo'));
+        para.click();
+        await waitFor(() => expect(para.textContent).toBe('bar'));
+        para.click();
+        await waitFor(() => expect(para.textContent).toBe('foo'));
     });
 
     it('remove: end', async () => {
         const Root = () => {
             const [slot, setSlot] = useState<string[]>(['0', '1']);
-            return rendr('p', {
+            return p({
                 onclick: () => setSlot(s => s.slice(0, s.length - 1)),
                 slot,
             });
         };
         const wrapper = mount(rendr(Root));
-        const p = wrapper.find('p')!;
-        await waitFor(() => expect(p.textContent).toBe('01'));
-        p.click();
-        await waitFor(() => expect(p.textContent).toBe('0'));
-        p.click();
-        await waitFor(() => expect(p.textContent).toBe(''));
+        const para = wrapper.find('p')!;
+        await waitFor(() => expect(para.textContent).toBe('01'));
+        para.click();
+        await waitFor(() => expect(para.textContent).toBe('0'));
+        para.click();
+        await waitFor(() => expect(para.textContent).toBe(''));
     });
 
     it('remove: all', async () => {
         const Root = () => {
             const [slot, setSlot] = useState<string[]>(['0', '1', '2']);
-            return rendr('p', {
+            return p({
                 onclick: () => setSlot([]),
                 slot,
             });
         };
         const wrapper = mount(rendr(Root));
-        const p = wrapper.find('p')!;
-        await waitFor(() => expect(p.textContent).toBe('012'));
-        p.click();
-        await waitFor(() => expect(p.textContent).toBe(''));
+        const para = wrapper.find('p')!;
+        await waitFor(() => expect(para.textContent).toBe('012'));
+        para.click();
+        await waitFor(() => expect(para.textContent).toBe(''));
     });
 
     it('remove: front', async () => {
         const Root = () => {
             const [slot, setSlot] = useState<string[]>(['0', '1']);
-            return rendr('p', {
+            return p({
                 onclick: () => setSlot(s => s.slice(1)),
                 slot,
             });
         };
         const wrapper = mount(rendr(Root));
-        const p = wrapper.find('p')!;
-        await waitFor(() => expect(p.textContent).toBe('01'));
-        p.click();
-        await waitFor(() => expect(p.textContent).toBe('1'));
+        const para = wrapper.find('p')!;
+        await waitFor(() => expect(para.textContent).toBe('01'));
+        para.click();
+        await waitFor(() => expect(para.textContent).toBe('1'));
     });
 
     it('remove: middle', async () => {
         const Root = () => {
             const [slot, setSlot] = useState<string[]>(['0', '1', '2']);
-            return rendr('p', {
+            return p({
                 onclick: () => setSlot(['0', '2']),
                 slot,
             });
         };
         const wrapper = mount(rendr(Root));
-        const p = wrapper.find('p')!;
-        await waitFor(() => expect(p.textContent).toBe('012'));
-        p.click();
-        await waitFor(() => expect(p.textContent).toBe('02'));
+        const para = wrapper.find('p')!;
+        await waitFor(() => expect(para.textContent).toBe('012'));
+        para.click();
+        await waitFor(() => expect(para.textContent).toBe('02'));
     });
 
     it('remove and add', async () => {
         const Root = () => {
             const [slot, setSlot] = useState<string[]>(['0', '1', '2']);
-            return rendr('p', {
+            return p({
                 onclick: () => setSlot(['0', '3', '2']),
                 slot,
             });
         };
         const wrapper = mount(rendr(Root));
-        const p = wrapper.find('p')!;
-        await waitFor(() => expect(p.textContent).toBe('012'));
-        p.click();
-        await waitFor(() => expect(p.textContent).toBe('032'));
+        const para = wrapper.find('p')!;
+        await waitFor(() => expect(para.textContent).toBe('012'));
+        para.click();
+        await waitFor(() => expect(para.textContent).toBe('032'));
     });
 
     it('add to end', async () => {
         const Root = () => {
             const [slot, setSlot] = useState<string[]>([]);
-            return rendr('p', {
+            return p({
                 onclick: () => setSlot(s => [...s, `${s.length}`]),
                 slot,
             });
         };
         const wrapper = mount(rendr(Root));
-        const p = wrapper.find('p')!;
-        await waitFor(() => expect(p.textContent).toBe(''));
-        p.click();
-        await waitFor(() => expect(p.textContent).toBe('0'));
-        p.click();
-        await waitFor(() => expect(p.textContent).toBe('01'));
+        const para = wrapper.find('p')!;
+        await waitFor(() => expect(para.textContent).toBe(''));
+        para.click();
+        await waitFor(() => expect(para.textContent).toBe('0'));
+        para.click();
+        await waitFor(() => expect(para.textContent).toBe('01'));
     });
 
     it('swap ends: 2', async () => {
         const Root = () => {
             const [slot, setSlot] = useState<string[]>(['0', '1']);
-            return rendr('p', {
+            return p({
                 onclick: () => setSlot(['1', '0']),
                 slot,
             });
         };
         const wrapper = mount(rendr(Root));
-        const p = wrapper.find('p')!;
-        await waitFor(() => expect(p.textContent).toBe('01'));
-        p.click();
-        await waitFor(() => expect(p.textContent).toBe('10'));
+        const para = wrapper.find('p')!;
+        await waitFor(() => expect(para.textContent).toBe('01'));
+        para.click();
+        await waitFor(() => expect(para.textContent).toBe('10'));
     });
 
     it('swap ends: 3', async () => {
         const Root = () => {
             const [slot, setSlot] = useState<string[]>(['0', '1', '2']);
-            return rendr('p', {
+            return p({
                 onclick: () => setSlot(['2', '1', '0']),
                 slot,
             });
         };
         const wrapper = mount(rendr(Root));
-        const p = wrapper.find('p')!;
-        await waitFor(() => expect(p.textContent).toBe('012'));
-        p.click();
-        await waitFor(() => expect(p.textContent).toBe('210'));
+        const para = wrapper.find('p')!;
+        await waitFor(() => expect(para.textContent).toBe('012'));
+        para.click();
+        await waitFor(() => expect(para.textContent).toBe('210'));
     });
 
     it('swap ends: 4', async () => {
         const Root = () => {
             const [slot, setSlot] = useState<string[]>(['0', '1', '2', '3']);
-            return rendr('p', {
+            return p({
                 onclick: () => setSlot(['3', '2', '1', '0']),
                 slot,
             });
         };
         const wrapper = mount(rendr(Root));
-        const p = wrapper.find('p')!;
-        await waitFor(() => expect(p.textContent).toBe('0123'));
-        p.click();
-        await waitFor(() => expect(p.textContent).toBe('3210'));
+        const para = wrapper.find('p')!;
+        await waitFor(() => expect(para.textContent).toBe('0123'));
+        para.click();
+        await waitFor(() => expect(para.textContent).toBe('3210'));
     });
 
     it('swap mid: 4', async () => {
         const Root = () => {
             const [slot, setSlot] = useState<string[]>(['0', '1', '2', '3']);
-            return rendr('p', {
+            return p({
                 onclick: () => setSlot(['0', '2', '1', '3']),
                 slot,
             });
         };
         const wrapper = mount(rendr(Root));
-        const p = wrapper.find('p')!;
-        await waitFor(() => expect(p.textContent).toBe('0123'));
-        p.click();
-        await waitFor(() => expect(p.textContent).toBe('0213'));
+        const para = wrapper.find('p')!;
+        await waitFor(() => expect(para.textContent).toBe('0123'));
+        para.click();
+        await waitFor(() => expect(para.textContent).toBe('0213'));
     });
 
     it('swap mid: 5', async () => {
         const Root = () => {
             const [slot, setSlot] = useState<string[]>(['0', '1', '2', '3', '4']);
-            return rendr('p', {
+            return p({
                 onclick: () => setSlot(['0', '3', '2', '1', '4']),
                 slot,
             });
         };
         const wrapper = mount(rendr(Root));
-        const p = wrapper.find('p')!;
-        await waitFor(() => expect(p.textContent).toBe('01234'));
-        p.click();
-        await waitFor(() => expect(p.textContent).toBe('03214'));
+        const para = wrapper.find('p')!;
+        await waitFor(() => expect(para.textContent).toBe('01234'));
+        para.click();
+        await waitFor(() => expect(para.textContent).toBe('03214'));
     });
 
     it('swap asymmetrically', async () => {
         const Root = () => {
             const [slot, setSlot] = useState<string[]>(['0', '1', '2', '3', '4']);
-            return rendr('p', {
+            return p({
                 onclick: () => setSlot(['0', '2', '1', '3', '4']),
                 slot,
             });
         };
         const wrapper = mount(rendr(Root));
-        const p = wrapper.find('p')!;
-        await waitFor(() => expect(p.textContent).toBe('01234'));
-        p.click();
-        await waitFor(() => expect(p.textContent).toBe('02134'));
+        const para = wrapper.find('p')!;
+        await waitFor(() => expect(para.textContent).toBe('01234'));
+        para.click();
+        await waitFor(() => expect(para.textContent).toBe('02134'));
     });
 
     it('rearrange: end to front', async () => {
         const Root = () => {
             const [slot, setSlot] = useState<string[]>(['0', '1', '2', '3', '4']);
-            return rendr('p', {
+            return p({
                 onclick: () => setSlot(['4', '0', '1', '2', '3']),
                 slot,
             });
         };
         const wrapper = mount(rendr(Root));
-        const p = wrapper.find('p')!;
-        await waitFor(() => expect(p.textContent).toBe('01234'));
-        p.click();
-        await waitFor(() => expect(p.textContent).toBe('40123'));
+        const para = wrapper.find('p')!;
+        await waitFor(() => expect(para.textContent).toBe('01234'));
+        para.click();
+        await waitFor(() => expect(para.textContent).toBe('40123'));
     });
 
     it('rearrange: end near to front', async () => {
         const Root = () => {
             const [slot, setSlot] = useState<string[]>(['0', '1', '2', '3', '4']);
-            return rendr('p', {
+            return p({
                 onclick: () => setSlot(['0', '4', '1', '2', '3']),
                 slot,
             });
         };
         const wrapper = mount(rendr(Root));
-        const p = wrapper.find('p')!;
-        await waitFor(() => expect(p.textContent).toBe('01234'));
-        p.click();
-        await waitFor(() => expect(p.textContent).toBe('04123'));
+        const para = wrapper.find('p')!;
+        await waitFor(() => expect(para.textContent).toBe('01234'));
+        para.click();
+        await waitFor(() => expect(para.textContent).toBe('04123'));
     });
 
     it('rearrange: front to end', async () => {
         const Root = () => {
             const [slot, setSlot] = useState<string[]>(['0', '1', '2', '3', '4']);
-            return rendr('p', {
+            return p({
                 onclick: () => setSlot(['1', '2', '3', '4', '0']),
                 slot,
             });
         };
         const wrapper = mount(rendr(Root));
-        const p = wrapper.find('p')!;
-        await waitFor(() => expect(p.textContent).toBe('01234'));
-        p.click();
-        await waitFor(() => expect(p.textContent).toBe('12340'));
+        const para = wrapper.find('p')!;
+        await waitFor(() => expect(para.textContent).toBe('01234'));
+        para.click();
+        await waitFor(() => expect(para.textContent).toBe('12340'));
     });
 
     it('early return', async () => {
         const Root = () => {
             const [changed, setChanged] = useState(false);
             if (!changed) {
-                return rendr('p', {
+                return p({
                     onclick: () => setChanged(true),
                     slot: [
-                        rendr('span', { slot: 'foo' }),
+                        span({ slot: 'foo' }),
                     ],
                 });
             }
-            return rendr('p', {
+            return p({
                 onclick: () => setChanged(false),
                 slot: [
-                    rendr('span', { slot: 'foo' }),
-                    rendr('span', { slot: 'bar' }),
-                    rendr('span', { slot: 'bat' }),
+                    span({ slot: 'foo' }),
+                    span({ slot: 'bar' }),
+                    span({ slot: 'bat' }),
                 ],
             });
         };
         const wrapper = mount(rendr(Root));
-        const p = wrapper.find('p')!;
-        p.click();
-        await waitFor(() => expect(p.textContent).toBe('foobarbat'));
+        const para = wrapper.find('p')!;
+        para.click();
+        await waitFor(() => expect(para.textContent).toBe('foobarbat'));
     });
 
     it('singleton elem', async () => {
-        const span = rendr('span', { slot: 'singleton' });
+        const spn = span({ slot: 'singleton' });
         const Root = () => {
           const [margin, setMargin] = useState(10);
-          return rendr('p', {
+          return p({
             slot: [
               'bar',
-              span,
+              spn,
             ],
             style: { margin: `${margin}px` },
             onclick: () => setMargin(c => c * 2),
           });
         };
         const wrapper = mount(rendr(Root));
-        const p = wrapper.find('p')!;
-        waitFor(() => expect(p.textContent).toBe('barsingleton'));
-        p.click();
-        p.click();
-        waitFor(() => expect(p.textContent).toBe('barsingleton'));
+        const para = wrapper.find('p')!;
+        waitFor(() => expect(para.textContent).toBe('barsingleton'));
+        para.click();
+        para.click();
+        waitFor(() => expect(para.textContent).toBe('barsingleton'));
     });
 });
 
@@ -316,237 +316,237 @@ describe('slot: keyed', () => {
     it('remove: end', async () => {
         const Root = () => {
             const [slot, setSlot] = useState<string[]>(['0', '1']);
-            return rendr('p', {
+            return p({
                 onclick: () => setSlot(s => s.slice(0, s.length - 1)),
-                slot: slot.map(s => rendr('span', { slot: s, key: s })),
+                slot: slot.map(s => span({ slot: s, key: s })),
             });
         };
         const wrapper = mount(rendr(Root));
-        const p = wrapper.find('p')!;
-        await waitFor(() => expect(p.textContent).toBe('01'));
-        p.click();
-        await waitFor(() => expect(p.textContent).toBe('0'));
-        p.click();
-        await waitFor(() => expect(p.textContent).toBe(''));
+        const para = wrapper.find('p')!;
+        await waitFor(() => expect(para.textContent).toBe('01'));
+        para.click();
+        await waitFor(() => expect(para.textContent).toBe('0'));
+        para.click();
+        await waitFor(() => expect(para.textContent).toBe(''));
     });
 
     it('remove: front', async () => {
         const Root = () => {
             const [slot, setSlot] = useState<string[]>(['0', '1']);
-            return rendr('p', {
+            return p({
                 onclick: () => setSlot(s => s.slice(1)),
-                slot: slot.map(s => rendr('span', { slot: s, key: s })),
+                slot: slot.map(s => span({ slot: s, key: s })),
             });
         };
         const wrapper = mount(rendr(Root));
-        const p = wrapper.find('p')!;
-        await waitFor(() => expect(p.textContent).toBe('01'));
-        p.click();
-        await waitFor(() => expect(p.textContent).toBe('1'));
+        const para = wrapper.find('p')!;
+        await waitFor(() => expect(para.textContent).toBe('01'));
+        para.click();
+        await waitFor(() => expect(para.textContent).toBe('1'));
     });
 
     it('remove: middle', async () => {
         const Root = () => {
             const [slot, setSlot] = useState<string[]>(['0', '1', '2']);
-            return rendr('p', {
+            return p({
                 onclick: () => setSlot(['0', '2']),
-                slot: slot.map(s => rendr('span', { slot: s, key: s })),
+                slot: slot.map(s => span({ slot: s, key: s })),
             });
         };
         const wrapper = mount(rendr(Root));
-        const p = wrapper.find('p')!;
-        await waitFor(() => expect(p.textContent).toBe('012'));
-        p.click();
-        await waitFor(() => expect(p.textContent).toBe('02'));
+        const para = wrapper.find('p')!;
+        await waitFor(() => expect(para.textContent).toBe('012'));
+        para.click();
+        await waitFor(() => expect(para.textContent).toBe('02'));
     });
 
     it('remove: middle component', async () => {
-        const Span = ({ slot }: { slot: string }) => rendr('span', { slot });
+        const Span = ({ slot }: { slot: string }) => span({ slot });
         const Root = () => {
             const [slot, setSlot] = useState<string[]>(['0', '1', '2']);
-            return rendr('p', {
+            return p({
                 onclick: () => setSlot(['0', '2']),
                 slot: slot.map(s => rendr(Span, { slot: s, key: s })),
             });
         };
         const wrapper = mount(rendr(Root));
-        const p = wrapper.find('p')!;
-        await waitFor(() => expect(p.textContent).toBe('012'));
-        p.click();
-        await waitFor(() => expect(p.textContent).toBe('02'));
+        const para = wrapper.find('p')!;
+        await waitFor(() => expect(para.textContent).toBe('012'));
+        para.click();
+        await waitFor(() => expect(para.textContent).toBe('02'));
     });
 
     it('remove and add', async () => {
         const Root = () => {
             const [slot, setSlot] = useState<string[]>(['0', '1', '2']);
-            return rendr('p', {
+            return p({
                 onclick: () => setSlot(['0', '3', '2']),
-                slot: slot.map(s => rendr('span', { slot: s, key: s })),
+                slot: slot.map(s => span({ slot: s, key: s })),
             });
         };
         const wrapper = mount(rendr(Root));
-        const p = wrapper.find('p')!;
-        await waitFor(() => expect(p.textContent).toBe('012'));
-        p.click();
-        await waitFor(() => expect(p.textContent).toBe('032'));
+        const para = wrapper.find('p')!;
+        await waitFor(() => expect(para.textContent).toBe('012'));
+        para.click();
+        await waitFor(() => expect(para.textContent).toBe('032'));
     });
 
     it('add to end', async () => {
         const Root = () => {
             const [slot, setSlot] = useState<string[]>([]);
-            return rendr('p', {
+            return p({
                 onclick: () => setSlot(s => [...s, `${s.length}`]),
-                slot: slot.map(s => rendr('span', { slot: s, key: s })),
+                slot: slot.map(s => span({ slot: s, key: s })),
             });
         };
         const wrapper = mount(rendr(Root));
-        const p = wrapper.find('p')!;
-        await waitFor(() => expect(p.textContent).toBe(''));
-        p.click();
-        await waitFor(() => expect(p.textContent).toBe('0'));
-        p.click();
-        await waitFor(() => expect(p.textContent).toBe('01'));
+        const para = wrapper.find('p')!;
+        await waitFor(() => expect(para.textContent).toBe(''));
+        para.click();
+        await waitFor(() => expect(para.textContent).toBe('0'));
+        para.click();
+        await waitFor(() => expect(para.textContent).toBe('01'));
     });
 
     it('swap ends: 2', async () => {
         const Root = () => {
             const [slot, setSlot] = useState<string[]>(['0', '1']);
-            return rendr('p', {
+            return p({
                 onclick: () => setSlot(['1', '0']),
-                slot: slot.map(s => rendr('span', { slot: s, key: s })),
+                slot: slot.map(s => span({ slot: s, key: s })),
             });
         };
         const wrapper = mount(rendr(Root));
-        const p = wrapper.find('p')!;
-        await waitFor(() => expect(p.textContent).toBe('01'));
-        p.click();
-        await waitFor(() => expect(p.textContent).toBe('10'));
+        const para = wrapper.find('p')!;
+        await waitFor(() => expect(para.textContent).toBe('01'));
+        para.click();
+        await waitFor(() => expect(para.textContent).toBe('10'));
     });
 
     it('swap ends: 3', async () => {
         const Root = () => {
             const [slot, setSlot] = useState<string[]>(['0', '1', '2']);
-            return rendr('p', {
+            return p({
                 onclick: () => setSlot(['2', '1', '0']),
-                slot: slot.map(s => rendr('span', { slot: s, key: s })),
+                slot: slot.map(s => span({ slot: s, key: s })),
             });
         };
         const wrapper = mount(rendr(Root));
-        const p = wrapper.find('p')!;
-        await waitFor(() => expect(p.textContent).toBe('012'));
-        p.click();
-        await waitFor(() => expect(p.textContent).toBe('210'));
+        const para = wrapper.find('p')!;
+        await waitFor(() => expect(para.textContent).toBe('012'));
+        para.click();
+        await waitFor(() => expect(para.textContent).toBe('210'));
     });
 
     it('swap ends: 4', async () => {
         const Root = () => {
             const [slot, setSlot] = useState<string[]>(['0', '1', '2', '3']);
-            return rendr('p', {
+            return p({
                 onclick: () => setSlot(['3', '2', '1', '0']),
-                slot: slot.map(s => rendr('span', { slot: s, key: s })),
+                slot: slot.map(s => span({ slot: s, key: s })),
             });
         };
         const wrapper = mount(rendr(Root));
-        const p = wrapper.find('p')!;
-        await waitFor(() => expect(p.textContent).toBe('0123'));
-        p.click();
-        await waitFor(() => expect(p.textContent).toBe('3210'));
+        const para = wrapper.find('p')!;
+        await waitFor(() => expect(para.textContent).toBe('0123'));
+        para.click();
+        await waitFor(() => expect(para.textContent).toBe('3210'));
     });
 
     it('swap mid: 4', async () => {
         const Root = () => {
             const [slot, setSlot] = useState<string[]>(['0', '1', '2', '3']);
-            return rendr('p', {
+            return p({
                 onclick: () => setSlot(['0', '2', '1', '3']),
-                slot: slot.map(s => rendr('span', { slot: s, key: s })),
+                slot: slot.map(s => span({ slot: s, key: s })),
             });
         };
         const wrapper = mount(rendr(Root));
-        const p = wrapper.find('p')!;
-        await waitFor(() => expect(p.textContent).toBe('0123'));
-        p.click();
-        await waitFor(() => expect(p.textContent).toBe('0213'));
+        const para = wrapper.find('p')!;
+        await waitFor(() => expect(para.textContent).toBe('0123'));
+        para.click();
+        await waitFor(() => expect(para.textContent).toBe('0213'));
     });
 
     it('swap mid: 5', async () => {
         const run = vi.fn(() => {});
         const Item = ({ text }: { text: string }) => {
             useEffect(run, []);
-            return rendr('span', { slot: text, key: text });
+            return span({ slot: text, key: text });
         };
         const Root = () => {
             const [slot, setSlot] = useState<string[]>(['0', '1', '2', '3', '4']);
-            return rendr('p', {
+            return p({
                 onclick: () => setSlot(['0', '3', '2', '1', '4']),
                 slot: slot.map(text => rendr(Item, { text })),
             });
         };
         const wrapper = mount(rendr(Root));
-        const p = wrapper.find('p')!;
-        await waitFor(() => expect(p.textContent).toBe('01234'));
-        p.click();
-        await waitFor(() => expect(p.textContent).toBe('03214'));
+        const para = wrapper.find('p')!;
+        await waitFor(() => expect(para.textContent).toBe('01234'));
+        para.click();
+        await waitFor(() => expect(para.textContent).toBe('03214'));
         await waitFor(() => expect(run).toHaveBeenCalledTimes(5));
     });
 
     it('swap asymmetrically', async () => {
         const Root = () => {
             const [slot, setSlot] = useState<string[]>(['0', '1', '2', '3', '4']);
-            return rendr('p', {
+            return p({
                 onclick: () => setSlot(['0', '2', '1', '3', '4']),
-                slot: slot.map(s => rendr('span', { slot: s, key: s })),
+                slot: slot.map(s => span({ slot: s, key: s })),
             });
         };
         const wrapper = mount(rendr(Root));
-        const p = wrapper.find('p')!;
-        await waitFor(() => expect(p.textContent).toBe('01234'));
-        p.click();
-        await waitFor(() => expect(p.textContent).toBe('02134'));
+        const para = wrapper.find('p')!;
+        await waitFor(() => expect(para.textContent).toBe('01234'));
+        para.click();
+        await waitFor(() => expect(para.textContent).toBe('02134'));
     });
 
     it('rearrange: end to front', async () => {
         const Root = () => {
             const [slot, setSlot] = useState<string[]>(['0', '1', '2', '3', '4']);
-            return rendr('p', {
+            return p({
                 onclick: () => setSlot(['4', '0', '1', '2', '3']),
-                slot: slot.map(s => rendr('span', { slot: s, key: s })),
+                slot: slot.map(s => span({ slot: s, key: s })),
             });
         };
         const wrapper = mount(rendr(Root));
-        const p = wrapper.find('p')!;
-        await waitFor(() => expect(p.textContent).toBe('01234'));
-        p.click();
-        await waitFor(() => expect(p.textContent).toBe('40123'));
+        const para = wrapper.find('p')!;
+        await waitFor(() => expect(para.textContent).toBe('01234'));
+        para.click();
+        await waitFor(() => expect(para.textContent).toBe('40123'));
     });
 
     it('rearrange: end near to front', async () => {
         const Root = () => {
             const [slot, setSlot] = useState<string[]>(['0', '1', '2', '3', '4']);
-            return rendr('p', {
+            return p({
                 onclick: () => setSlot(['0', '4', '1', '2', '3']),
-                slot: slot.map(s => rendr('span', { slot: s, key: s })),
+                slot: slot.map(s => span({ slot: s, key: s })),
             });
         };
         const wrapper = mount(rendr(Root));
-        const p = wrapper.find('p')!;
-        await waitFor(() => expect(p.textContent).toBe('01234'));
-        p.click();
-        await waitFor(() => expect(p.textContent).toBe('04123'));
+        const para = wrapper.find('p')!;
+        await waitFor(() => expect(para.textContent).toBe('01234'));
+        para.click();
+        await waitFor(() => expect(para.textContent).toBe('04123'));
     });
 
     it('rearrange: front to end', async () => {
         const Root = () => {
             const [slot, setSlot] = useState<string[]>(['0', '1', '2', '3', '4']);
-            return rendr('p', {
+            return p({
                 onclick: () => setSlot(['1', '2', '3', '4', '0']),
-                slot: slot.map(s => rendr('span', { slot: s, key: s })),
+                slot: slot.map(s => span({ slot: s, key: s })),
             });
         };
         const wrapper = mount(rendr(Root));
-        const p = wrapper.find('p')!;
-        await waitFor(() => expect(p.textContent).toBe('01234'));
-        p.click();
-        await waitFor(() => expect(p.textContent).toBe('12340'));
+        const para = wrapper.find('p')!;
+        await waitFor(() => expect(para.textContent).toBe('01234'));
+        para.click();
+        await waitFor(() => expect(para.textContent).toBe('12340'));
     });
 });
 
@@ -556,29 +556,29 @@ describe('attributes', () => {
             const [listen, setListen] = useState(true);
             const [cnt, setCnt] = useState(0);
             const onclick = listen ? () => setCnt(c => c + 1) : undefined;
-            return rendr('div', { slot: [
-                rendr('button', { id: 'inc', slot: 'increment', onclick }),
-                rendr('button', { id: 'toggle', slot: 'toggle listen', onclick: () => setListen(l => !l) }),
-                rendr('p', { slot: `${cnt}` })
+            return div({ slot: [
+                button({ id: 'inc', slot: 'increment', onclick }),
+                button({ id: 'toggle', slot: 'toggle listen', onclick: () => setListen(l => !l) }),
+                p({ slot: `${cnt}` })
             ] });
         };
         const wrapper = mount(rendr(Root));
         const inc = wrapper.find('#inc')!;
         const toggle = wrapper.find('#toggle')!;
-        const p = wrapper.find('p')!;
-        await waitFor(() => expect(p.textContent).toBe('0'));
+        const para = wrapper.find('p')!;
+        await waitFor(() => expect(para.textContent).toBe('0'));
         inc.click();
-        await waitFor(() => expect(p.textContent).toBe('1'));
+        await waitFor(() => expect(para.textContent).toBe('1'));
         toggle.click();
         inc.click();
-        await waitFor(() => expect(p.textContent).toBe('1'));
+        await waitFor(() => expect(para.textContent).toBe('1'));
         toggle.click();
         inc.click();
-        await waitFor(() => expect(p.textContent).toBe('2'));
+        await waitFor(() => expect(para.textContent).toBe('2'));
       });
 
       it('update onclick', async () => {
-        const Child = ({ onclick }: { onclick: () => void }) => rendr('section', {
+        const Child = ({ onclick }: { onclick: () => void }) => section({
             slot: 'foo',
             onclick: onclick,
         });
@@ -589,9 +589,9 @@ describe('attributes', () => {
                 data.push(0);
                 setState({ data });
             };
-            return rendr('div', {
+            return div({
                 slot: [
-                    rendr('p', { slot: `${state.data.length}` }),
+                    p({ slot: `${state.data.length}` }),
                     rendr(Child, {
                         onclick: onclick,
                     }),
@@ -599,66 +599,66 @@ describe('attributes', () => {
             });
         };
         const wrapper = mount(rendr(Root));
-        const p = wrapper.find('p')!;
-        const section = wrapper.find('section')!;
-        waitFor(() => expect(p.textContent).toBe('0'));
-        section.click();
-        waitFor(() => expect(p.textContent).toBe('1'));
-        section.click();
-        waitFor(() => expect(p.textContent).toBe('2'));
+        const para = wrapper.find('p')!;
+        const sec = wrapper.find('section')!;
+        waitFor(() => expect(para.textContent).toBe('0'));
+        sec.click();
+        waitFor(() => expect(para.textContent).toBe('1'));
+        sec.click();
+        waitFor(() => expect(para.textContent).toBe('2'));
     });
 
     it('class change', async () => {
         const Root = () => {
             const [className, setClassName] = useState('foo');
-            return rendr('p', {
+            return p({
                 slot: 'bar',
                 class: className,
                 onclick: () => setClassName(c => c + '-'),
             });
         };
         const wrapper = mount(rendr(Root));
-        const p = wrapper.find('p')!;
-        p.click();
-        await waitFor(() => expect(p.className).toBe('foo-'));
+        const para = wrapper.find('p')!;
+        para.click();
+        await waitFor(() => expect(para.className).toBe('foo-'));
     });
 
     it('class remove', async () => {
         const Root = () => {
             const [className, setClassName] = useState<string | undefined>('foo');
-            return rendr('p', {
+            return p({
                 slot: 'bar',
                 class: className,
                 onclick: () => setClassName(undefined),
             });
         };
         const wrapper = mount(rendr(Root));
-        const p = wrapper.find('p')!;
-        p.click();
-        await waitFor(() => expect(p.className).toBe(''));
+        const para = wrapper.find('p')!;
+        para.click();
+        await waitFor(() => expect(para.className).toBe(''));
     });
 
     it('style change', async () => {
         const Root = () => {
             const [margin, setMargin] = useState(10);
-            return rendr('p', {
+            return p({
                 slot: 'bar',
                 style: `margin: ${margin}px`,
                 onclick: () => setMargin(c => c * 2),
             });
         };
         const wrapper = mount(rendr(Root));
-        const p = wrapper.find('p')!;
-        p.click();
-        await waitFor(() => expect(p.style.margin).toBe('20px'));
+        const para = wrapper.find('p')!;
+        para.click();
+        await waitFor(() => expect(para.style.margin).toBe('20px'));
     });
 
     it('button disabled', async () => {
         const Root = () => {
             const [disabled, setDisabled] = useState(false);
-            return rendr('div', { slot: [
-                rendr('button', { id: 'toggled', disabled }),
-                rendr('button', { id: 'toggler', slot: 'toggle', onclick: () => setDisabled(d => !d) }),
+            return div({ slot: [
+                button({ id: 'toggled', disabled }),
+                button({ id: 'toggler', slot: 'toggle', onclick: () => setDisabled(d => !d) }),
             ] });
         };
         const wrapper = mount(rendr(Root));
@@ -672,12 +672,12 @@ describe('attributes', () => {
     });
 
     it('can reuse component with children', async () => {
-        const h1 = rendr('h1', { slot: 'foo' });
+        const heading = h1({ slot: 'foo' });
         const Root = () => {
           const [show, setShow] = useState(true);
-          return rendr('div', { slot: [
-            show && h1,
-            rendr('button', { id: 'toggler', slot: 'toggle', onclick: () => setShow(s => !s) }),
+          return div({ slot: [
+            show && heading,
+            button({ id: 'toggler', slot: 'toggle', onclick: () => setShow(s => !s) }),
           ] });
         };
         const wrapper = mount(rendr(Root));
@@ -692,15 +692,15 @@ describe('attributes', () => {
 
 describe('memo', () => {
     it('memoizes component', async () => {
-        const Child = ({ onclick, slot }: { onclick: () => void, slot: Slot }) => rendr('p', { slot, onclick, id: 'foo' });
+        const Child = ({ onclick, slot }: { onclick: () => void, slot: Slot }) => p({ slot, onclick, id: 'foo' });
         const Root = () => {
             const [margin, setMargin] = useState(10);
             return rendr(Child, { onclick: () => setMargin(c => c + 1), slot: `m:${margin}`, memo: [1] });
         };
         const wrapper = mount(rendr(Root));
-        const p = wrapper.find('p')!;
-        p.click();
-        await waitFor(() => expect(p.textContent).toBe('m:10'));
+        const para = wrapper.find('p')!;
+        para.click();
+        await waitFor(() => expect(para.textContent).toBe('m:10'));
     });
 });
 
@@ -712,15 +712,15 @@ describe('non-list keys', () => {
         }
         const effect = vi.fn();
         const Para = ({ onclick, slot }: Props) => {
-            return rendr('p', { slot, onclick });
+            return p({ slot, onclick });
         };
         const Span = ({ onclick, slot }: Props) => {
             useEffect(effect, []);
-            return rendr('span', { slot, onclick });
+            return span({ slot, onclick });
         };
         const Root = () => {
             const [cnt, setCnt] = useState(0);
-            return rendr('div', {
+            return div({
                 slot: [
                     rendr(Para, {
                         onclick: () => setCnt(c => c + 1),
