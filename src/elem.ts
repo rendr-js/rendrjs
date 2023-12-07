@@ -53,7 +53,6 @@ type EventHandler<
     Tag extends string & keyof HTMLElementTagNameMap,
 > = (e: HTMLElementEventMap[EventName] & { [key in TargetType]: HTMLElementTagNameMap[Tag] }) => void;
 
-
 type SVGEventHandler<
     TargetType extends string,
     EventName extends keyof SVGElementEventMap,
@@ -133,7 +132,6 @@ let normalizeSlotElem = (elem: SlotElem): Elem => {
     if (isString(elem)) return createTextElem(elem);
     return elem;
 };
-
 
 let isFalsySlotElem = (elem: any): elem is null | undefined | boolean => !elem || elem === true;
 
