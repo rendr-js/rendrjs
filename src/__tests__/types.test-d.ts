@@ -32,7 +32,7 @@ describe('types', () => {
         // @ts-expect-error
         rendr(Foo, {});
 
-        const Child = () => div({ slot: 'foo', onclick, id: 'foo' });
+        const Child = () => div({ slot: 'foo', id: 'foo' });
         const LazyChild = lazy({
             import: () => new Promise<{ default: typeof Child}>(r => setTimeout(() => r({ default: Child }), 10)),
             fallback: p({ slot: 'loading' }),

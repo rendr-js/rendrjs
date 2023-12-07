@@ -98,19 +98,19 @@ export type RendrAttributes = object & { slot?: Slot, ref?: Ref, key?: string };
 
 export type HTMLElementAttributes<Tag extends string & keyof HTMLElementTagNameMap> =
     Omit<Partial<HTMLElementTagNameMap[Tag]>, BooleanValueHTMLElementAttributes | 'style' | 'slot' | 'onclick' | 'oninput' | 'className'> &
-    { style?: CSSStyleDeclaration | string, class?: string } &
+    { style?: string, class?: string } &
     { [key in BooleanValueHTMLElementAttributes]?: boolean } &
     NarrowedEventHandler<'input', Tag, 'target'> &
     NarrowedEventHandler<'click', Tag, 'currentTarget'>;
 
 export type SVGElementAttributes<Tag extends string & keyof SVGElementTagNameMap> =
-    Omit<Partial<SVGElementTagNameMap[Tag]>, 'style' | 'slot' | 'onclick' | 'className'> &
-    { style?: CSSStyleDeclaration | string, class?: string, slot?: Slot, ref?: Ref, key?: string } &
+    Omit<Partial<SVGElementTagNameMap[Tag]>, 'style' | 'slot' | 'onclick' | 'className' | 'height' | 'width' | 'viewBox'> &
+    { style?: string, class?: string, height?: number, width?: number, viewBox?: string } &
     NarrowedSVGEventHandler<'click', Tag, 'currentTarget'>;
 
 export let element = <Tag extends keyof HTMLElementTagNameMap | keyof SVGElementTagNameMap, Attrs extends RendrAttributes = Tag extends keyof HTMLElementTagNameMap ? HTMLElementAttributes<Tag> : Tag extends keyof SVGElementTagNameMap ? SVGElementAttributes<Tag> : never>(ty: Tag, attrs?: Attrs): Elem<Tag> => {
     let elem: Elem = { t: ty };
-    if (!attrs) {
+    if (attrs === undef) {
         return elem;
     }
     elem.p = attrs;
@@ -136,13 +136,14 @@ export let element = <Tag extends keyof HTMLElementTagNameMap | keyof SVGElement
     return elem as Elem;
 }
 
+let createTextElem = (p: string) => ({ t: TEXT_NODE_TYPE, p });
+
 let normalizeSlotElem = (elem: SlotElem): Elem => {
     if (isFalsySlotElem(elem)) return createTextElem('');
     if (isString(elem)) return createTextElem(elem);
     return elem;
 };
 
-let createTextElem = (p: string) => ({ t: TEXT_NODE_TYPE, p });
 
 let isFalsySlotElem = (elem: any): elem is null | undefined | boolean => !elem || elem === true;
 

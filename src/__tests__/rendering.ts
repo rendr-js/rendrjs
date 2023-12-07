@@ -25,10 +25,10 @@ describe('rendering', () => {
     });
 
     it('aria-hidden', async () => {
-        const Root = () => p({ class: 'foo', ariaHidden: true });
+        const Root = () => p({ class: 'foo', ariaHidden: 'true' });
         const wrapper = mount(rendr(Root));
         const para = wrapper.find('p')!;
-        await waitFor(() => expect(para.ariaHidden).toBe(true));
+        await waitFor(() => expect(para.ariaHidden).toBe('true'));
     });
 
     it('style', async () => {
@@ -90,7 +90,7 @@ describe('rendering', () => {
                 rect({
                     width: 50,
                     height: 50,
-                    style: { strokeWidth: 3 },
+                    style: 'strokeWidth: 3',
                 }),
             ],
         });

@@ -1,5 +1,5 @@
 import { ComponentElem, createDom, Elem, callComponentFunc, TEXT_NODE_TYPE } from './elem';
-import { appendChild, areDepsEqual, deleteObjectProperty, insertBefore, isString, length, remove, removeAttribute, setRefValue, setRef, truncate, undef, forEach, indexOf, STATIC_EMPTY_ARRAY } from './utils';
+import { appendChild, areDepsEqual, deleteObjectProperty, insertBefore, isString, length, remove, removeAttribute, setRefValue, setRef, truncate, undef, forEach, STATIC_EMPTY_ARRAY } from './utils';
 
 type HTMLElementElem = Elem & { d: HTMLElement };
 
@@ -147,34 +147,28 @@ let reconcileChildren = (oldElem: HTMLElementElem, newElem: HTMLElementElem) => 
 
     let oldMap = {} as ChilrenMap;
     for (let i = start; i <= oldLength; i++) {
-        let oldChd = oldChn[i];
-        let newChd = newChn[i];
-        if (oldChd.k && (!newChd || oldChd.k !== newChd.k)) {
-            oldMap[oldChd.k] = oldChd;
+        if (oldChn[i].k && (!newChn[i] || oldChn[i].k !== newChn[i].k)) {
+            oldMap[oldChn[i].k!] = oldChn[i];
         }
     }
-
+    let currDomNode: ChildNode;
     for (; start <= newLength; start++) {
         let newChd = newChn[start];
         if (!oldChn[start]) {
             appendChild(oldElem.d, createDom(newChd));
             continue;
         }
-        let currDomNode = oldElem.d.childNodes[start];
-        let oldChd = oldMap[newChd.k!];
-        if (oldChd) {
+        currDomNode = oldElem.d.childNodes[start];
+        if (oldMap[newChd.k!]) {
+            if (currDomNode !== oldMap[newChd.k!].d!) {
+                moveBefore(oldElem.d, newChn, oldChn, start, currDomNode, getDom(oldMap[newChd.k!]));
+            }
+            reconcile(oldMap[newChd.k!], newChd);
             deleteObjectProperty(oldMap, newChd.k!);
-            if (currDomNode !== oldChd.d!) {
-                moveBefore(oldElem.d, newChn, oldChn, start, currDomNode, getDom(oldChd));
-            }
-            reconcile(oldChd, newChd);
+        } else if (oldChn[start] && oldChn[start].k === newChd.k) {
+            reconcile(oldChn[start], newChd);
         } else {
-            oldChd = oldChn[start];
-            if (oldChd && oldChd.k === newChd.k) {
-                reconcile(oldChd, newChd);
-            } else {
-                moveBefore(oldElem.d, newChn, oldChn, start, currDomNode, createDom(newChd));
-            }
+            moveBefore(oldElem.d, newChn, oldChn, start, currDomNode, createDom(newChd));
         }
     }
 

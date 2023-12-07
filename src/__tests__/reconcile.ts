@@ -299,7 +299,7 @@ describe('slot: non-keyed', () => {
               'bar',
               spn,
             ],
-            style: { margin: `${margin}px` },
+            style: `margin: ${margin}px`,
             onclick: () => setMargin(c => c * 2),
           });
         };

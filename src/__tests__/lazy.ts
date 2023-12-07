@@ -14,7 +14,7 @@ describe('lazy', () => {
             if (margin > 10) return rendr(LazyChild, { onclick: () => setMargin(c => c / 2) });
             return p({
                 slot: 'bar',
-                style: { margin: `${margin}px` },
+                style: `margin: ${margin}px`,
                 onclick: () => setMargin(c => c * 2),
             });
         };
@@ -29,7 +29,7 @@ describe('lazy', () => {
     });
 
     it('props change', async () => {
-        const Child = (props: { onclick: () => void, slot: string, style: CSSProperties }) => div({
+        const Child = (props: { onclick: () => void, slot: string, style: string }) => div({
             ...props,
             id: 'foo',
         });
@@ -43,12 +43,12 @@ describe('lazy', () => {
             return rendr(LazyChild, {
               onclick: () => setMargin(c => c / 2 - 1),
               slot: `foo: ${margin}`,
-              style: { margin: `${margin}px` },
+              style: `margin: ${margin}px`,
             });
           }
           return p({
             slot: 'bar',
-            style: { margin: `${margin}px` },
+            style: `margin: ${margin}px`,
             onclick: () => setMargin(c => c * 2),
           });
         };
