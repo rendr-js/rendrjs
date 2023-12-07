@@ -151,24 +151,20 @@ let reconcileChildren = (oldElem: HTMLElementElem, newElem: HTMLElementElem) => 
             oldMap[oldChn[i].k!] = oldChn[i];
         }
     }
-    let currDomNode: ChildNode;
     for (; start <= newLength; start++) {
         let newChd = newChn[start];
         if (!oldChn[start]) {
             appendChild(oldElem.d, createDom(newChd));
-            continue;
-        }
-        currDomNode = oldElem.d.childNodes[start];
-        if (oldMap[newChd.k!]) {
-            if (currDomNode !== oldMap[newChd.k!].d!) {
-                moveBefore(oldElem.d, newChn, oldChn, start, currDomNode, getDom(oldMap[newChd.k!]));
+        } else if (oldMap[newChd.k!]) {
+            if (oldElem.d.childNodes[start] !== oldMap[newChd.k!].d!) {
+                moveBefore(oldElem.d, newChn, oldChn, start, oldElem.d.childNodes[start], getDom(oldMap[newChd.k!]));
             }
             reconcile(oldMap[newChd.k!], newChd);
             deleteObjectProperty(oldMap, newChd.k!);
         } else if (oldChn[start] && oldChn[start].k === newChd.k) {
             reconcile(oldChn[start], newChd);
         } else {
-            moveBefore(oldElem.d, newChn, oldChn, start, currDomNode, createDom(newChd));
+            moveBefore(oldElem.d, newChn, oldChn, start, oldElem.d.childNodes[start], createDom(newChd));
         }
     }
 
