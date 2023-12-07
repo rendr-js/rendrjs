@@ -7,10 +7,10 @@ export {
     ClickEvent,
     InputEvent,
     CSSProperties,
-} from './elem';
+} from './elem.js';
 export {
     mount,
-} from './mount';
+} from './mount.js';
 export {
     useAtom,
     useAtomSetter,
@@ -26,13 +26,13 @@ export {
     Dispatch,
     SetStateAction,
     UpdateStateAction,
-} from './hooks';
+} from './hooks.js';
 export {
     Atom,
     createAtom,
-} from './atom';
+} from './atom.js';
 export {
     LazyConfig,
     lazy,
-} from './lazy';
-export * from './tags';
+} from './lazy.js';
+export * from './tags.js';

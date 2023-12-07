@@ -1,6 +1,6 @@
-import { useEffect, useState } from './hooks';
-import { Component, SlotElem, rendr } from './elem';
-import { STATIC_EMPTY_ARRAY, undef } from './utils';
+import { useEffect, useState } from './hooks.js';
+import { Component, SlotElem, rendr } from './elem.js';
+import { STATIC_EMPTY_ARRAY, undef } from './utils.js';
 
 export interface LazyConfig<T> {
     import: () => Promise<{ default: Component<T> }>

@@ -1,5 +1,5 @@
-import { ComponentElem, createDom, Elem, callComponentFunc, TEXT_NODE_TYPE } from './elem';
-import { appendChild, areDepsEqual, deleteObjectProperty, insertBefore, isString, length, remove, removeAttribute, setRefValue, setRef, truncate, undef, forEach, STATIC_EMPTY_ARRAY } from './utils';
+import { ComponentElem, createDom, Elem, callComponentFunc, TEXT_NODE_TYPE } from './elem.js';
+import { appendChild, areDepsEqual, deleteObjectProperty, insertBefore, isString, length, remove, removeAttribute, setRefValue, setRef, truncate, undef, forEach, STATIC_EMPTY_ARRAY } from './utils.js';
 
 type HTMLElementElem = Elem & { d: HTMLElement };
 

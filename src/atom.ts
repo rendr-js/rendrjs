@@ -1,7 +1,7 @@
-import { Dispatch, SetStateAction, isUpdater } from './hooks';
-import { ComponentElem } from './elem';
-import { callComponentFuncAndReconcile } from './reconcile';
-import { forEach, isFunction, length, queueTask } from './utils';
+import { Dispatch, SetStateAction, isUpdater } from './hooks.js';
+import { ComponentElem } from './elem.js';
+import { callComponentFuncAndReconcile } from './reconcile.js';
+import { forEach, isFunction, length, queueTask } from './utils.js';
 
 export type AtomSelector<T, R> = (state: T) => R
 

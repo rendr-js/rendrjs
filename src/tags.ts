@@ -1,4 +1,4 @@
-import { HTMLElementAttributes, RendrAttributes, SVGElementAttributes, element } from './elem';
+import { HTMLElementAttributes, RendrAttributes, SVGElementAttributes, element } from './elem.js';
 
 // SVG Elements
 type SVGAttrs<T extends keyof SVGElementTagNameMap> = RendrAttributes & SVGElementAttributes<T>;

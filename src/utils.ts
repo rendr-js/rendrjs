@@ -1,5 +1,5 @@
-import { ComponentElem, Elem } from './elem';
-import { Ref } from './hooks';
+import { ComponentElem, Elem } from './elem.js';
+import { Ref } from './hooks.js';
 
 export let areDepsEqual = (a: any[], b: any[]): boolean => length(a) === length(b) && a.every((x, i) => a[i] === b[i]);
 

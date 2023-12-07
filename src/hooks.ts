@@ -1,7 +1,7 @@
-import { Atom, ReadonlyAtom } from './atom';
-import { ComponentElem, Elem, callComponentFunc } from './elem';
-import { reconcile } from './reconcile';
-import { areDepsEqual, getRefValue, illegal, isFunction, length, queueTask, setRefValue, setRef, truncate, undef, STATIC_EMPTY_ARRAY, forEach } from './utils';
+import { Atom, ReadonlyAtom } from './atom.js';
+import { ComponentElem, Elem, callComponentFunc } from './elem.js';
+import { reconcile } from './reconcile.js';
+import { areDepsEqual, getRefValue, illegal, isFunction, length, queueTask, setRefValue, truncate, undef, STATIC_EMPTY_ARRAY } from './utils.js';
 
 export type UpdateStateAction<S> = (state: S) => S;
 export type SetStateAction<S> = S | UpdateStateAction<S>;

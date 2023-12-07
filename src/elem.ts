@@ -1,6 +1,6 @@
-import { current, Ref } from './hooks';
-import { setAttr } from './reconcile';
-import { $document, appendChild, deleteObjectProperty, forEach, isString, length, setRef, undef } from './utils';
+import { current, Ref } from './hooks.js';
+import { setAttr } from './reconcile.js';
+import { $document, appendChild, deleteObjectProperty, forEach, isString, length, setRef, undef } from './utils.js';
 
 export type Component<T> = (props: T) => SlotElem;
 export type ComponentElem<T = any> = Elem<T> & { t: Component<T> };
