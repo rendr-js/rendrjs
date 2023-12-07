@@ -84,14 +84,14 @@ type BooleanValueHTMLElementAttributes = 'contentEditable';
 export type RendrAttributes = object & { slot?: Slot, ref?: Ref, key?: string };
 
 export type HTMLElementAttributes<Tag extends string & keyof HTMLElementTagNameMap> =
-    Omit<Partial<HTMLElementTagNameMap[Tag]>, BooleanValueHTMLElementAttributes | 'style' | 'slot' | 'onclick' | 'oninput' | 'className'> &
+    Omit<Partial<HTMLElementTagNameMap[Tag]>, BooleanValueHTMLElementAttributes | 'style' | 'slot' | 'onclick' | 'oninput' | 'className' | 'classList'> &
     { style?: string, class?: string } &
     { [key in BooleanValueHTMLElementAttributes]?: boolean } &
     NarrowedEventHandler<'input', Tag, 'target'> &
     NarrowedEventHandler<'click', Tag, 'currentTarget'>;
 
 export type SVGElementAttributes<Tag extends string & keyof SVGElementTagNameMap> =
-    Omit<Partial<SVGElementTagNameMap[Tag]>, 'style' | 'slot' | 'onclick' | 'className' | 'height' | 'width' | 'viewBox'> &
+    Omit<Partial<SVGElementTagNameMap[Tag]>, 'style' | 'slot' | 'onclick' | 'className' | 'classList' | 'height' | 'width' | 'viewBox'> &
     { style?: string, class?: string, height?: number, width?: number, viewBox?: string } &
     NarrowedSVGEventHandler<'click', Tag, 'currentTarget'>;
 
@@ -123,7 +123,7 @@ export let element = <Tag extends keyof HTMLElementTagNameMap | keyof SVGElement
             }
         }
     }
-    return elem as Elem;
+    return elem;
 }
 
 let createTextElem = (p: string) => ({ t: TEXT_NODE_TYPE, p });
