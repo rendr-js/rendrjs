@@ -10,6 +10,13 @@ describe('rendering', () => {
         await waitFor(() => expect(para.textContent).toBe('foo'));
     });
 
+    it('consice slot', async () => {
+        const Root = () => p('foo');
+        const wrapper = mount(rendr(Root));
+        const para = wrapper.find('p')!;
+        await waitFor(() => expect(para.textContent).toBe('foo'));
+    });
+
     it('class', async () => {
         const Root = () => p({ class: 'foo' });
         const wrapper = mount(rendr(Root));
