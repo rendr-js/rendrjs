@@ -1,7 +1,11 @@
-# Rendrjs
-![Tests](https://github.com/rendr-js/rendrjs/actions/workflows/main.yml/badge.svg)
+<p align="center">
+  <a href="https://rendrjs.com">
+    <img src="https://rendrjs.com/logo.png" width="318px" alt="Rendrjs logo" />
+  </a>
+</p>
 
-Rendrjs is a framework for building web user interfaces.
+<h3 align="center">Rendrjs is a framework for building web user interfaces.</h3>
+
 
 * **Declarative:** Create interactive UIs with simple, declarative code. Define what your component should look like, and when the state changes, Rendrjs will update the DOM for you.
 * **Component-based:** Build complex UIs with simple, reusable components that manage their own state.
