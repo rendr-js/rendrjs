@@ -165,7 +165,7 @@ export let useAtomSelector = <T, R>(atom: Atom<T> | ReadonlyAtom<T>, selector: (
         } else {
             selects.push([selected, selector]);
         }
-        return () => atom.c.delete(elem);
+        return () => atom.f.delete(elem);
     }, [elem, selector]);
     return selector(atom.s);
 };

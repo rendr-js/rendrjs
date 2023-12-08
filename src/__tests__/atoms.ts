@@ -304,8 +304,17 @@ describe('selectors', () => {
         btn.click();
         await waitFor(() => expect(para.textContent).toBe('6'));
         await waitFor(() => expect(spn.textContent).toBe('foobar'));
-        expect(msgRunner).toHaveBeenCalledTimes(3);
-        expect(msgLenRunner).toHaveBeenCalledTimes(2);
+        btn.click();
+        await waitFor(() => expect(para.textContent).toBe('3'));
+        await waitFor(() => expect(spn.textContent).toBe('foo'));
+        btn.click();
+        await waitFor(() => expect(para.textContent).toBe('3'));
+        await waitFor(() => expect(spn.textContent).toBe('bar'));
+        btn.click();
+        await waitFor(() => expect(para.textContent).toBe('6'));
+        await waitFor(() => expect(spn.textContent).toBe('foobar'));
+        expect(msgRunner).toHaveBeenCalledTimes(6);
+        expect(msgLenRunner).toHaveBeenCalledTimes(4);
     });
 });
 
