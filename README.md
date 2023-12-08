@@ -1,10 +1,13 @@
 <p align="center">
   <a href="https://rendrjs.com">
-    <img src="https://rendrjs.com/logo.png" width="318px" alt="Rendrjs logo" />
+    <img src="https://rendrjs.com/logo.png" width="318px" alt="Rendrjs logo" style="width: 200px;" />
   </a>
 </p>
 
-<h3 align="center">Rendrjs is a framework for building web user interfaces.</h3>
+<h1 align="center">Rendrjs</h1>
+
+<p align="center">Rendrjs is a framework for building web user interfaces.</p>
+
 
 
 * **Declarative:** Create interactive UIs with simple, declarative code. Define what your component should look like, and when the state changes, Rendrjs will update the DOM for you.
