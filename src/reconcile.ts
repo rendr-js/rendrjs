@@ -37,16 +37,6 @@ export var reconcile = (oldElem: Elem, newElem: Elem): void => {
                 (oldDom as Text).data = newProps;
             }
         } else {
-            // for (var attr in newElem.p) {
-            //     if (newElem.p[attr] !== oldElem.p[attr]) {
-            //         setAttr((oldElem as HTMLElementElem).d, attr, newElem.p[attr]);
-            //     }
-            // }
-            // for (var attr in oldElem.p) {
-            //     if (newElem.p[attr] === undef) {
-            //         removeAttribute((oldElem as HTMLElementElem).d, attr);
-            //     }
-            // }
             for (var attr in { ...newProps, ...oldProps }) {
                 if (newProps[attr] !== oldProps[attr]) {
                     if (newProps[attr] === undef) {
@@ -83,10 +73,11 @@ export var callComponentFuncAndReconcile = (oldElem: ComponentElem, newElem: Com
 export var setAttr = (dom: HTMLElement, attr: string, prop: any) => {
     if (prop) {
         if (attr === 'class') {
-            attr = 'className';
+            dom.className = prop;
+        } else {
+            // @ts-expect-error
+            dom[attr] = prop;
         }
-        // @ts-expect-error
-        dom[attr] = prop;
     } else {
         removeAttribute(dom, attr);
     }
@@ -96,14 +87,7 @@ var moveBefore = (parent: ParentNode, newChn: Elem[], oldChn: Elem[], i: number,
     var oldPos = movingDomNode.nextSibling;
     insertBefore(parent, currDomNode, movingDomNode);
     if (currDomNode !== parent.lastChild && newChn[i+1]?.k !== oldChn[i]?.k) {
-        // if (oldPos) {
-        //     insertBefore(parent, oldPos, currDomNode);
-        // } else if (currDomNode !== parent.lastChild) {
-        //     appendChild(parent, currDomNode);
-        // }
-        // if (currDomNode !== parent.lastChild) {
-            insertBefore(parent, oldPos, currDomNode);
-        // }
+        insertBefore(parent, oldPos, currDomNode);
     }
 }
 
@@ -123,13 +107,9 @@ var reconcileChildren = (oldElem: HTMLElementElem, newElem: HTMLElementElem, dom
     
     // prefix
     while (
-    //     var oldChd = oldChn[start], newChd = newChn[start]
-    // ;
         start < newLength &&
         start < oldLength &&
         (newChn[start].k === undef || newChn[start].k === oldChn[start].k)
-    // ;
-    //     oldChd = oldChn[start], newChd = newChn[start]
     ) {
         reconcile(oldChn[start], newChn[start]);
         start++;
@@ -147,13 +127,9 @@ var reconcileChildren = (oldElem: HTMLElementElem, newElem: HTMLElementElem, dom
     oldLength--;
     newLength--;
     while (
-    //     var oldChd = oldChn[oldLength], newChd = newChn[newLength]
-    // ;
         newLength > start &&
         oldLength >= start &&
         (newChn[newLength].k === undef || newChn[newLength].k === oldChn[oldLength].k)
-    // ;
-    //     oldChd = oldChn[oldLength], newChd = newChn[newLength]
     ) {
         reconcile(oldChn[oldLength--], newChn[newLength--]);
     }

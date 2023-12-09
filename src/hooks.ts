@@ -58,7 +58,7 @@ export var useEffect = (effect: () => (void | (() => void)), deps: any[]) => {
         effects.push(ef);
         queueTask(() => {
             if (!elem.u) ef.t = effect();
-        })
+        });
         return;
     }
     var ef = effects[cursor] as EffectRecord;
