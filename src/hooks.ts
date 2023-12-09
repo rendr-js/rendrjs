@@ -17,30 +17,30 @@ export interface MemoRecord {
     v: any
 }
 
-export let isUpdater = <T>(value: SetStateAction<T>): value is UpdateStateAction<T> => isFunction(value);
+export var isUpdater = <T>(value: SetStateAction<T>): value is UpdateStateAction<T> => isFunction(value);
 
-export let useCurrentElem = (): ComponentElem => {
+export var useCurrentElem = (): ComponentElem => {
     if (!current.e) throw illegal('hook');
     return current.e;
 };
 
-let getHookData = <T extends EffectRecord[] | MemoRecord[] | any[]>(): [T, number, ComponentElem] => {
-    let elem = useCurrentElem();
+var getHookData = <T extends EffectRecord[] | MemoRecord[] | any[]>(): [T, number, ComponentElem] => {
+    var elem = useCurrentElem();
     elem.h ??= [];
     return [elem.h as T, elem.i!++, elem];
 };
 
-export let useState = <S>(initialValue: S): [S, Dispatch<SetStateAction<S>>] => {
-    let [states, cursor] = getHookData();
+export var useState = <S>(initialValue: S): [S, Dispatch<SetStateAction<S>>] => {
+    var [states, cursor] = getHookData();
     if (length(states) <= cursor) {
         states.push(initialValue);
     }
-    let ref = useRef(current.e!);
+    var ref = useRef(current.e!);
     setRefValue(ref, current.e!);
-    let setState = useCallback((action: SetStateAction<S>) => {
-        let elem = getRefValue(ref);
+    var setState = useCallback((action: SetStateAction<S>) => {
+        var elem = getRefValue(ref);
         if (elem.u) throw illegal('set state');
-        let newValue: S = isUpdater(action) ? action(states[cursor]) : action;
+        var newValue: S = isUpdater(action) ? action(states[cursor]) : action;
         if (states[cursor] !== newValue) {
             states[cursor] = newValue;
             elem.q ??= [];
@@ -51,17 +51,17 @@ export let useState = <S>(initialValue: S): [S, Dispatch<SetStateAction<S>>] => 
     return [states[cursor], setState];
 };
 
-export let useEffect = (effect: () => (void | (() => void)), deps: any[]) => {
-    let [effects, cursor, elem] = getHookData();
+export var useEffect = (effect: () => (void | (() => void)), deps: any[]) => {
+    var [effects, cursor, elem] = getHookData();
     if (length(effects) <= cursor) {
-        let ef = { d: deps } as EffectRecord;
+        var ef = { d: deps } as EffectRecord;
         effects.push(ef);
         queueTask(() => {
             if (!elem.u) ef.t = effect();
         })
         return;
     }
-    let ef = effects[cursor] as EffectRecord;
+    var ef = effects[cursor] as EffectRecord;
     if (!areDepsEqual(deps, ef.d)) {
         ef.d = deps;
         queueTask(() => {
@@ -71,13 +71,13 @@ export let useEffect = (effect: () => (void | (() => void)), deps: any[]) => {
     }
 };
 
-export let useImmediateEffect = (effect: () => (void | (() => void)), deps: any[]) => {
-    let [effects, cursor] = getHookData();
+export var useImmediateEffect = (effect: () => (void | (() => void)), deps: any[]) => {
+    var [effects, cursor] = getHookData();
     if (length(effects) <= cursor) {
         effects.push({ d: deps, t: effect() });
         return;
     }
-    let ef = effects[cursor] as EffectRecord;
+    var ef = effects[cursor] as EffectRecord;
     if (!areDepsEqual(deps, ef.d)) {
         ef.d = deps;
         ef.t?.();
@@ -85,8 +85,8 @@ export let useImmediateEffect = (effect: () => (void | (() => void)), deps: any[
     }
 };
 
-export let useDeferredEffect = (effect: () => (void | (() => void)), deps: any[]) => {
-    let first = useRef(false);
+export var useDeferredEffect = (effect: () => (void | (() => void)), deps: any[]) => {
+    var first = useRef(false);
     useEffect(() => {
         if (!getRefValue(first)) {
             setRefValue(first, true);
@@ -96,17 +96,17 @@ export let useDeferredEffect = (effect: () => (void | (() => void)), deps: any[]
     }, deps);
 };
 
-export let useMemo = <T>(create: () => T, deps: any[]): T => {
-    let [memos, cursor] = getHookData();
+export var useMemo = <T>(create: () => T, deps: any[]): T => {
+    var [memos, cursor] = getHookData();
     if (length(memos) <= cursor) {
-        let value = create();
+        var value = create();
         memos.push({
             d: deps,
             v: value,
         } as MemoRecord);
         return value;
     }
-    let memo = memos[cursor] as MemoRecord;
+    var memo = memos[cursor] as MemoRecord;
     if (!areDepsEqual(deps, memo.d)) {
         memo.d = deps;
         memo.v = create();
@@ -114,16 +114,16 @@ export let useMemo = <T>(create: () => T, deps: any[]): T => {
     return memo.v;
 };
 
-export let useCallback = <T extends Function>(cb: T, deps: any[]): T => useMemo(() => cb, deps);
+export var useCallback = <T extends Function>(cb: T, deps: any[]): T => useMemo(() => cb, deps);
 
 export interface Ref<T = any> {
     value: T
 }
 
-export let useRef = <T>(initialValue: T): Ref<T> => useMemo<Ref<T>>(() => ({ value: initialValue }), STATIC_EMPTY_ARRAY);
+export var useRef = <T>(initialValue: T): Ref<T> => useMemo<Ref<T>>(() => ({ value: initialValue }), STATIC_EMPTY_ARRAY);
 
-let flush = (elem: Elem) => {
-    let tip = elem.q?.pop();
+var flush = (elem: Elem) => {
+    var tip = elem.q?.pop();
     if (tip) {
         truncate(elem.q);
         reconcile(elem.v!, tip);
@@ -131,35 +131,35 @@ let flush = (elem: Elem) => {
     }
 };
 
-export let current: { e: ComponentElem | undefined } = {
+export var current: { e: ComponentElem | undefined } = {
     e: undef,
 };
 
-let useAtomSubscription = <T>(atom: Atom<T> | ReadonlyAtom<T>) => {
-    let elem = useCurrentElem();
+var useAtomSubscription = <T>(atom: Atom<T> | ReadonlyAtom<T>) => {
+    var elem = useCurrentElem();
     useImmediateEffect(() => {
         atom.c.add(elem);
         return () => atom.c.delete(elem);
     }, [elem]);
 };
 
-export let useAtom = <T>(atom: Atom<T>): [T, Dispatch<SetStateAction<T>>] => {
+export var useAtom = <T>(atom: Atom<T>): [T, Dispatch<SetStateAction<T>>] => {
     useAtomSubscription(atom);
     return [atom.s, atom.u];
 };
 
-export let useAtomSetter = <T>(atom: Atom<T>): Dispatch<SetStateAction<T>> => atom.u;
+export var useAtomSetter = <T>(atom: Atom<T>): Dispatch<SetStateAction<T>> => atom.u;
 
-export let useAtomValue = <T>(atom: Atom<T> | ReadonlyAtom<T>): T => {
+export var useAtomValue = <T>(atom: Atom<T> | ReadonlyAtom<T>): T => {
     useAtomSubscription(atom);
     return atom.s;
 };
 
-export let useAtomSelector = <T, R>(atom: Atom<T> | ReadonlyAtom<T>, selector: (state: T) => R): R => {
-    let elem = useCurrentElem();
+export var useAtomSelector = <T, R>(atom: Atom<T> | ReadonlyAtom<T>, selector: (state: T) => R): R => {
+    var elem = useCurrentElem();
     useImmediateEffect(() => {
-        let selected = selector(atom.s);
-        let selects = atom.f.get(elem);
+        var selected = selector(atom.s);
+        var selects = atom.f.get(elem);
         if (!selects) {
             atom.f.set(elem, [[selected, selector]]);
         } else {

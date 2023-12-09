@@ -7,7 +7,7 @@ export type ComponentElem<T = any> = Elem<T> & { t: Component<T> };
 export type ElemType<T = any> = string | Component<T>;
 export type SlotElem = null | undefined | boolean | string | Elem;
 export type Slot = SlotElem | SlotElem[];
-export let TEXT_NODE_TYPE = '0';
+export var TEXT_NODE_TYPE = '0';
 
 export interface Elem<T = any> {
     t: ElemType<T> // type
@@ -31,18 +31,18 @@ type RendrComponent = {
     (ty: Component<void>, props?: { key?: string, memo?: any[] }): Elem<void>
 };
 
-export let rendr: RendrComponent = (ty: any, props?: any): any => ({
+export var rendr: RendrComponent = (ty: any, props?: any): any => ({
     t: ty,
     p: props,
     k: props?.key,
     m: props?.memo,
 });
 
-export let callComponentFunc = <T>(elem: ComponentElem<T>): Elem => {
-    let prev = current.e;
+export var callComponentFunc = <T>(elem: ComponentElem<T>): Elem => {
+    var prev = current.e;
     current.e = elem;
     elem.i = 0;
-    let vd = elem.t(elem.p as T);
+    var vd = elem.t(elem.p as T);
     current.e = prev;
     return normalizeSlotElem(vd);
 }
@@ -94,8 +94,8 @@ export type SVGElementAttributes<Tag extends string & keyof SVGElementTagNameMap
     { style?: string, class?: string, height?: number, width?: number, viewBox?: string } &
     NarrowedSVGEventHandler<'click', Tag, 'currentTarget'>;
 
-export let element = <Tag extends keyof HTMLElementTagNameMap | keyof SVGElementTagNameMap, Attrs extends RendrAttributes = Tag extends keyof HTMLElementTagNameMap ? HTMLElementAttributes<Tag> : Tag extends keyof SVGElementTagNameMap ? SVGElementAttributes<Tag> : never>(ty: Tag, attrs?: Attrs | string): Elem<Tag> => {
-    let elem: Elem = { t: ty };
+export var element = <Tag extends keyof HTMLElementTagNameMap | keyof SVGElementTagNameMap, Attrs extends RendrAttributes = Tag extends keyof HTMLElementTagNameMap ? HTMLElementAttributes<Tag> : Tag extends keyof SVGElementTagNameMap ? SVGElementAttributes<Tag> : never>(ty: Tag, attrs?: Attrs | string): Elem<Tag> => {
+    var elem: Elem = { t: ty };
     if (attrs === undef) {
         return elem;
     } else if (isString(attrs)) {
@@ -117,7 +117,7 @@ export let element = <Tag extends keyof HTMLElementTagNameMap | keyof SVGElement
         } else if (!Array.isArray(elem.c)) {
             elem.c = [elem.c] as Elem[];
         } else {
-            for (let i = length(elem.c) - 1; i >= 0; i--) {
+            for (var i = length(elem.c) - 1; i >= 0; i--) {
                 elem.c[i] = normalizeSlotElem(elem.c[i]);
             }
         }
@@ -125,23 +125,23 @@ export let element = <Tag extends keyof HTMLElementTagNameMap | keyof SVGElement
     return elem;
 }
 
-let createTextElem = (p: string) => ({ t: TEXT_NODE_TYPE, p });
+var createTextElem = (p: string) => ({ t: TEXT_NODE_TYPE, p });
 
-let normalizeSlotElem = (elem: SlotElem): Elem => {
+var normalizeSlotElem = (elem: SlotElem): Elem => {
     if (isFalsySlotElem(elem)) return createTextElem('');
     if (isString(elem)) return createTextElem(elem);
     return elem;
 };
 
-let isFalsySlotElem = (elem: any): elem is null | undefined | boolean => !elem || elem === true;
+var isFalsySlotElem = (elem: any): elem is null | undefined | boolean => !elem || elem === true;
 
-let nameSpacePrefix = 'http://www.w3.org/';
-let nameSpaceMap: { [key: string]: string } = {
+var nameSpacePrefix = 'http://www.w3.org/';
+var nameSpaceMap: { [key: string]: string } = {
     svg: nameSpacePrefix + '2000/svg',
     math: nameSpacePrefix + '1998/Math/MathML',
 };
 
-export let createDom = <T>(elem: Elem<T>, ns?: string | undefined): ChildNode => {
+export var createDom = <T>(elem: Elem<T>, ns?: string | undefined): ChildNode => {
     if (elem.t === TEXT_NODE_TYPE) {
         elem.d = $document.createTextNode(elem.p as string);
     } else if (isString(elem.t)) {
@@ -149,7 +149,7 @@ export let createDom = <T>(elem: Elem<T>, ns?: string | undefined): ChildNode =>
         ns = elem.p?.xmlns ?? nameSpaceMap[elem.t] ?? ns;
         elem.d = ns ? $document.createElementNS(ns, elem.t) : $document.createElement(elem.t);
         setRef(elem, elem.d);
-        for (let attr in elem.p) {
+        for (var attr in elem.p) {
             setAttr(elem.d as HTMLElement, attr, elem.p[attr]);
         }
         forEach(elem.c, c => appendChild(elem.d!, createDom(c, ns)));

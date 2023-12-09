@@ -12,10 +12,10 @@ type Lazy = {
     <T extends { [key: string]: any }>(config: LazyConfig<T>): Component<T>
 };
 
-export let lazy: Lazy = <T>(config: LazyConfig<T>): Component<T> => {
-    let comp: any = undef;
+export var lazy: Lazy = <T>(config: LazyConfig<T>): Component<T> => {
+    var comp: any = undef;
     return (props: any) => {
-        let [slot, setSlot] = useState({ val: comp ?? (() => config.fallback) });
+        var [slot, setSlot] = useState({ val: comp ?? (() => config.fallback) });
         useEffect(() => {
             if (!comp) {
                 config.import().then(e => {

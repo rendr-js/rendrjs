@@ -3,7 +3,7 @@ import { appendChild, areDepsEqual, deleteObjectProperty, insertBefore, isString
 
 type HTMLElementElem = Elem & { d: HTMLElement };
 
-let teardown = (elem: Elem) => {
+var teardown = (elem: Elem) => {
     setRef(elem, undef);
     if (elem.v) {
         elem.u = true;
@@ -15,41 +15,53 @@ let teardown = (elem: Elem) => {
     }
 }
 
-let getDom = (elem: Elem): ChildNode => {
+var getDom = (elem: Elem): ChildNode => {
     while (elem.v) {
         elem = elem.v!;
     }
     return elem.d!;
 };
 
-export let reconcile = (oldElem: Elem, newElem: Elem): void => {
+export var reconcile = (oldElem: Elem, newElem: Elem): void => {
     newElem.u = false;
+    var oldDom = oldElem.d;
+    var newProps = newElem.p;
+    var oldProps = oldElem.p;
     if (oldElem.t !== newElem.t) {
         teardown(oldElem);
         getDom(oldElem).replaceWith(createDom(newElem));
     } else if (isString(oldElem.t)) {
-        newElem.d = oldElem.d;
+        newElem.d = oldDom;
         if (oldElem.t === TEXT_NODE_TYPE) {
-            if (oldElem.p !== newElem.p) {
-                (oldElem.d as Text).data = newElem.p;
+            if (oldProps !== newProps) {
+                (oldDom as Text).data = newProps;
             }
         } else {
-            for (let attr in newElem.p) {
-                if (newElem.p[attr] !== oldElem.p[attr]) {
-                    setAttr((oldElem as HTMLElementElem).d, attr, newElem.p[attr]);
-                }
-            }
-            for (let attr in oldElem.p) {
-                if (newElem.p[attr] === undef) {
-                    removeAttribute((oldElem as HTMLElementElem).d, attr);
+            // for (var attr in newElem.p) {
+            //     if (newElem.p[attr] !== oldElem.p[attr]) {
+            //         setAttr((oldElem as HTMLElementElem).d, attr, newElem.p[attr]);
+            //     }
+            // }
+            // for (var attr in oldElem.p) {
+            //     if (newElem.p[attr] === undef) {
+            //         removeAttribute((oldElem as HTMLElementElem).d, attr);
+            //     }
+            // }
+            for (var attr in { ...newProps, ...oldProps }) {
+                if (newProps[attr] !== oldProps[attr]) {
+                    if (newProps[attr] === undef) {
+                        removeAttribute(oldDom as Element, attr);
+                    } else {
+                        setAttr(oldDom as HTMLElement, attr, newProps[attr]);
+                    }
                 }
             }
             if (newElem.r) {
-                setRefValue(newElem.r, oldElem.d);
+                setRefValue(newElem.r, oldDom);
             } else {
                 setRef(oldElem, undef);
             }
-            reconcileChildren(oldElem as HTMLElementElem, newElem as HTMLElementElem);
+            reconcileChildren(oldElem as HTMLElementElem, newElem as HTMLElementElem, oldDom as Element);
         }
     } else {
         newElem.h = oldElem.h;
@@ -62,68 +74,71 @@ export let reconcile = (oldElem: Elem, newElem: Elem): void => {
     }
 }
 
-export let callComponentFuncAndReconcile = (oldElem: ComponentElem, newElem: ComponentElem) => {
-    let newElemVdom = callComponentFunc(newElem);
+export var callComponentFuncAndReconcile = (oldElem: ComponentElem, newElem: ComponentElem) => {
+    var newElemVdom = callComponentFunc(newElem);
     reconcile(oldElem.v!, newElemVdom);
     newElem.v = newElemVdom;
 };
 
-export let setAttr = (dom: HTMLElement, attr: string, prop: any) => {
+export var setAttr = (dom: HTMLElement, attr: string, prop: any) => {
     if (prop) {
         if (attr === 'class') {
-            dom.className = prop;
-        } else {
-            // @ts-expect-error
-            dom[attr] = prop;
+            attr = 'className';
         }
+        // @ts-expect-error
+        dom[attr] = prop;
     } else {
         removeAttribute(dom, attr);
     }
 };
 
-let moveBefore = (parent: ParentNode, newChn: Elem[], oldChn: Elem[], i: number, currDomNode: ChildNode, movingDomNode: ChildNode) => {
-    let oldPos = movingDomNode.nextSibling;
+var moveBefore = (parent: ParentNode, newChn: Elem[], oldChn: Elem[], i: number, currDomNode: ChildNode, movingDomNode: ChildNode) => {
+    var oldPos = movingDomNode.nextSibling;
     insertBefore(parent, currDomNode, movingDomNode);
-    if (newChn[i+1]?.k !== oldChn[i]?.k) {
-        if (oldPos) {
+    if (currDomNode !== parent.lastChild && newChn[i+1]?.k !== oldChn[i]?.k) {
+        // if (oldPos) {
+        //     insertBefore(parent, oldPos, currDomNode);
+        // } else if (currDomNode !== parent.lastChild) {
+        //     appendChild(parent, currDomNode);
+        // }
+        // if (currDomNode !== parent.lastChild) {
             insertBefore(parent, oldPos, currDomNode);
-        } else if (currDomNode !== parent.lastChild) {
-            appendChild(parent, currDomNode);
-        }
+        // }
     }
 }
 
 type ChilrenMap = { [key: string]: Elem<any> };
 
-let reconcileChildren = (oldElem: HTMLElementElem, newElem: HTMLElementElem) => {
-    let newChn = newElem.c ?? STATIC_EMPTY_ARRAY;
-    let oldChn = oldElem.c ?? STATIC_EMPTY_ARRAY;
-    let newLength = length(newChn);
-    let oldLength = length(oldChn);
+var reconcileChildren = (oldElem: HTMLElementElem, newElem: HTMLElementElem, dom: Element) => {
+    var newChn = newElem.c ?? STATIC_EMPTY_ARRAY;
+    var oldChn = oldElem.c ?? STATIC_EMPTY_ARRAY;
+    var newLength = length(newChn);
+    var oldLength = length(oldChn);
     if (newLength === 0 && oldLength > 0) {
         (getDom(oldElem) as HTMLElement).innerHTML = '';
         forEach(oldChn, teardown);
         return;
     }
-    let start = 0;
+    var start = 0;
     
     // prefix
-    for (
-        let oldChd = oldChn[start], newChd = newChn[start]
-    ;
+    while (
+    //     var oldChd = oldChn[start], newChd = newChn[start]
+    // ;
         start < newLength &&
         start < oldLength &&
-        (newChd.k === undef || newChd.k === oldChd.k)
-    ;
-        oldChd = oldChn[start], newChd = newChn[start]
+        (newChn[start].k === undef || newChn[start].k === oldChn[start].k)
+    // ;
+    //     oldChd = oldChn[start], newChd = newChn[start]
     ) {
-        reconcile(oldChd, newChd);
+        reconcile(oldChn[start], newChn[start]);
         start++;
     }
     if (start >= newLength) {
-        for (let i = start; i < oldLength; i++) {
-            remove(getDom(oldChn[i]));
-            teardown(oldChn[i]);
+        while (start < oldLength) {
+            remove(getDom(oldChn[start]));
+            teardown(oldChn[start]);
+            start++;
         }
         return;
     }
@@ -131,44 +146,48 @@ let reconcileChildren = (oldElem: HTMLElementElem, newElem: HTMLElementElem) => 
     // suffix
     oldLength--;
     newLength--;
-    for (
-        let oldChd = oldChn[oldLength], newChd = newChn[newLength]
-    ;
+    while (
+    //     var oldChd = oldChn[oldLength], newChd = newChn[newLength]
+    // ;
         newLength > start &&
         oldLength >= start &&
-        (newChd.k === undef || newChd.k === oldChd.k)
-    ;
-        oldChd = oldChn[oldLength], newChd = newChn[newLength]
+        (newChn[newLength].k === undef || newChn[newLength].k === oldChn[oldLength].k)
+    // ;
+    //     oldChd = oldChn[oldLength], newChd = newChn[newLength]
     ) {
-        reconcile(oldChd, newChd);
-        oldLength--;
-        newLength--;
+        reconcile(oldChn[oldLength--], newChn[newLength--]);
     }
 
-    let oldMap = {} as ChilrenMap;
-    for (let i = start; i <= oldLength; i++) {
+    var oldMap = {} as ChilrenMap;
+    for (var i = start; i <= oldLength; i++) {
         if (oldChn[i].k && (!newChn[i] || oldChn[i].k !== newChn[i].k)) {
             oldMap[oldChn[i].k!] = oldChn[i];
         }
     }
-    for (; start <= newLength; start++) {
-        let newChd = newChn[start];
-        if (!oldChn[start]) {
-            appendChild(oldElem.d, createDom(newChd));
-        } else if (oldMap[newChd.k!]) {
-            if (oldElem.d.childNodes[start] !== oldMap[newChd.k!].d!) {
-                moveBefore(oldElem.d, newChn, oldChn, start, oldElem.d.childNodes[start], getDom(oldMap[newChd.k!]));
+    
+    while (start <= newLength) {
+        var newChd = newChn[start];
+        var newKey = newChd.k;
+        var oldChd = oldChn[start];
+        var chdDom = dom.childNodes[start];
+        var mappedOld = oldMap[newKey!];
+        if (!oldChd) {
+            appendChild(dom, createDom(newChd));
+        } else if (mappedOld) {
+            if (chdDom !== mappedOld.d) {
+                moveBefore(dom, newChn, oldChn, start, chdDom, getDom(mappedOld));
             }
-            reconcile(oldMap[newChd.k!], newChd);
-            deleteObjectProperty(oldMap, newChd.k!);
-        } else if (oldChn[start] && oldChn[start].k === newChd.k) {
-            reconcile(oldChn[start], newChd);
+            reconcile(mappedOld, newChd);
+            deleteObjectProperty(oldMap, newKey!);
+        } else if (oldChd && oldChd.k === newKey) {
+            reconcile(oldChd, newChd);
         } else {
-            moveBefore(oldElem.d, newChn, oldChn, start, oldElem.d.childNodes[start], createDom(newChd));
+            moveBefore(dom, newChn, oldChn, start, chdDom, createDom(newChd));
         }
+        start++;
     }
 
-    for (let key in oldMap) {
+    for (var key in oldMap) {
         remove(getDom(oldMap[key]));
         teardown(oldMap[key]);
     }
