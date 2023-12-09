@@ -32,11 +32,7 @@ export var reconcile = (oldElem: Elem, newElem: Elem): void => {
         getDom(oldElem).replaceWith(createDom(newElem));
     } else if (isString(oldElem.t)) {
         newElem.d = oldDom;
-        if (oldElem.t === TEXT_NODE_TYPE) {
-            if (oldProps !== newProps) {
-                (oldDom as Text).data = newProps;
-            }
-        } else {
+        if (oldElem.t !== TEXT_NODE_TYPE) {
             for (var attr in { ...newProps, ...oldProps }) {
                 if (newProps[attr] !== oldProps[attr]) {
                     if (newProps[attr] === undef) {
@@ -52,6 +48,8 @@ export var reconcile = (oldElem: Elem, newElem: Elem): void => {
                 setRef(oldElem, undef);
             }
             reconcileChildren(oldElem as HTMLElementElem, newElem as HTMLElementElem, oldDom as Element);
+        } else if (oldProps !== newProps) {
+            (oldDom as Text).data = newProps;
         }
     } else {
         newElem.h = oldElem.h;
@@ -71,15 +69,13 @@ export var callComponentFuncAndReconcile = (oldElem: ComponentElem, newElem: Com
 };
 
 export var setAttr = (dom: HTMLElement, attr: string, prop: any) => {
-    if (prop) {
-        if (attr === 'class') {
-            dom.className = prop;
-        } else {
-            // @ts-expect-error
-            dom[attr] = prop;
-        }
-    } else {
+    if (!prop) {
         removeAttribute(dom, attr);
+    } else if (attr === 'class') {
+        dom.className = prop;
+    } else {
+        // @ts-expect-error
+        dom[attr] = prop;
     }
 };
 
@@ -155,7 +151,7 @@ var reconcileChildren = (oldElem: HTMLElementElem, newElem: HTMLElementElem, dom
             }
             reconcile(mappedOld, newChd);
             deleteObjectProperty(oldMap, newKey!);
-        } else if (oldChd && oldChd.k === newKey) {
+        } else if (oldChd.k === newKey) {
             reconcile(oldChd, newChd);
         } else {
             moveBefore(dom, newChn, oldChn, start, chdDom, createDom(newChd));
