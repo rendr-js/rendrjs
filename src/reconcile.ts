@@ -1,4 +1,4 @@
-import { ComponentElem, createDom, Elem, callComponentFunc, TEXT_NODE_TYPE } from './elem.js';
+import { ComponentElem, createDom, Elem, callComponentFunc } from './elem.js';
 import { appendChild, areDepsEqual, deleteObjectProperty, insertBefore, isString, length, remove, removeAttribute, setRefValue, setRef, truncate, undef, forEach, STATIC_EMPTY_ARRAY } from './utils.js';
 
 type HTMLElementElem = Elem & { d: HTMLElement };
@@ -24,15 +24,15 @@ var getDom = (elem: Elem): ChildNode => {
 
 export var reconcile = (oldElem: Elem, newElem: Elem): void => {
     newElem.u = false;
-    var oldDom = oldElem.d;
+    var oldDom = getDom(oldElem);
     var newProps = newElem.p;
     var oldProps = oldElem.p;
     if (oldElem.t !== newElem.t) {
         teardown(oldElem);
-        getDom(oldElem).replaceWith(createDom(newElem));
+        oldDom.replaceWith(createDom(newElem));
     } else if (isString(oldElem.t)) {
         newElem.d = oldDom;
-        if (oldElem.t !== TEXT_NODE_TYPE) {
+        if (length(oldElem.t)) {
             for (var attr in { ...newProps, ...oldProps }) {
                 if (newProps[attr] !== oldProps[attr]) {
                     if (newProps[attr] === undef) {

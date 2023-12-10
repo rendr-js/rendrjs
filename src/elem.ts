@@ -7,7 +7,6 @@ export type ComponentElem<T = any> = Elem<T> & { t: Component<T> };
 export type ElemType<T = any> = string | Component<T>;
 export type SlotElem = null | undefined | boolean | string | Elem;
 export type Slot = SlotElem | SlotElem[];
-export var TEXT_NODE_TYPE = '0';
 
 export interface Elem<T = any> {
     t: ElemType<T> // type
@@ -125,7 +124,7 @@ export var element = <Tag extends keyof HTMLElementTagNameMap | keyof SVGElement
     return elem;
 }
 
-var createTextElem = (p: string) => ({ t: TEXT_NODE_TYPE, p });
+var createTextElem = (p: string) => ({ t: '', p });
 
 var normalizeSlotElem = (elem: SlotElem): Elem => {
     if (isFalsySlotElem(elem)) return createTextElem('');
@@ -142,7 +141,7 @@ var nameSpaceMap: { [key: string]: string } = {
 };
 
 export var createDom = <T>(elem: Elem<T>, ns?: string | undefined): ChildNode => {
-    if (elem.t === TEXT_NODE_TYPE) {
+    if (elem.t === '') {
         elem.d = $document.createTextNode(elem.p as string);
     } else if (isString(elem.t)) {
         // @ts-expect-error
