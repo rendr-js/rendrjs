@@ -68,16 +68,29 @@ export var callComponentFuncAndReconcile = (oldElem: ComponentElem, newElem: Com
     newElem.v = newElemVdom;
 };
 
+
+let CAP_LETTER_RE = new RegExp('[A-Z]', 'g')
+
+let addDash = (m: string) => '-' + m.toLowerCase();
+let camelTokebab = (s: string): string => {
+  if (s !== s.toLowerCase()) {
+    s = s.replace(CAP_LETTER_RE, addDash);
+  }
+  return s;
+}
+
 export var setAttr = (dom: HTMLElement, attr: string, prop: any) => {
     if (!prop) {
-        dom.removeAttribute(attr);
-    } else if (attr === 'class') {
-        dom.className = prop;
-    } else if (!attr.indexOf('on') || !attr.indexOf('aria')) {
+        dom.removeAttribute(camelTokebab(attr));
+    // } else if (attr === 'class') {
+    //     // dom.className = prop;
+    //     dom.classList.add(prop);
+    } else if (!attr.indexOf('on')) {
         // @ts-expect-error
         dom[attr] = prop;
     } else {
-        dom.setAttribute(attr, prop);
+        dom.setAttribute(camelTokebab(attr), prop);
+        
     }
 };
 
