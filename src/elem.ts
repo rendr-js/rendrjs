@@ -1,6 +1,6 @@
 import { current, Ref } from './hooks.js';
 import { setAttr } from './reconcile.js';
-import { $document, appendChild, deleteObjectProperty, forEach, isString, length, setRef, undef } from './utils.js';
+import { $document } from './utils.js';
 
 export type Component<T> = (props: T) => SlotElem;
 export type ComponentElem<T = any> = Elem<T> & { t: Component<T> };
@@ -97,7 +97,7 @@ export var element = <Tag extends keyof HTMLElementTagNameMap | keyof SVGElement
     var elem: Elem = { t: ty };
     if (!attrs) {
         return elem;
-    } else if (isString(attrs)) {
+    } else if (typeof attrs === 'string') {
         elem.c = [createTextElem(attrs)];
         return elem;
     }
@@ -105,18 +105,18 @@ export var element = <Tag extends keyof HTMLElementTagNameMap | keyof SVGElement
     elem.k = attrs.key;
     elem.c = attrs.slot as Elem[];
     elem.r = attrs.ref;
-    deleteObjectProperty(attrs, 'key');
-    deleteObjectProperty(attrs, 'ref');
-    deleteObjectProperty(attrs, 'slot');
-    if (elem.c !== undef) {
+    delete attrs.key;
+    delete attrs.ref;
+    delete attrs.slot;
+    if (elem.c !== undefined) {
         if (isFalsySlotElem(elem.c)) {
             elem.c = [createTextElem('')];
-        } else if (isString(elem.c)) {
+        } else if (typeof elem.c === 'string') {
             elem.c = [createTextElem(elem.c)];
         } else if (!Array.isArray(elem.c)) {
             elem.c = [elem.c] as Elem[];
         } else {
-            for (var i = length(elem.c) - 1; i >= 0; i--) {
+            for (var i = elem.c.length - 1; i >= 0; i--) {
                 elem.c[i] = normalizeSlotElem(elem.c[i]);
             }
         }
@@ -128,7 +128,7 @@ var createTextElem = (p: string) => ({ t: '', p });
 
 var normalizeSlotElem = (elem: SlotElem): Elem => {
     if (isFalsySlotElem(elem)) return createTextElem('');
-    if (isString(elem)) return createTextElem(elem);
+    if (typeof elem === 'string') return createTextElem(elem);
     return elem;
 };
 
@@ -143,15 +143,15 @@ var nameSpaceMap: { [key: string]: string } = {
 export var createDom = <T>(elem: Elem<T>, ns?: string | undefined): ChildNode => {
     if (elem.t === '') {
         elem.d = $document.createTextNode(elem.p as string);
-    } else if (isString(elem.t)) {
+    } else if (typeof elem.t === 'string') {
         // @ts-expect-error
         ns = elem.p?.xmlns ?? nameSpaceMap[elem.t] ?? ns;
         elem.d = ns ? $document.createElementNS(ns, elem.t) : $document.createElement(elem.t);
-        setRef(elem, elem.d);
+        if (elem.r) elem.r.value = elem.d;
         for (var attr in elem.p) {
             setAttr(elem.d as HTMLElement, attr, elem.p[attr]);
         }
-        forEach(elem.c, c => appendChild(elem.d!, createDom(c, ns)));
+        elem.c?.forEach(c => elem.d!.appendChild(createDom(c, ns)));
     } else {
         elem.v = callComponentFunc(elem as ComponentElem<T>);
         return createDom(elem.v, ns);

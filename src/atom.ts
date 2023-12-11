@@ -1,7 +1,6 @@
 import { Dispatch, SetStateAction, isUpdater } from './hooks.js';
 import { ComponentElem } from './elem.js';
 import { callComponentFuncAndReconcile } from './reconcile.js';
-import { forEach, isFunction, length, queueTask } from './utils.js';
 
 export type AtomSelector<T, R> = (state: T) => R
 
@@ -31,7 +30,7 @@ export interface AtomOptions<T> {
     watch?: (prevState: T, newState: T) => void
 }
 
-export var createAtom: CreateAtom = (config: any, options?: any): any => isFunction(config) ? createDerivedAtom(config, options) : createStandardAtom(config, options);
+export var createAtom: CreateAtom = (config: any, options?: any): any => typeof config === 'function' ? createDerivedAtom(config, options) : createStandardAtom(config, options);
 
 var createStandardAtom = <T>(initialValue: T, options?: AtomOptions<T>): Atom<T> => {
     var atom: Atom<T> = {
@@ -41,7 +40,7 @@ var createStandardAtom = <T>(initialValue: T, options?: AtomOptions<T>): Atom<T>
             atom.s = isUpdater(action) ? action(oldState) : action;
             if (oldState !== atom.s) {
                 options?.watch?.(oldState, atom.s);
-                queueTask(atom.r);
+                queueMicrotask(atom.r);
             }
         },
         r: () => updateAtomSubscribers(atom),
@@ -83,9 +82,9 @@ var updateAtomSubscribers = <T>(atom: Atom<T> | ReadonlyAtom<T>): void => {
             callComponentFuncAndReconcile(component, component);
         }
     }
-    forEach<any>(atom.a, a => a.r());
+    atom.a.forEach(a => a.r());
     for (var [component, selects] of [...atom.f.entries()]) {
-        for (var i = length(selects) - 1; i >= 0; i--) {
+        for (var i = selects.length - 1; i >= 0; i--) {
             var [selected, selector] = selects[i];
             var newSelected = selector(atom.s);
             if (selected !== newSelected) {

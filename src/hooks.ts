@@ -1,7 +1,7 @@
 import { Atom, ReadonlyAtom } from './atom.js';
 import { ComponentElem, Elem, callComponentFunc } from './elem.js';
 import { reconcile } from './reconcile.js';
-import { areDepsEqual, getRefValue, illegal, isFunction, length, queueTask, setRefValue, truncate, undef, STATIC_EMPTY_ARRAY } from './utils.js';
+import { areDepsEqual } from './utils.js';
 
 export type UpdateStateAction<S> = (state: S) => S;
 export type SetStateAction<S> = S | UpdateStateAction<S>;
@@ -17,10 +17,10 @@ export interface MemoRecord {
     v: any
 }
 
-export var isUpdater = <T>(value: SetStateAction<T>): value is UpdateStateAction<T> => isFunction(value);
+export var isUpdater = <T>(value: SetStateAction<T>): value is UpdateStateAction<T> => typeof value === 'function';
 
 export var useCurrentElem = (): ComponentElem => {
-    if (!current.e) throw illegal('hook');
+    if (!current.e) throw 'bad hook';
     return current.e;
 };
 
@@ -32,31 +32,31 @@ var getHookData = <T extends EffectRecord[] | MemoRecord[] | any[]>(): [T, numbe
 
 export var useState = <S>(initialValue: S): [S, Dispatch<SetStateAction<S>>] => {
     var [states, cursor] = getHookData();
-    if (length(states) <= cursor) {
+    if (states.length <= cursor) {
         states.push(initialValue);
     }
     var ref = useRef(current.e!);
-    setRefValue(ref, current.e!);
+    ref.value = current.e!;
     var setState = useCallback((action: SetStateAction<S>) => {
-        var elem = getRefValue(ref);
-        if (elem.u) throw illegal('set state');
+        var elem = ref.value;
+        if (elem.u) throw 'bad set state';
         var newValue: S = isUpdater(action) ? action(states[cursor]) : action;
         if (states[cursor] !== newValue) {
             states[cursor] = newValue;
             elem.q ??= [];
             elem.q!.push(callComponentFunc(elem));
-            queueTask(() => flush(elem));
+            queueMicrotask(() => flush(elem));
         }
-    }, STATIC_EMPTY_ARRAY);
+    }, []);
     return [states[cursor], setState];
 };
 
 export var useEffect = (effect: () => (void | (() => void)), deps: any[]) => {
     var [effects, cursor, elem] = getHookData();
-    if (length(effects) <= cursor) {
+    if (effects.length <= cursor) {
         var ef = { d: deps } as EffectRecord;
         effects.push(ef);
-        queueTask(() => {
+        queueMicrotask(() => {
             if (!elem.u) ef.t = effect();
         });
         return;
@@ -64,7 +64,7 @@ export var useEffect = (effect: () => (void | (() => void)), deps: any[]) => {
     var ef = effects[cursor] as EffectRecord;
     if (!areDepsEqual(deps, ef.d)) {
         ef.d = deps;
-        queueTask(() => {
+        queueMicrotask(() => {
             ef.t?.();
             if (!elem.u) ef.t = effect();
         });
@@ -73,7 +73,7 @@ export var useEffect = (effect: () => (void | (() => void)), deps: any[]) => {
 
 export var useImmediateEffect = (effect: () => (void | (() => void)), deps: any[]) => {
     var [effects, cursor] = getHookData();
-    if (length(effects) <= cursor) {
+    if (effects.length <= cursor) {
         effects.push({ d: deps, t: effect() });
         return;
     }
@@ -88,8 +88,8 @@ export var useImmediateEffect = (effect: () => (void | (() => void)), deps: any[
 export var useDeferredEffect = (effect: () => (void | (() => void)), deps: any[]) => {
     var first = useRef(false);
     useEffect(() => {
-        if (!getRefValue(first)) {
-            setRefValue(first, true);
+        if (!first.value) {
+            first.value = true;
             return;
         }
         effect();
@@ -98,7 +98,7 @@ export var useDeferredEffect = (effect: () => (void | (() => void)), deps: any[]
 
 export var useMemo = <T>(create: () => T, deps: any[]): T => {
     var [memos, cursor] = getHookData();
-    if (length(memos) <= cursor) {
+    if (memos.length <= cursor) {
         var value = create();
         memos.push({
             d: deps,
@@ -120,19 +120,19 @@ export interface Ref<T = any> {
     value: T
 }
 
-export var useRef = <T>(initialValue: T): Ref<T> => useMemo<Ref<T>>(() => ({ value: initialValue }), STATIC_EMPTY_ARRAY);
+export var useRef = <T>(initialValue: T): Ref<T> => useMemo<Ref<T>>(() => ({ value: initialValue }), []);
 
 var flush = (elem: Elem) => {
     var tip = elem.q?.pop();
     if (tip) {
-        truncate(elem.q);
+        if (elem.q) elem.q.length = 0;
         reconcile(elem.v!, tip);
         elem.v = tip;
     }
 };
 
 export var current: { e: ComponentElem | undefined } = {
-    e: undef,
+    e: undefined,
 };
 
 var useAtomSubscription = <T>(atom: Atom<T> | ReadonlyAtom<T>) => {

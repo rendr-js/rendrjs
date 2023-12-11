@@ -1,6 +1,5 @@
 import { useEffect, useState } from './hooks.js';
 import { Component, SlotElem, rendr } from './elem.js';
-import { STATIC_EMPTY_ARRAY, undef } from './utils.js';
 
 export interface LazyConfig<T> {
     import: () => Promise<{ default: Component<T> }>
@@ -13,7 +12,7 @@ type Lazy = {
 };
 
 export var lazy: Lazy = <T>(config: LazyConfig<T>): Component<T> => {
-    var comp: any = undef;
+    var comp: any = undefined;
     return (props: any) => {
         var [slot, setSlot] = useState({ val: comp ?? (() => config.fallback) });
         useEffect(() => {
@@ -23,7 +22,7 @@ export var lazy: Lazy = <T>(config: LazyConfig<T>): Component<T> => {
                     comp = e.default;
                 });
             }
-        }, STATIC_EMPTY_ARRAY);
+        }, []);
         return rendr(slot.val, props);
     };
 };
