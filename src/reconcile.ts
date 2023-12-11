@@ -71,9 +71,6 @@ export var callComponentFuncAndReconcile = (oldElem: ComponentElem, newElem: Com
 export var setAttr = (dom: HTMLElement, attr: string, prop: any) => {
     if (!prop) {
         dom.removeAttribute(attr);
-    // } else if (attr === 'class') {
-    //     // dom.className = prop;
-    //     dom.classList.add(prop);
     } else if (!attr.indexOf('on')) {
         // @ts-expect-error
         dom[attr] = prop;
