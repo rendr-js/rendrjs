@@ -82,15 +82,15 @@ type BooleanValueHTMLElementAttributes = 'contentEditable';
 export type RendrAttributes = object & { slot?: Slot, ref?: Ref, key?: string };
 
 export type HTMLElementAttributes<Tag extends string & keyof HTMLElementTagNameMap> =
-    Omit<Partial<HTMLElementTagNameMap[Tag]>, BooleanValueHTMLElementAttributes | 'style' | 'slot' | 'onclick' | 'oninput' | 'className' | 'classList'> &
-    { style?: string, class?: string } &
+    Omit<Partial<HTMLElementTagNameMap[Tag]>, BooleanValueHTMLElementAttributes | 'style' | 'slot' | 'onclick' | 'oninput' | 'className' | 'classList' | `aria${string}`> &
+    { style?: string, class?: string, [key: `aria-${string}`]: string } &
     { [key in BooleanValueHTMLElementAttributes]?: boolean } &
     NarrowedEventHandler<'input', Tag, 'target'> &
     NarrowedEventHandler<'click', Tag, 'currentTarget'>;
 
 export type SVGElementAttributes<Tag extends string & keyof SVGElementTagNameMap> =
-    Omit<Partial<SVGElementTagNameMap[Tag]>, 'style' | 'slot' | 'onclick' | 'className' | 'classList' | 'height' | 'width' | 'viewBox'> &
-    { style?: string, class?: string, height?: number, width?: number, viewbox?: string } &
+    Omit<Partial<SVGElementTagNameMap[Tag]>, 'style' | 'slot' | 'onclick' | 'className' | 'classList' | 'height' | 'width'> &
+    { style?: string, class?: string, height?: number, width?: number } &
     NarrowedSVGEventHandler<'click', Tag, 'currentTarget'>;
 
 export var element = <Tag extends keyof HTMLElementTagNameMap | keyof SVGElementTagNameMap, Attrs extends RendrAttributes = Tag extends keyof HTMLElementTagNameMap ? HTMLElementAttributes<Tag> : Tag extends keyof SVGElementTagNameMap ? SVGElementAttributes<Tag> : never>(ty: Tag, attrs?: Attrs | string): Elem<Tag> => {

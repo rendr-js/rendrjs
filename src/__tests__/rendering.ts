@@ -32,7 +32,7 @@ describe('rendering', () => {
     });
 
     it('aria-hidden', async () => {
-        const Root = () => p({ class: 'foo', ariaHidden: 'true' });
+        const Root = () => p({ class: 'foo', 'aria-hidden': 'true' });
         const wrapper = mount(rendr(Root));
         const para = wrapper.find('p')!;
         await waitFor(() => expect(para.getAttribute('aria-hidden')).toBe('true'));
