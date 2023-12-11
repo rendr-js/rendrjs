@@ -1,5 +1,6 @@
 import { current, Ref } from './hooks.js';
 import { setAttr } from './reconcile.js';
+import { SVGAttributes } from './svg.js';
 import { $document } from './utils.js';
 
 export type Component<T> = (props: T) => SlotElem;
@@ -89,8 +90,7 @@ export type HTMLElementAttributes<Tag extends string & keyof HTMLElementTagNameM
     NarrowedEventHandler<'click', Tag, 'currentTarget'>;
 
 export type SVGElementAttributes<Tag extends string & keyof SVGElementTagNameMap> =
-    Omit<Partial<SVGElementTagNameMap[Tag]>, 'style' | 'slot' | 'onclick' | 'className' | 'classList' | 'height' | 'width'> &
-    { style?: string, class?: string, height?: number, width?: number } &
+    SVGAttributes &
     NarrowedSVGEventHandler<'click', Tag, 'currentTarget'>;
 
 export var element = <Tag extends keyof HTMLElementTagNameMap | keyof SVGElementTagNameMap, Attrs extends RendrAttributes = Tag extends keyof HTMLElementTagNameMap ? HTMLElementAttributes<Tag> : Tag extends keyof SVGElementTagNameMap ? SVGElementAttributes<Tag> : never>(ty: Tag, attrs?: Attrs | string): Elem<Tag> => {
