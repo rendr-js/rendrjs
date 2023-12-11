@@ -90,7 +90,7 @@ export type HTMLElementAttributes<Tag extends string & keyof HTMLElementTagNameM
 
 export type SVGElementAttributes<Tag extends string & keyof SVGElementTagNameMap> =
     Omit<Partial<SVGElementTagNameMap[Tag]>, 'style' | 'slot' | 'onclick' | 'className' | 'classList' | 'height' | 'width' | 'viewBox'> &
-    { style?: string, class?: string, height?: number, width?: number, viewBox?: string } &
+    { style?: string, class?: string, height?: number, width?: number, viewbox?: string } &
     NarrowedSVGEventHandler<'click', Tag, 'currentTarget'>;
 
 export var element = <Tag extends keyof HTMLElementTagNameMap | keyof SVGElementTagNameMap, Attrs extends RendrAttributes = Tag extends keyof HTMLElementTagNameMap ? HTMLElementAttributes<Tag> : Tag extends keyof SVGElementTagNameMap ? SVGElementAttributes<Tag> : never>(ty: Tag, attrs?: Attrs | string): Elem<Tag> => {
