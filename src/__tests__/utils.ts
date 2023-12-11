@@ -13,7 +13,7 @@ export const mount = (elem: Elem) => {
 export const waitFor = async (func: () => any) => {
     const start = Date.now();
     let inc = 1;
-    while (Date.now() - start < 1000) {
+    while (Date.now() - start < 100) {
         try {
             return func();
         } catch (err) {

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { useState, rendr, useEffect, useDeferredEffect, createAtom, useAtom, span, p } from '..';
+import { useState, rendr, useEffect, useDeferredEffect, span, p } from '..';
 import { waitFor, mount, wait } from './utils';
 
 describe('effects', () => {
