@@ -73,9 +73,11 @@ export var setAttr = (dom: HTMLElement, attr: string, prop: any) => {
         dom.removeAttribute(attr);
     } else if (attr === 'class') {
         dom.className = prop;
-    } else {
+    } else if (!attr.indexOf('on') || !attr.indexOf('aria')) {
         // @ts-expect-error
         dom[attr] = prop;
+    } else {
+        dom.setAttribute(attr, prop);
     }
 };
 
