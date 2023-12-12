@@ -1,5 +1,5 @@
-import { Elem, createDom } from './elem.js';
+import { Elem, SlotElem, createDom, normalizeSlotElem } from './elem.js';
 
-export var mount = (root: HTMLElement, elem: Elem) => {
-    root.appendChild(createDom(elem));
+export var mount = (root: HTMLElement, elem: SlotElem) => {
+    root.appendChild(createDom(normalizeSlotElem(elem)));
 };

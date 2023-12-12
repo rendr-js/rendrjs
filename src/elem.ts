@@ -6,7 +6,7 @@ import { $document } from './utils.js';
 export type Component<T> = (props: T) => SlotElem;
 export type ComponentElem<T = any> = Elem<T> & { t: Component<T> };
 export type ElemType<T = any> = string | Component<T>;
-export type SlotElem = null | undefined | boolean | string | Elem;
+export type SlotElem = null | undefined | boolean | string | Elem | Component<any>;
 export type Slot = SlotElem | SlotElem[];
 
 export interface Elem<T = any> {
@@ -113,6 +113,8 @@ export var element = <Tag extends keyof HTMLElementTagNameMap | keyof SVGElement
             elem.c = [createTextElem('')];
         } else if (typeof elem.c === 'string') {
             elem.c = [createTextElem(elem.c)];
+        } else if (typeof elem.c === 'function') {
+            elem.c = [rendr(elem.c)];
         } else if (!Array.isArray(elem.c)) {
             elem.c = [elem.c] as Elem[];
         } else {
@@ -126,9 +128,10 @@ export var element = <Tag extends keyof HTMLElementTagNameMap | keyof SVGElement
 
 var createTextElem = (p: string) => ({ t: '', p });
 
-var normalizeSlotElem = (elem: SlotElem): Elem => {
+export var normalizeSlotElem = (elem: SlotElem): Elem => {
     if (isFalsySlotElem(elem)) return createTextElem('');
     if (typeof elem === 'string') return createTextElem(elem);
+    if (typeof elem === 'function') return rendr(elem);
     return elem;
 };
 

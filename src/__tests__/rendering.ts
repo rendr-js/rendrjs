@@ -17,6 +17,23 @@ describe('rendering', () => {
         await waitFor(() => expect(para.textContent).toBe('foo'));
     });
 
+    it('component slot', async () => {
+        const Foo = () => 'foo';
+        const Root = () => p({ slot: Foo });
+        const wrapper = mount(rendr(Root));
+        const para = wrapper.find('p')!;
+        await waitFor(() => expect(para.textContent).toBe('foo'));
+    });
+
+    it('component array slot', async () => {
+        const Foo = () => 'foo';
+        const Bar = () => 'bar';
+        const Root = () => p({ slot: [Foo, Bar] });
+        const wrapper = mount(rendr(Root));
+        const para = wrapper.find('p')!;
+        await waitFor(() => expect(para.textContent).toBe('foobar'));
+    });
+
     it('class', async () => {
         const Root = () => p({ class: 'foo' });
         const wrapper = mount(rendr(Root));
@@ -87,6 +104,22 @@ describe('rendering', () => {
         const wrapper = mount(rendr(Root));
         const para = wrapper.find('p')!;
         await waitFor(() => expect(para.textContent).toBe(''));
+    });
+
+    it('component returns component func', async () => {
+        const Foo = () => p('foo');
+        const Bar = () => Foo;
+        const Root = () => Bar;
+        const wrapper = mount(rendr(Root));
+        const para = wrapper.find('p')!;
+        await waitFor(() => expect(para.textContent).toBe('foo'));
+    });
+
+    it('mount component func', async () => {
+        const Root = () => p('foo');
+        const wrapper = mount(Root);
+        const para = wrapper.find('p')!;
+        await waitFor(() => expect(para.textContent).toBe('foo'));
     });
     
     it('svg', async () => {

@@ -1,8 +1,8 @@
-import { Elem, mount as rendrjsmount } from '..';
+import { Elem, SlotElem, mount as rendrjsmount } from '..';
 
 export const wait = (ms: number): Promise<void> => new Promise(r => setTimeout(r, ms));
 
-export const mount = (elem: Elem) => {
+export const mount = (elem: SlotElem) => {
     const root = document.createElement('div');
     rendrjsmount(root, elem);
     return {
