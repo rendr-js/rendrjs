@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://rendrjs.com">
-    <img src="https://rendrjs.com/r.svg" width="318px" alt="Rendrjs logo" style="width: 200px;" />
+    <img src="https://rendrjs.com/r-512.png" width="318px" alt="Rendrjs logo" style="width: 200px;" />
   </a>
 </p>
 
