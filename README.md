@@ -30,7 +30,7 @@ npm start
 
 ## Basic Usage
 ```javascript
-import { rendr, button, useState } from '@rendrjs/core';
+import { mount, button, useState } from '@rendrjs/core';
 
 const App = () => {
   const [count, setCount] = useState(0);
@@ -41,7 +41,7 @@ const App = () => {
   });
 };
 
-mount(document.querySelector('#root')!, rendr(App));
+mount(document.querySelector('#root')!, App);
 ```
 
 ## Contributing
