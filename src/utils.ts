@@ -1,3 +1,3 @@
-export var areDepsEqual = (a: any[], b: any[]): boolean => a.length === b.length && a.every((x, i) => a[i] === b[i]);
+export let areDepsEqual = (a: any[], b: any[]): boolean => a.length === b.length && a.every((x, i) => a[i] === b[i]);
 
-export var $document = document;
+export let $document = document;

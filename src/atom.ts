@@ -30,13 +30,13 @@ export interface AtomOptions<T> {
     watch?: (prevState: T, newState: T) => void
 }
 
-export var createAtom: CreateAtom = (config: any, options?: any): any => typeof config === 'function' ? createDerivedAtom(config, options) : createStandardAtom(config, options);
+export let createAtom: CreateAtom = (config: any, options?: any): any => typeof config === 'function' ? createDerivedAtom(config, options) : createStandardAtom(config, options);
 
-var createStandardAtom = <T>(initialValue: T, options?: AtomOptions<T>): Atom<T> => {
-    var atom: Atom<T> = {
+let createStandardAtom = <T>(initialValue: T, options?: AtomOptions<T>): Atom<T> => {
+    let atom: Atom<T> = {
         s: initialValue,
         u: action => {
-            var oldState = atom.s;
+            let oldState = atom.s;
             atom.s = isUpdater(action) ? action(oldState) : action;
             if (oldState !== atom.s) {
                 options?.watch?.(oldState, atom.s);
@@ -51,8 +51,8 @@ var createStandardAtom = <T>(initialValue: T, options?: AtomOptions<T>): Atom<T>
     return atom;
 };
 
-var createDerivedAtom = <T>(derivation: AtomDerivation<T>, options?: AtomOptions<T>): ReadonlyAtom<T> => {
-    var atom: ReadonlyAtom<T> = {
+let createDerivedAtom = <T>(derivation: AtomDerivation<T>, options?: AtomOptions<T>): ReadonlyAtom<T> => {
+    let atom: ReadonlyAtom<T> = {
         s: null as T,
         d: derivation,
         r: null as unknown as () => void,
@@ -60,13 +60,13 @@ var createDerivedAtom = <T>(derivation: AtomDerivation<T>, options?: AtomOptions
         a: new Set(),
         f: new Map(),
     };
-    var getter: AtomGetter = <A>(a: Atom<A> | ReadonlyAtom<A>): A => {
+    let getter: AtomGetter = <A>(a: Atom<A> | ReadonlyAtom<A>): A => {
         a.a.add(atom);
         return a.s;
     }
     atom.s = derivation(getter);
     atom.r = () => {
-        var oldState = atom.s;
+        let oldState = atom.s;
         atom.s = atom.d(getter);
         if (atom.s !== oldState) {
             options?.watch?.(oldState, atom.s);
@@ -76,17 +76,17 @@ var createDerivedAtom = <T>(derivation: AtomDerivation<T>, options?: AtomOptions
     return atom;
 };
 
-var updateAtomSubscribers = <T>(atom: Atom<T> | ReadonlyAtom<T>): void => {
-    for (var component of [...atom.c.keys()]) {
+let updateAtomSubscribers = <T>(atom: Atom<T> | ReadonlyAtom<T>): void => {
+    for (let component of [...atom.c.keys()]) {
         if (atom.c.has(component)) {
             callComponentFuncAndReconcile(component, component);
         }
     }
     atom.a.forEach(a => a.r());
-    for (var [component, selects] of [...atom.f.entries()]) {
-        for (var i = selects.length - 1; i >= 0; i--) {
-            var [selected, selector] = selects[i];
-            var newSelected = selector(atom.s);
+    for (let [component, selects] of [...atom.f.entries()]) {
+        for (let i = selects.length - 1; i >= 0; i--) {
+            let [selected, selector] = selects[i];
+            let newSelected = selector(atom.s);
             if (selected !== newSelected) {
                 callComponentFuncAndReconcile(component, component);
             }
