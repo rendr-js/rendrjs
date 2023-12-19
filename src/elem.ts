@@ -114,7 +114,7 @@ export let element = <Tag extends keyof HTMLElementTagNameMap | keyof SVGElement
         } else if (typeof elem.c === 'string') {
             elem.c = [createTextElem(elem.c)];
         } else if (typeof elem.c === 'function') {
-            elem.c = [rendr(elem.c)];
+            elem.c = [rendr(elem.c, {})];
         } else if (!Array.isArray(elem.c)) {
             elem.c = [elem.c] as Elem[];
         } else {
@@ -131,7 +131,7 @@ let createTextElem = (p: string) => ({ t: '', p });
 export let normalizeSlotElem = (elem: SlotElem): Elem => {
     if (isFalsySlotElem(elem)) return createTextElem('');
     if (typeof elem === 'string') return createTextElem(elem);
-    if (typeof elem === 'function') return rendr(elem);
+    if (typeof elem === 'function') return rendr(elem, {});
     return elem;
 };
 
