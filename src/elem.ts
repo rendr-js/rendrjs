@@ -6,7 +6,7 @@ import { $document } from './utils.js';
 export type Component<T> = (props: T) => SlotElem;
 export type ComponentElem<T = any> = Elem<T> & { t: Component<T> };
 export type ElemType<T = any> = string | Component<T>;
-export type SlotElem = null | undefined | boolean | string | Elem | Component<any>;
+export type SlotElem = null | undefined | boolean | string | Elem | Component<void>;
 export type Slot = SlotElem | SlotElem[];
 
 export interface Elem<T = any> {
@@ -109,18 +109,12 @@ export let element = <Tag extends keyof HTMLElementTagNameMap | keyof SVGElement
     delete attrs.ref;
     delete attrs.slot;
     if (elem.c !== undefined) {
-        if (isFalsySlotElem(elem.c)) {
-            elem.c = [createTextElem('')];
-        } else if (typeof elem.c === 'string') {
-            elem.c = [createTextElem(elem.c)];
-        } else if (typeof elem.c === 'function') {
-            elem.c = [rendr(elem.c, {})];
-        } else if (!Array.isArray(elem.c)) {
-            elem.c = [elem.c] as Elem[];
-        } else {
+        if (Array.isArray(elem.c)) {
             for (let i = elem.c.length - 1; i >= 0; i--) {
                 elem.c[i] = normalizeSlotElem(elem.c[i]);
             }
+        } else {
+            elem.c = [normalizeSlotElem(elem.c)];
         }
     }
     return elem;
@@ -131,7 +125,7 @@ let createTextElem = (p: string) => ({ t: '', p });
 export let normalizeSlotElem = (elem: SlotElem): Elem => {
     if (isFalsySlotElem(elem)) return createTextElem('');
     if (typeof elem === 'string') return createTextElem(elem);
-    if (typeof elem === 'function') return rendr(elem, {});
+    if (typeof elem === 'function') return rendr(elem);
     return elem;
 };
 
