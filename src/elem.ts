@@ -108,14 +108,10 @@ export let element = <Tag extends keyof HTMLElementTagNameMap | keyof SVGElement
     delete attrs.key;
     delete attrs.ref;
     delete attrs.slot;
-    if (elem.c !== undefined) {
-        if (Array.isArray(elem.c)) {
-            for (let i = elem.c.length - 1; i >= 0; i--) {
-                elem.c[i] = normalizeSlotElem(elem.c[i]);
-            }
-        } else {
-            elem.c = [normalizeSlotElem(elem.c)];
-        }
+    if (Array.isArray(elem.c)) {
+        elem.c.forEach((e, i) => {elem.c![i] = normalizeSlotElem(e);});
+    } else if (elem.c !== undefined) {
+        elem.c = [normalizeSlotElem(elem.c)];
     }
     return elem;
 }
@@ -123,13 +119,11 @@ export let element = <Tag extends keyof HTMLElementTagNameMap | keyof SVGElement
 let createTextElem = (p: string) => ({ t: '', p });
 
 export let normalizeSlotElem = (elem: SlotElem): Elem => {
-    if (isFalsySlotElem(elem)) return createTextElem('');
-    if (typeof elem === 'string') return createTextElem(elem);
-    if (typeof elem === 'function') return rendr(elem);
-    return elem;
+    if (!elem || elem === true) return createTextElem('');
+    if (typeof elem === 'string') return createTextElem(elem as string);
+    if (typeof elem === 'function') return rendr(elem as Component<void>);
+    return elem as Elem<any>;
 };
-
-let isFalsySlotElem = (elem: any): elem is null | undefined | boolean => !elem || elem === true;
 
 let nameSpacePrefix = 'http://www.w3.org/';
 let nameSpaceMap: { [key: string]: string } = {

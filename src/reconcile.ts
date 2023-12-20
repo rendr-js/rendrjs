@@ -3,7 +3,8 @@ import { areDepsEqual } from './utils.js';
 
 type HTMLElementElem = Elem & { d: HTMLElement };
 
-let teardown = (elem: Elem) => {
+let teardown = (elem: Elem, remove = 0) => {
+    if (remove < 0) getDom(elem).remove();
     if (elem.r) elem.r.value = undefined;
     if (elem.v) {
         elem.u = true;
@@ -16,9 +17,7 @@ let teardown = (elem: Elem) => {
 }
 
 let getDom = (elem: Elem): ChildNode => {
-    while (elem.v) {
-        elem = elem.v!;
-    }
+    while (elem.v) elem = elem.v!;
     return elem.d!;
 };
 
@@ -44,8 +43,8 @@ export let reconcile = (oldElem: Elem, newElem: Elem): void => {
             }
             if (newElem.r) {
                 newElem.r.value = oldDom;
-            } else {
-                if (oldElem.r) oldElem.r.value = undefined;
+            } else if (oldElem.r) {
+                oldElem.r.value = undefined;
             }
             reconcileChildren(oldElem as HTMLElementElem, newElem as HTMLElementElem, oldDom as Element);
         } else if (oldProps !== newProps) {
@@ -76,7 +75,6 @@ export let setAttr = (dom: HTMLElement, attr: string, prop: any) => {
         dom[attr] = prop;
     } else {
         dom.setAttribute(attr, prop);
-        
     }
 };
 
@@ -95,7 +93,7 @@ let reconcileChildren = (oldElem: HTMLElementElem, newElem: HTMLElementElem, dom
     let oldChn = oldElem.c ?? [];
     let newLength = newChn.length;
     let oldLength = oldChn.length;
-    if (newLength === 0 && oldLength > 0) {
+    if (!newLength && oldLength) {
         (getDom(oldElem) as HTMLElement).innerHTML = '';
         oldChn.forEach(teardown);
         return;
@@ -112,11 +110,7 @@ let reconcileChildren = (oldElem: HTMLElementElem, newElem: HTMLElementElem, dom
         start++;
     }
     if (start >= newLength) {
-        while (start < oldLength) {
-            getDom(oldChn[start]).remove();
-            teardown(oldChn[start]);
-            start++;
-        }
+        while (start < oldLength) teardown(oldChn[start++], -1);
         return;
     }
 
@@ -160,8 +154,5 @@ let reconcileChildren = (oldElem: HTMLElementElem, newElem: HTMLElementElem, dom
         start++;
     }
 
-    for (let key in oldMap) {
-        getDom(oldMap[key]).remove();
-        teardown(oldMap[key]);
-    }
+    for (let key in oldMap) teardown(oldMap[key], -1);
 }
