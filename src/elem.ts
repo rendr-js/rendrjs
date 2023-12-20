@@ -1,7 +1,6 @@
 import { current, Ref } from './hooks.js';
 import { setAttr } from './reconcile.js';
 import { SVGAttributes } from './svg.js';
-import { $document } from './utils.js';
 
 export type Component<T> = (props: T) => SlotElem;
 export type ComponentElem<T = any> = Elem<T> & { t: Component<T> };
@@ -10,7 +9,7 @@ export type SlotElem = null | undefined | boolean | string | Elem | Component<vo
 export type Slot = SlotElem | SlotElem[];
 
 export interface Elem<T = any> {
-    t: ElemType<T> // type
+    t?: ElemType<T> // type
     k?: string // key
     p?: T // props
     r?: Ref // ref
@@ -98,7 +97,7 @@ export let element = <Tag extends keyof HTMLElementTagNameMap | keyof SVGElement
     if (!attrs) {
         return elem;
     } else if (typeof attrs === 'string') {
-        elem.c = [createTextElem(attrs)];
+        elem.c = [{ p: attrs }];
         return elem;
     }
     elem.p = attrs;
@@ -116,28 +115,20 @@ export let element = <Tag extends keyof HTMLElementTagNameMap | keyof SVGElement
     return elem;
 }
 
-let createTextElem = (p: string) => ({ t: '', p });
-
 export let normalizeSlotElem = (elem: SlotElem): Elem => {
-    if (!elem || elem === true) return createTextElem('');
-    if (typeof elem === 'string') return createTextElem(elem as string);
+    if (!elem || elem === true) return {};
+    if (typeof elem === 'string') return { p: elem };
     if (typeof elem === 'function') return rendr(elem as Component<void>);
     return elem as Elem<any>;
 };
 
 let nameSpacePrefix = 'http://www.w3.org/';
-let nameSpaceMap: { [key: string]: string } = {
-    svg: nameSpacePrefix + '2000/svg',
-    math: nameSpacePrefix + '1998/Math/MathML',
-};
-
 export let createDom = <T>(elem: Elem<T>, ns?: string | undefined): ChildNode => {
-    if (elem.t === '') {
-        elem.d = $document.createTextNode(elem.p as string);
+    if (!elem.t) {
+        elem.d = document.createTextNode(elem.p as string ?? '');
     } else if (typeof elem.t === 'string') {
-        // @ts-expect-error
-        ns = elem.p?.xmlns ?? nameSpaceMap[elem.t] ?? ns;
-        elem.d = ns ? $document.createElementNS(ns, elem.t) : $document.createElement(elem.t);
+        ns = elem.t === 'svg' ? nameSpacePrefix + '2000/svg' : elem.t === 'math' ? nameSpacePrefix + '1998/Math/MathML' : ns;
+        elem.d = ns ? document.createElementNS(ns, elem.t) : document.createElement(elem.t);
         if (elem.r) elem.r.value = elem.d;
         for (let attr in elem.p) {
             setAttr(elem.d as HTMLElement, attr, elem.p[attr]);

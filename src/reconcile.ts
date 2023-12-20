@@ -29,27 +29,28 @@ export let reconcile = (oldElem: Elem, newElem: Elem): void => {
     if (oldElem.t !== newElem.t) {
         teardown(oldElem);
         oldDom.replaceWith(createDom(newElem));
-    } else if (typeof oldElem.t === 'string') {
+    } else if (!oldElem.t) {
         newElem.d = oldDom;
-        if (oldElem.t.length) {
-            for (let attr in { ...newProps, ...oldProps }) {
-                if (newProps[attr] !== oldProps[attr]) {
-                    if (newProps[attr] === undefined) {
-                        (oldDom as Element).removeAttribute(attr);
-                    } else {
-                        setAttr(oldDom as HTMLElement, attr, newProps[attr]);
-                    }
-                }
-            }
-            if (newElem.r) {
-                newElem.r.value = oldDom;
-            } else if (oldElem.r) {
-                oldElem.r.value = undefined;
-            }
-            reconcileChildren(oldElem as HTMLElementElem, newElem as HTMLElementElem, oldDom as Element);
-        } else if (oldProps !== newProps) {
+        if (oldProps !== newProps) {
             (oldDom as Text).data = newProps;
         }
+    } else if (typeof oldElem.t === 'string') {
+        newElem.d = oldDom;
+        for (let attr in { ...newProps, ...oldProps }) {
+            if (newProps[attr] !== oldProps[attr]) {
+                if (newProps[attr] === undefined) {
+                    (oldDom as Element).removeAttribute(attr);
+                } else {
+                    setAttr(oldDom as HTMLElement, attr, newProps[attr]);
+                }
+            }
+        }
+        if (newElem.r) {
+            newElem.r.value = oldDom;
+        } else if (oldElem.r) {
+            oldElem.r.value = undefined;
+        }
+        reconcileChildren(oldElem as HTMLElementElem, newElem as HTMLElementElem, oldDom as Element);
     } else {
         newElem.h = oldElem.h;
         if (oldElem.m && newElem.m && areDepsEqual(oldElem.m, newElem.m)) {
@@ -120,7 +121,7 @@ let reconcileChildren = (oldElem: HTMLElementElem, newElem: HTMLElementElem, dom
     while (
         newLength > start &&
         oldLength >= start &&
-        (newChn[newLength].k === undefined || newChn[newLength].k === oldChn[oldLength].k)
+        (!newChn[newLength].k || newChn[newLength].k === oldChn[oldLength].k)
     ) {
         reconcile(oldChn[oldLength--], newChn[newLength--]);
     }
