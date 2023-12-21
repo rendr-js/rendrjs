@@ -1,5 +1,5 @@
 import { useEffect, useState } from './hooks.js';
-import { Component, SlotElem, rendr } from './elem.js';
+import { Component, SlotElem, component } from './elem.js';
 
 export interface LazyConfig<T> {
     import: () => Promise<{ default: Component<T> }>
@@ -23,6 +23,6 @@ export let lazy: Lazy = <T>(config: LazyConfig<T>): Component<T> => {
                 });
             }
         }, []);
-        return rendr(slot.val, props);
+        return component(slot.val, props);
     };
 };

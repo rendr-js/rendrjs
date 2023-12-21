@@ -1,17 +1,17 @@
 import { describe, it, expect, vi } from 'vitest';
-import { useState, rendr, useEffect, Dispatch, SetStateAction, span, p } from '..';
+import { useState, component, useEffect, Dispatch, SetStateAction, element, text } from '..';
 import { waitFor, mount, wait } from './utils';
 
 describe('states', () => {
     it('uses state correctly', async () => {
         const Root = () => {
             const [slot, setSlot] = useState('foo');
-            return p({
+            return element('p', {
                 onclick: () => setSlot(t => t === 'foo' ? 'bar' : 'foo'),
-                slot,
+                slot: text(slot),
             });
         };
-        const wrapper = mount(rendr(Root));
+        const wrapper = mount(component(Root));
         const para = wrapper.find('p')!;
         expect(para.textContent).toBe('foo');
         para.click();
@@ -22,15 +22,15 @@ describe('states', () => {
         const Foo = ({ open, setOpen }: { open: boolean, setOpen: Dispatch<SetStateAction<boolean>> }) => {
             const [fooBar, setFooBar] = useState('foo');
             if (!open) {
-                return 'none';
+                return text('none');
             }
-            return span({
+            return element('span', {
                 class: 'foo',
                 slot: [
-                    fooBar,
-                    span({
+                    text(fooBar),
+                    element('span', {
                         class: 'close',
-                        slot: 'close',
+                        slot: text('close'),
                         onclick: () => setOpen(false),
                     }),
                 ],
@@ -39,19 +39,19 @@ describe('states', () => {
         };
         const Root = () => {
             const [open, setOpen] = useState(false);
-            return p({
+            return element('p', {
                 class: 'root',
                 slot: [
-                    rendr(Foo, { open, setOpen }),
-                    span({
+                    component(Foo, { open, setOpen }),
+                    element('span', {
                         class: 'opener',
-                        slot: 'open',
+                        slot: text('open'),
                         onclick: () => setOpen(true),
                     })
                 ],
             });
         };
-        const wrapper = mount(rendr(Root));
+        const wrapper = mount(component(Root));
         const root = wrapper.find('.root')!;
         const opener = wrapper.find('.opener')!;
         await waitFor(() => expect(root.textContent).toBe('noneopen'));
@@ -78,7 +78,7 @@ describe('states', () => {
     
     it('throws error when set state called from unmounted component; doesnt when singleton remounted', async () => {
         const fail = vi.fn();
-        const child = rendr(() => {
+        const child = component(() => {
             const [, setState] = useState(0);
             useEffect(() => {
                 setTimeout(() => {
@@ -89,16 +89,16 @@ describe('states', () => {
                     }
                 }, 10);
             }, []);
-            return span({ slot: 'foo' });
+            return element('span', { slot: text('foo') });
         });
         const Root = () => {
             const [hasChild, setHasChild] = useState(true);
-            return p({
+            return element('p', {
                 onclick: () => setHasChild(h => !h),
-                slot: hasChild ? child : span({ slot: 'bar' }),
+                slot: hasChild ? child : element('span', { slot: text('bar') }),
             });
         };
-        const wrapper = mount(rendr(Root));
+        const wrapper = mount(component(Root));
         const para = wrapper.find('p')!;
         para.click();
         await waitFor(() => expect(fail).toHaveBeenCalledOnce());

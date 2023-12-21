@@ -1,14 +1,14 @@
 import { describe, it, expect, vi } from 'vitest';
-import { useState, rendr, useMemo, p } from '..';
+import { useState, component, useMemo, element, text } from '..';
 import { mount, wait } from './utils';
 
 describe('refs', () => {
     it('initializes memo correctly', () => {
         const Root = () => {
         const slot = useMemo(() => 'foo', []);
-            return p({ slot });
+            return element('p', { slot: text(slot) });
         };
-        const wrapper = mount(rendr(Root));
+        const wrapper = mount(component(Root));
         const para = wrapper.find('p')!;
         expect(para.textContent).toBe('foo');
     });
@@ -18,12 +18,12 @@ describe('refs', () => {
         const Root = () => {
             const [, set] = useState(0);
             const slot = useMemo(memo, []);
-            return p({
-                slot,
+            return element('p', {
+                slot: text(slot),
                 onclick: () => set(v => v + 1),
             });
         };
-        const wrapper = mount(rendr(Root));
+        const wrapper = mount(component(Root));
         const para = wrapper.find('p')!;
         para.click();
         await wait(10);
@@ -35,12 +35,12 @@ describe('refs', () => {
       const Root = () => {
           const [cnt, setCnt] = useState(0);
           const slot = useMemo(memo, [cnt]);
-          return p({
-              slot,
+          return element('p', {
+              slot: text(slot),
               onclick: () => setCnt(v => v + 1),
           });
       };
-      const wrapper = mount(rendr(Root));
+      const wrapper = mount(component(Root));
       const para = wrapper.find('p')!;
       expect(memo).toHaveBeenCalledOnce();
       para.click();

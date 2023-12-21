@@ -1,17 +1,17 @@
 import { describe, it, expect, vi } from 'vitest';
-import { useState, rendr, useRef, p, span } from '..';
+import { useState, component, useRef, element, text } from '..';
 import { waitFor, mount } from './utils';
 
 describe('refs', () => {
     it('sets ref on initial render', async () => {
         const Root = () => {
             const ref = useRef('foo');
-            return p({
+            return element('p', {
                 id: 'foo',
-                slot: ref.value,
+                slot: text(ref.value),
             });
         };
-        const wrapper = mount(rendr(Root));
+        const wrapper = mount(component(Root));
         const para = wrapper.find('p')!;
         await waitFor(() => expect(para.textContent).toBe('foo'));
     });
@@ -19,14 +19,14 @@ describe('refs', () => {
     it('sets element ref on initial render', async () => {
         const Root = () => {
             const ref = useRef<HTMLParagraphElement | undefined>(undefined);
-            return p({
+            return element('p', {
                 id: 'foo',
                 ref,
-                slot: 'bar',
+                slot: text('bar'),
                 onclick: () => ref.value ? ref.value.id = 'baz' : undefined,
             });
         };
-        const wrapper = mount(rendr(Root));
+        const wrapper = mount(component(Root));
         const para = wrapper.find('p')!;
         para.click();
         await waitFor(() => expect(para.id).toBe('baz'));
@@ -36,17 +36,17 @@ describe('refs', () => {
         const Root = () => {
             const [hasRef, setHasRef] = useState(true);
             const ref = useRef<HTMLParagraphElement | undefined>(undefined);
-            return p({
+            return element('p', {
                 id: 'foo',
                 ref: hasRef ? ref : undefined,
-                slot: 'bar',
+                slot: text('bar'),
                 onclick: () => {
                     if (ref.value) ref.value.id += '-';
                     setHasRef(h => !h);
                 },
             });
         };
-        const wrapper = mount(rendr(Root));
+        const wrapper = mount(component(Root));
         const para = wrapper.find('p')!;
         await waitFor(() => expect(para.id).toBe('foo'));
         para.click();
@@ -62,16 +62,16 @@ describe('refs', () => {
             const ref = useRef<HTMLParagraphElement | undefined>(undefined);
             const [hasRef, setHasRef] = useState(true);
             const [slot, setSlot] = useState('');
-            return p({
+            return element('p', {
                 ref: hasRef ? ref : undefined,
-                slot,
+                slot: text(slot),
                 onclick: () => {
                     setSlot(ref.value ? 'had' : 'had-not');
                     setHasRef(h => !h);
                 },
             });
         };
-        const wrapper = mount(rendr(Root));
+        const wrapper = mount(component(Root));
         const para = wrapper.find('p')!;
         para.click();
         await waitFor(() => expect(para.textContent).toBe('had'));
@@ -86,10 +86,10 @@ describe('refs', () => {
             const ref = useRef<HTMLSpanElement | undefined>(undefined);
             const [hasRef, setHasRef] = useState(true);
             const [slot, setSlot] = useState('');
-            return p({
+            return element('p', {
                 slot: [
-                    hasRef ? span({ ref }) : undefined,
-                    slot,
+                    hasRef ? element('span', { ref }) : undefined,
+                    text(slot),
                 ],
                 onclick: () => {
                     setSlot(ref.value ? 'had' : 'had-not');
@@ -97,7 +97,7 @@ describe('refs', () => {
                 },
             });
         };
-        const wrapper = mount(rendr(Root));
+        const wrapper = mount(component(Root));
         const para = wrapper.find('p')!;
         para.click();
         await waitFor(() => expect(para.textContent).toBe('had'));

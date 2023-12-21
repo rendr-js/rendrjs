@@ -1,11 +1,10 @@
 import { current, Ref } from './hooks.js';
 import { setAttr } from './reconcile.js';
-import { SVGAttributes } from './svg.js';
 
 export type Component<T> = (props: T) => SlotElem;
 export type ComponentElem<T = any> = Elem<T> & { t: Component<T> };
 export type ElemType<T = any> = string | Component<T>;
-export type SlotElem = null | undefined | boolean | string | Elem | Component<void>;
+export type SlotElem = null | undefined | boolean | Elem;
 export type Slot = SlotElem | SlotElem[];
 
 export interface Elem<T = any> {
@@ -30,12 +29,17 @@ type RendrComponent = {
     (ty: Component<void>, props?: { key?: string, memo?: any[] }): Elem<void>
 };
 
-export let rendr: RendrComponent = (ty: any, props?: any): any => ({
+export let component: RendrComponent = (ty: any, props?: any): any => ({
     t: ty,
     p: props,
     k: props?.key,
     m: props?.memo,
 });
+
+export let text = (content: string): Elem<string> => ({
+    p: content,
+});
+//{ t: 'text', p: '0', k: undefined, c: undefined, r: undefined }
 
 export let callComponentFunc = <T>(elem: ComponentElem<T>): Elem => {
     let prev = current.e;
@@ -89,15 +93,13 @@ export type HTMLElementAttributes<Tag extends string & keyof HTMLElementTagNameM
     NarrowedEventHandler<'click', Tag, 'currentTarget'>;
 
 export type SVGElementAttributes<Tag extends string & keyof SVGElementTagNameMap> =
-    SVGAttributes &
+    Omit<Partial<SVGElementTagNameMap[Tag]>, 'style' | 'slot' | 'onclick' | 'oninput' | 'className' | 'classList' | `aria${string}`> &
+    { style?: string, class?: string, [key: `aria-${string}`]: string } &
     NarrowedSVGEventHandler<'click', Tag, 'currentTarget'>;
 
-export let element = <Tag extends keyof HTMLElementTagNameMap | keyof SVGElementTagNameMap, Attrs extends RendrAttributes = Tag extends keyof HTMLElementTagNameMap ? HTMLElementAttributes<Tag> : Tag extends keyof SVGElementTagNameMap ? SVGElementAttributes<Tag> : never>(ty: Tag, attrs?: Attrs | string): Elem<Tag> => {
+export let element = <Tag extends keyof HTMLElementTagNameMap | keyof SVGElementTagNameMap, Attrs extends RendrAttributes = Tag extends keyof HTMLElementTagNameMap ? HTMLElementAttributes<Tag> : Tag extends keyof SVGElementTagNameMap ? SVGElementAttributes<Tag> : never>(ty: Tag, attrs?: Attrs): Elem<Tag> => {
     let elem: Elem = { t: ty };
     if (!attrs) {
-        return elem;
-    } else if (typeof attrs === 'string') {
-        elem.c = [{ p: attrs }];
         return elem;
     }
     elem.p = attrs;
@@ -117,17 +119,17 @@ export let element = <Tag extends keyof HTMLElementTagNameMap | keyof SVGElement
 
 export let normalizeSlotElem = (elem: SlotElem): Elem => {
     if (!elem || elem === true) return {};
-    if (typeof elem === 'string') return { p: elem };
-    if (typeof elem === 'function') return rendr(elem as Component<void>);
     return elem as Elem<any>;
 };
 
-let nameSpacePrefix = 'http://www.w3.org/';
+let namespacePrefix = 'http://www.w3.org/';
+let svgNamespace = namespacePrefix + '2000/svg';
+let mathNamespace = namespacePrefix + '1998/Math/MathML';
 export let createDom = <T>(elem: Elem<T>, ns?: string | undefined): ChildNode => {
     if (!elem.t) {
         elem.d = document.createTextNode(elem.p as string ?? '');
     } else if (typeof elem.t === 'string') {
-        ns = elem.t === 'svg' ? nameSpacePrefix + '2000/svg' : elem.t === 'math' ? nameSpacePrefix + '1998/Math/MathML' : ns;
+        ns = elem.t === 'svg' ? svgNamespace : elem.t === 'math' ? mathNamespace : ns;
         elem.d = ns ? document.createElementNS(ns, elem.t) : document.createElement(elem.t);
         if (elem.r) elem.r.value = elem.d;
         for (let attr in elem.p) {

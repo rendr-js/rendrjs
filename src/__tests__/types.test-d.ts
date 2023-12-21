@@ -1,10 +1,10 @@
-import { createAtom, lazy, rendr, useAtom, div, p, input, button } from '..';
+import { createAtom, lazy, component, useAtom, element, text } from '..';
 import { describe, it } from 'vitest';
 
 describe('types', () => {
     it('event listeners', () => {
-        input({ style: 'margin: 10px', oninput: e => console.log(e.target.value), slot: 'bar' });
-        button({ style: 'margin: 10px', onclick: e => console.log(e.currentTarget.id), slot: 'bar' });
+        element('input', { style: 'margin: 10px', oninput: e => console.log(e.target.value), slot: text('bar') });
+        element('button', { style: 'margin: 10px', onclick: e => console.log(e.currentTarget.id), slot: text('bar') });
     });
 
 
@@ -14,42 +14,39 @@ describe('types', () => {
         }
         
         const Foo = (props: FooProps) => {
-            return props.foo;
+            return text(props.foo);
         };
         
         // correct usage
-        rendr(Foo, { foo: 'baz' });
+        component(Foo, { foo: 'baz' });
 
         // omit props
         // @ts-expect-error
-        rendr(Foo);
+        component(Foo);
 
         // extra props
         // @ts-expect-error
-        rendr(Foo, { foo: 'bar', baz: '' });
+        component(Foo, { foo: 'bar', baz: '' });
 
         // omit props
         // @ts-expect-error
-        rendr(Foo, {});
+        component(Foo, {});
 
-        const Child = () => div({ slot: 'foo', id: 'foo' });
+        const Child = () => element('div', { slot: text('foo'), id: 'foo' });
         const LazyChild = lazy({
             import: () => new Promise<{ default: typeof Child}>(r => setTimeout(() => r({ default: Child }), 10)),
-            fallback: p({ slot: 'loading' }),
+            fallback: element('p', { slot: text('loading') }),
         });
 
-        rendr(LazyChild);
+        component(LazyChild);
 
         // @ts-expect-error
-        rendr(LazyChild, { foo: 'asdf' });
+        component(LazyChild, { foo: 'asdf' });
 
-        // @ts-expect-error
-        div({ classList: undefined });
-
-        div({
+        element('div', {
             contentEditable: true,
             oninput: e => console.log(e.target.innerText),
-            slot: 'hi',
+            slot: text('hi'),
         });
 
         // atoms

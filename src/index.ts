@@ -1,5 +1,7 @@
 export {
-    rendr,
+    component,
+    text,
+    element,
     Component,
     SlotElem,
     Slot,
@@ -35,4 +37,3 @@ export {
     LazyConfig,
     lazy,
 } from './lazy.js';
-export * from './tags.js';

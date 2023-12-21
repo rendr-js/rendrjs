@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { useState, rendr, useEffect, span, p } from '..';
+import { useState, component, useEffect, element, text } from '..';
 import { waitFor, mount, wait } from './utils';
 
 describe('effects', () => {
@@ -11,16 +11,16 @@ describe('effects', () => {
                 effect();
                 return td;
             }, []);
-            return span({ slot: 'span' });
+            return element('span', { slot: text('span') });
         };
         const Root = () => {
             const [ty, setTy] = useState('comp');
-            return p({
+            return element('p', {
                 onclick: () => setTy(t => t === 'comp' ? 'string' : 'comp'),
-                slot: ty === 'comp' ? rendr(Child) : 'bar',
+                slot: ty === 'comp' ? component(Child) : text('bar'),
             });
         };
-        const wrapper = mount(rendr(Root));
+        const wrapper = mount(component(Root));
         const para = wrapper.find('p')!;
         await waitFor(() => expect(effect).toHaveBeenCalledOnce());
         para.click();
@@ -36,16 +36,16 @@ describe('effects', () => {
                 effect();
                 return td;
             }, []);
-            return span({ slot: 'span' });
+            return element('span', { slot: text('span') });
         };
         const Root = () => {
             const [ty, setTy] = useState('comp');
-            return p({
+            return element('p', {
                 onclick: () => setTy(t => t === 'comp' ? 'string' : 'comp'),
-                slot: ty === 'comp' ? rendr(Child) : 'bar',
+                slot: ty === 'comp' ? component(Child) : text('bar'),
             });
         };
-        const wrapper = mount(rendr(Root));
+        const wrapper = mount(component(Root));
         const para = wrapper.find('p')!;
         await waitFor(() => expect(effect).toHaveBeenCalledOnce());
         para.click();
@@ -57,12 +57,12 @@ describe('effects', () => {
         const Root = () => {
             const [slot, setSlot] = useState('foo');
             useEffect(effect, []);
-            return p({
+            return element('p', {
                 onclick: () => setSlot(s => s + '-'),
-                slot,
+                slot: text(slot),
             });
         };
-        const wrapper = mount(rendr(Root));
+        const wrapper = mount(component(Root));
         const para = wrapper.find('p')!;
         para.click();
         await wait(10);
@@ -78,9 +78,9 @@ describe('effects', () => {
 
         const Root = () => {
             useFoo();
-            return p();
+            return element('p');
         };
-        mount(rendr(Root));
+        mount(component(Root));
     });
 
     it('throws error when used outside of component render function', async () => {
@@ -102,12 +102,12 @@ describe('effects', () => {
                 deps.push(i);
             }
             useEffect(effect, deps);
-            return p({
+            return element('p', {
                 onclick: () => setCnt(c => c + 1),
-                slot: 'foo',
+                slot: text('foo'),
             });
         };
-        const wrapper = mount(rendr(Root));
+        const wrapper = mount(component(Root));
         const para = wrapper.find('p')!;
         await waitFor(() => expect(effect).toHaveBeenCalledOnce());
         para.click();
@@ -123,12 +123,12 @@ describe('effects', () => {
                 deps.push(i);
             }
             useEffect(effect, deps);
-            return p({
+            return element('p', {
                 onclick: () => setCnt(c => c - 1),
-                slot: 'foo',
+                slot: text('foo'),
             });
         };
-        const wrapper = mount(rendr(Root));
+        const wrapper = mount(component(Root));
         const para = wrapper.find('p')!;
         await waitFor(() => expect(effect).toHaveBeenCalledOnce());
         para.click();
@@ -144,12 +144,12 @@ describe('effects', () => {
                 effect();
                 return td;
             }, [cnt]);
-            return p({
+            return element('p', {
                 onclick: () => setCnt(c => c + 1),
-                slot: 'foo',
+                slot: text('foo'),
             });
         };
-        const wrapper = mount(rendr(Root));
+        const wrapper = mount(component(Root));
         const para = wrapper.find('p')!;
         await waitFor(() => expect(effect).toHaveBeenCalledOnce());
         para.click();

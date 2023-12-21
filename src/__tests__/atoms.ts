@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { rendr, useEffect, createAtom, useAtomValue, useAtomSetter, useAtom, button, p, div, span } from '..';
+import { component, useEffect, createAtom, useAtomValue, useAtomSetter, useAtom, element, text } from '..';
 import { waitFor, mount, wait } from './utils';
 import { useAtomSelector } from '../hooks';
 
@@ -8,22 +8,22 @@ describe('standard', () => {
         const atom = createAtom('foo');
         const Message = () => {
             const msg = useAtomValue(atom);
-            return p({ slot: msg });
+            return element('p', { slot: text(msg) });
         };
         const Button = () => {
             const setMsg = useAtomSetter(atom);
-            return button({
-                slot: 'bar',
+            return element('button', {
+                slot: text('bar'),
                 onclick: () => setMsg(s => s + '!'),
             });
         };
         const Root = () => {
-            return div({ slot: [
-                rendr(Message),
-                rendr(Button),
+            return element('div', { slot: [
+                component(Message),
+                component(Button),
             ] });
         };
-        const wrapper = mount(rendr(Root));
+        const wrapper = mount(component(Root));
         const para = wrapper.find('p')!;
         const btn = wrapper.find('button')!;
         expect(para.textContent).toBe('foo');
@@ -37,24 +37,24 @@ describe('standard', () => {
         const atom = createAtom('foo');
         const Message = () => {
             const msg = useAtomValue(atom);
-            return p({ slot: msg });
+            return element('p', { slot: text(msg) });
         };
         const Button = () => {
             const setMsg = useAtomSetter(atom);
-            return button({
-                slot: 'bar',
+            return element('button', {
+                slot: text('bar'),
                 onclick: () => setMsg(s => s + '!'),
             });
         };
         const Root = () => {
             const [, setMsg] = useAtom(atom);
             useEffect(() => setMsg('bar'), []);
-            return div({ slot: [
-                rendr(Message),
-                rendr(Button),
+            return element('div', { slot: [
+                component(Message),
+                component(Button),
             ] });
         };
-        const wrapper = mount(rendr(Root));
+        const wrapper = mount(component(Root));
         const para = wrapper.find('p')!;
         const btn = wrapper.find('button')!;
         await waitFor(() => expect(para.textContent).toBe('bar'));
@@ -68,23 +68,23 @@ describe('standard', () => {
         const atom = createAtom('foo');
         const Message = () => {
             const msg = useAtomValue(atom);
-            return p({ slot: msg });
+            return element('p', { slot: text(msg) });
         };
-        const memo = () => rendr(Message);
+        const memo = () => component(Message);
         const Button = () => {
             const setMsg = useAtomSetter(atom);
-            return button({
-                slot: 'bar',
+            return element('button', {
+                slot: text('bar'),
                 onclick: () => setMsg(s => s + '!'),
             });
         };
         const Root = () => {
-            return div({ slot: [
-                rendr(memo, { memo: [] }),
-                rendr(Button),
+            return element('div', { slot: [
+                component(memo, { memo: [] }),
+                component(Button),
             ] });
         };
-        const wrapper = mount(rendr(Root));
+        const wrapper = mount(component(Root));
         const para = wrapper.find('p')!;
         const btn = wrapper.find('button')!;
         await waitFor(() => expect(para.textContent).toBe('foo'));
@@ -100,24 +100,24 @@ describe('standard', () => {
         const compRunner = vi.fn();
         const Message = () => {
             const msg = useAtomValue(atom);
-            return p({ slot: msg });
+            return element('p', { slot: text(msg) });
         };
         const Button = () => {
             btnRunner();
             const setMsg = useAtomSetter(atom);
-            return button({
-                slot: 'bar',
+            return element('button', {
+                slot: text('bar'),
                 onclick: () => setMsg(s => s + '!'),
             });
         };
         const Root = () => {
             compRunner();
-            return div({ slot: [
-                rendr(Message),
-                rendr(Button),
+            return element('div', { slot: [
+                component(Message),
+                component(Button),
             ] });
         };
-        const wrapper = mount(rendr(Root));
+        const wrapper = mount(component(Root));
         const para = wrapper.find('p')!;
         const btn = wrapper.find('button')!;
         await waitFor(() => expect(para.textContent).toBe('foo'));
@@ -136,23 +136,23 @@ describe('standard', () => {
         const Message = () => {
             msgRunner();
             const msg = useAtomValue(atom);
-            return p({ slot: msg });
+            return element('p', { slot: text(msg) });
         };
         const Button = () => {
             const setMsg = useAtomSetter(atom);
-            return button({
-                slot: 'bar',
+            return element('button', {
+                slot: text('bar'),
                 onclick: () => setMsg(s => s + '!'),
             });
         };
         const Root = () => {
             const msg = useAtomValue(atom);
-            return div({ slot: [
-                msg.length % 2 === 0 && rendr(Message),
-                rendr(Button),
+            return element('div', { slot: [
+                msg.length % 2 === 0 && component(Message),
+                component(Button),
             ] });
         };
-        const wrapper = mount(rendr(Root));
+        const wrapper = mount(component(Root));
         const btn = wrapper.find('button')!;
         expect(wrapper.find('p')).toBe(null);
         btn.click();
@@ -169,24 +169,24 @@ describe('standard', () => {
         const Message = () => {
             msgRunner();
             const msg = useAtomValue(atom);
-            return p({ slot: msg });
+            return element('p', { slot: text(msg) });
         };
         const Button = () => {
             const setMsg = useAtomSetter(atom);
-            return button({
-                slot: 'bar',
+            return element('button', {
+                slot: text('bar'),
                 onclick: () => setMsg(s => s + '!'),
             });
         };
         const Root = () => {
             const msg = useAtomValue(atom);
             if (msg === 'never') console.log('never');
-            return div({ slot: [
-                rendr(Message),
-                rendr(Button),
+            return element('div', { slot: [
+                component(Message),
+                component(Button),
             ] });
         };
-        const wrapper = mount(rendr(Root));
+        const wrapper = mount(component(Root));
         const para = wrapper.find('p')!;
         const btn = wrapper.find('button')!;
         expect(para.textContent).toBe('foo');
@@ -203,22 +203,22 @@ describe('derived', () => {
         const fooLength = createAtom(get => get(foo).length);
         const Message = () => {
             const msgLength = useAtomValue(fooLength);
-            return p({ slot: `${msgLength}` });
+            return element('p', { slot: text(`${msgLength}`) });
         };
         const Button = () => {
             const setMsg = useAtomSetter(foo);
-            return button({
-                slot: 'bar',
+            return element('button', {
+                slot: text('bar'),
                 onclick: () => setMsg(s => s + '!'),
             });
         };
         const Root = () => {
-            return div({ slot: [
-                rendr(Message),
-                rendr(Button),
+            return element('div', { slot: [
+                component(Message),
+                component(Button),
             ] });
         };
-        const wrapper = mount(rendr(Root));
+        const wrapper = mount(component(Root));
         const para = wrapper.find('p')!;
         const btn = wrapper.find('button')!;
         expect(para.textContent).toBe('3');
@@ -235,22 +235,22 @@ describe('derived', () => {
         const Message = () => {
             msgRunner();
             const msgLength = useAtomValue(fooLength);
-            return p({ slot: `${msgLength}` });
+            return element('p', { slot: text(`${msgLength}`) });
         };
         const Button = () => {
             const setMsg = useAtomSetter(foo);
-            return button({
-                slot: 'bar',
+            return element('button', {
+                slot: text('bar'),
                 onclick: () => setMsg(s => s === 'foo' ? 'bar' : 'foo'),
             });
         };
         const Root = () => {
-            return div({ slot: [
-                rendr(Message),
-                rendr(Button),
+            return element('div', { slot: [
+                component(Message),
+                component(Button),
             ] });
         };
-        const wrapper = mount(rendr(Root));
+        const wrapper = mount(component(Root));
         const para = wrapper.find('p')!;
         const btn = wrapper.find('button')!;
         expect(para.textContent).toBe('3');
@@ -271,28 +271,28 @@ describe('selectors', () => {
         const MessageLength = () => {
             msgLenRunner();
             const msgLength = useAtomSelector(foo, f => f.length);
-            return p({ slot: `${msgLength}` });
+            return element('p', { slot: text(`${msgLength}`) });
         };
         const Message = () => {
             msgRunner();
             const msg = useAtomValue(foo);
-            return span({ slot: `${msg}` });
+            return element('span', { slot: text(`${msg}`) });
         };
         const Button = () => {
             const setMsg = useAtomSetter(foo);
-            return button({
-                slot: 'bar',
+            return element('button', {
+                slot: text('bar'),
                 onclick: () => setMsg(s => s === 'foo' ? 'bar' : s === 'bar' ? 'foobar' : 'foo'),
             });
         };
         const Root = () => {
-            return div({ slot: [
-                rendr(Message),
-                rendr(MessageLength),
-                rendr(Button),
+            return element('div', { slot: [
+                component(Message),
+                component(MessageLength),
+                component(Button),
             ] });
         };
-        const wrapper = mount(rendr(Root));
+        const wrapper = mount(component(Root));
         const para = wrapper.find('p')!;
         const spn = wrapper.find('span')!;
         const btn = wrapper.find('button')!;
@@ -324,15 +324,15 @@ describe('watch', () => {
         const msgAtom = createAtom('foo', { watch: (prev, next) => watch(prev, next) });
         const Root = () => {
             const [msg, setMsg] = useAtom(msgAtom);
-            return div({ slot: [
-                span({ slot: msg }),
-                button({
-                    slot: 'bar',
+            return element('div', { slot: [
+                element('span', { slot: text(msg) }),
+                element('button', {
+                    slot: text('bar'),
                     onclick: () => setMsg(s => s === 'foo' ? 'bar' : 'foo'),
                 }),
             ] });
         };
-        const wrapper = mount(rendr(Root));
+        const wrapper = mount(component(Root));
         const btn = wrapper.find('button')!;
         btn.click();
         btn.click();
@@ -349,15 +349,15 @@ describe('watch', () => {
         const Root = () => {
             const [msg, setMsg] = useAtom(msgAtom);
             const msgLen = useAtomValue(msgLenAtom);
-            return div({ slot: [
-                span({ slot: `${msg}: ${msgLen}` }),
-                button({
-                    slot: 'bar',
+            return element('div', { slot: [
+                element('span', { slot: text(`${msg}: ${msgLen}`) }),
+                element('button', {
+                    slot: text('bar'),
                     onclick: () => setMsg(s => s === 'foo' ? 'foobar' : 'foobarbaz'),
                 }),
             ] });
         };
-        const wrapper = mount(rendr(Root));
+        const wrapper = mount(component(Root));
         const btn = wrapper.find('button')!;
         btn.click();
         await wait(10);
