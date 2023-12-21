@@ -108,17 +108,13 @@ export let element = <Tag extends keyof HTMLElementTagNameMap | keyof SVGElement
         delete attrs.key;
     }
     if (attrs.slot) {
-        elem.c = attrs.slot as Elem[];
+        elem.c = (Array.isArray(attrs.slot) ? attrs.slot : [attrs.slot]) as Elem[];
+        elem.c.forEach((e, i) => {elem.c![i] = normalizeSlotElem(e);});
         delete attrs.slot;
     }
     if (attrs.ref) {
         elem.r = attrs.ref;
         delete attrs.ref;
-    }
-    if (Array.isArray(elem.c)) {
-        elem.c.forEach((e, i) => {elem.c![i] = normalizeSlotElem(e);});
-    } else if (elem.c !== undefined) {
-        elem.c = [normalizeSlotElem(elem.c)];
     }
     return elem;
 }
