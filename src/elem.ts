@@ -103,12 +103,18 @@ export let element = <Tag extends keyof HTMLElementTagNameMap | keyof SVGElement
         return elem;
     }
     elem.p = attrs;
-    elem.k = attrs.key;
-    elem.c = attrs.slot as Elem[];
-    elem.r = attrs.ref;
-    delete attrs.key;
-    delete attrs.ref;
-    delete attrs.slot;
+    if (attrs.key) {
+        elem.k = attrs.key;
+        delete attrs.key;
+    }
+    if (attrs.slot) {
+        elem.c = attrs.slot as Elem[];
+        delete attrs.slot;
+    }
+    if (attrs.ref) {
+        elem.r = attrs.ref;
+        delete attrs.ref;
+    }
     if (Array.isArray(elem.c)) {
         elem.c.forEach((e, i) => {elem.c![i] = normalizeSlotElem(e);});
     } else if (elem.c !== undefined) {
@@ -119,7 +125,7 @@ export let element = <Tag extends keyof HTMLElementTagNameMap | keyof SVGElement
 
 export let normalizeSlotElem = (elem: SlotElem): Elem => {
     if (!elem || elem === true) return {};
-    return elem as Elem<any>;
+    return elem;
 };
 
 let namespacePrefix = 'http://www.w3.org/';
