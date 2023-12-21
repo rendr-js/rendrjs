@@ -17,15 +17,10 @@ export interface MemoRecord {
     v: any
 }
 
-export let isUpdater = <T>(value: SetStateAction<T>): value is UpdateStateAction<T> => typeof value === 'function';
-
-export let useCurrentElem = (): ComponentElem => {
-    if (!current.e) throw 'bad hook';
-    return current.e;
-};
+// export let isUpdater = <T>(value: SetStateAction<T>): value is UpdateStateAction<T> => typeof value === 'function';
 
 let getHookData = <T extends EffectRecord[] | MemoRecord[] | any[]>(): [T, number, ComponentElem] => {
-    let elem = useCurrentElem();
+    let elem = current.e!;
     elem.h ??= [];
     return [elem.h as T, elem.i!++, elem];
 };
@@ -40,12 +35,19 @@ export let useState = <S>(initialValue: S): [S, Dispatch<SetStateAction<S>>] => 
     let setState = useCallback((action: SetStateAction<S>) => {
         let elem = ref.value;
         if (elem.u) throw 'bad set state';
-        let newValue: S = isUpdater(action) ? action(states[cursor]) : action;
+        let newValue: S = typeof action === 'function' ? (action as UpdateStateAction<S>)(states[cursor]) : action;
         if (states[cursor] !== newValue) {
             states[cursor] = newValue;
             elem.q ??= [];
             elem.q!.push(callComponentFunc(elem));
-            queueMicrotask(() => flush(elem));
+            queueMicrotask(() => {
+                let tip = elem.q!.pop();
+                if (tip) {
+                    elem.q!.length = 0;
+                    reconcile(elem.v!, tip);
+                    elem.v = tip;
+                }
+            });
         }
     }, []);
     return [states[cursor], setState];
@@ -53,60 +55,49 @@ export let useState = <S>(initialValue: S): [S, Dispatch<SetStateAction<S>>] => 
 
 export let useEffect = (effect: () => (void | (() => void)), deps: any[]) => {
     let [effects, cursor, elem] = getHookData();
-    if (effects.length <= cursor) {
-        let ef = { d: deps } as EffectRecord;
-        effects.push(ef);
+    let record = effects[cursor] as EffectRecord;
+    if (!record) {
+        record = { d: deps };
+        effects.push(record);
         queueMicrotask(() => {
-            if (!elem.u) ef.t = effect();
+            if (!elem.u) record.t = effect();
         });
-        return;
-    }
-    let ef = effects[cursor] as EffectRecord;
-    if (!areDepsEqual(deps, ef.d)) {
-        ef.d = deps;
+    } else if (!areDepsEqual(deps, record.d)) {
+        record.d = deps;
         queueMicrotask(() => {
-            ef.t?.();
-            if (!elem.u) ef.t = effect();
+            record.t?.();
+            if (!elem.u) record.t = effect();
         });
     }
 };
 
 export let useImmediateEffect = (effect: () => (void | (() => void)), deps: any[]) => {
     let [effects, cursor] = getHookData();
-    if (effects.length <= cursor) {
-        effects.push({ d: deps, t: effect() });
-        return;
+    let record = effects[cursor] as EffectRecord;
+    if (!record) {
+        record = {
+            d: deps,
+            t: effect(),
+        };
+        effects.push(record);
+    } else if (!areDepsEqual(deps, record.d)) {
+        record.t?.();
+        record.d = deps;
+        record.t = effect();
     }
-    let ef = effects[cursor] as EffectRecord;
-    if (!areDepsEqual(deps, ef.d)) {
-        ef.d = deps;
-        ef.t?.();
-        ef.t = effect();
-    }
-};
-
-export let useDeferredEffect = (effect: () => (void | (() => void)), deps: any[]) => {
-    let first = useRef(false);
-    useEffect(() => {
-        if (!first.value) {
-            first.value = true;
-            return;
-        }
-        effect();
-    }, deps);
 };
 
 export let useMemo = <T>(create: () => T, deps: any[]): T => {
     let [memos, cursor] = getHookData();
-    if (memos.length <= cursor) {
-        let value = create();
-        memos.push({
+    let memo = memos[cursor] as MemoRecord | undefined;
+    if (!memo) {
+        memo = {
+            v: create(),
             d: deps,
-            v: value,
-        } as MemoRecord);
-        return value;
+        };
+        memos.push(memo);
+        return memo.v;
     }
-    let memo = memos[cursor] as MemoRecord;
     if (!areDepsEqual(deps, memo.d)) {
         memo.d = deps;
         memo.v = create();
@@ -122,21 +113,12 @@ export interface Ref<T = any> {
 
 export let useRef = <T>(initialValue: T): Ref<T> => useMemo<Ref<T>>(() => ({ value: initialValue }), []);
 
-let flush = (elem: Elem) => {
-    let tip = elem.q?.pop();
-    if (tip) {
-        if (elem.q) elem.q.length = 0;
-        reconcile(elem.v!, tip);
-        elem.v = tip;
-    }
-};
-
 export let current: { e: ComponentElem | undefined } = {
     e: undefined,
 };
 
 let useAtomSubscription = <T>(atom: Atom<T> | ReadonlyAtom<T>) => {
-    let elem = useCurrentElem();
+    let elem = current.e!;
     useImmediateEffect(() => {
         atom.c.add(elem);
         return () => atom.c.delete(elem);
@@ -156,7 +138,7 @@ export let useAtomValue = <T>(atom: Atom<T> | ReadonlyAtom<T>): T => {
 };
 
 export let useAtomSelector = <T, R>(atom: Atom<T> | ReadonlyAtom<T>, selector: (state: T) => R): R => {
-    let elem = useCurrentElem();
+    let elem = current.e!;
     useImmediateEffect(() => {
         let selected = selector(atom.s);
         let selects = atom.f.get(elem);

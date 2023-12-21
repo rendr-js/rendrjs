@@ -17,7 +17,6 @@ export {
     useAtomValue,
     useAtomSelector,
     useCallback,
-    useDeferredEffect,
     useEffect,
     useImmediateEffect,
     useMemo,

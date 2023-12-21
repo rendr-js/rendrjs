@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, isUpdater } from './hooks.js';
+import { Dispatch, SetStateAction, UpdateStateAction } from './hooks.js';
 import { ComponentElem } from './elem.js';
 import { callComponentFuncAndReconcile } from './reconcile.js';
 
@@ -37,7 +37,7 @@ let createStandardAtom = <T>(initialValue: T, options?: AtomOptions<T>): Atom<T>
         s: initialValue,
         u: action => {
             let oldState = atom.s;
-            atom.s = isUpdater(action) ? action(oldState) : action;
+            atom.s = typeof action === 'function' ? (action as UpdateStateAction<T>)(oldState) : action;
             if (oldState !== atom.s) {
                 options?.watch?.(oldState, atom.s);
                 queueMicrotask(atom.r);
@@ -86,8 +86,7 @@ let updateAtomSubscribers = <T>(atom: Atom<T> | ReadonlyAtom<T>): void => {
     for (let [component, selects] of [...atom.f.entries()]) {
         for (let i = selects.length - 1; i >= 0; i--) {
             let [selected, selector] = selects[i];
-            let newSelected = selector(atom.s);
-            if (selected !== newSelected) {
+            if (selected !== selector(atom.s)) {
                 callComponentFuncAndReconcile(component, component);
             }
         }

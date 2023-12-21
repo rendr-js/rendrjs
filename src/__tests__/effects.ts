@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { useState, rendr, useEffect, useDeferredEffect, span, p } from '..';
+import { useState, rendr, useEffect, span, p } from '..';
 import { waitFor, mount, wait } from './utils';
 
 describe('effects', () => {
@@ -155,26 +155,5 @@ describe('effects', () => {
         para.click();
         await waitFor(() => expect(td).toHaveBeenCalledOnce());
         await waitFor(() => expect(effect).toHaveBeenCalledTimes(2));
-    });
-
-    it('runs deferred effect correctly', async () => {
-        const effect = vi.fn();
-        const Root = () => {
-            const [slot, setSlot] = useState('foo');
-            useDeferredEffect(effect, [slot]);
-            return p({
-                onclick: () => setSlot(s => s + '-'),
-                slot,
-            });
-        };
-        const wrapper = mount(rendr(Root));
-        const para = wrapper.find('p')!;
-        expect(effect).not.toHaveBeenCalled();
-        para.click();
-        await wait(10);
-        expect(effect).toHaveBeenCalledTimes(1);
-        para.click();
-        await wait(10);
-        expect(effect).toHaveBeenCalledTimes(2);
     });
 });
