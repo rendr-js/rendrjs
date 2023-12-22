@@ -38,11 +38,7 @@ export let reconcile = (oldElem: Elem, newElem: Elem): void => {
         newElem.d = oldDom;
         for (let attr in { ...newProps, ...oldProps }) {
             if (newProps[attr] !== oldProps[attr]) {
-                if (newProps[attr] === undefined) {
-                    (oldDom as Element).removeAttribute(attr);
-                } else {
-                    setAttr(oldDom as HTMLElement, attr, newProps[attr]);
-                }
+                setAttr(oldDom as HTMLElement, attr, newProps[attr]);
             }
         }
         if (newElem.r) {
