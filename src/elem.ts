@@ -39,7 +39,6 @@ export let component: RendrComponent = (ty: any, props?: any): any => ({
 export let text = (content: string): Elem<string> => ({
     p: content,
 });
-//{ t: 'text', p: '0', k: undefined, c: undefined, r: undefined }
 
 export let callComponentFunc = <T>(elem: ComponentElem<T>): Elem => {
     let prev = current.e;
@@ -99,22 +98,21 @@ export type SVGElementAttributes<Tag extends string & keyof SVGElementTagNameMap
 
 export let element = <Tag extends keyof HTMLElementTagNameMap | keyof SVGElementTagNameMap, Attrs extends RendrAttributes = Tag extends keyof HTMLElementTagNameMap ? HTMLElementAttributes<Tag> : Tag extends keyof SVGElementTagNameMap ? SVGElementAttributes<Tag> : never>(ty: Tag, attrs?: Attrs): Elem<Tag> => {
     let elem: Elem = { t: ty };
-    if (!attrs) {
-        return elem;
-    }
-    elem.p = attrs;
-    if (attrs.key) {
-        elem.k = attrs.key;
-        delete attrs.key;
-    }
-    if (attrs.slot) {
-        elem.c = (Array.isArray(attrs.slot) ? attrs.slot : [attrs.slot]) as Elem[];
-        elem.c.forEach((e, i) => {elem.c![i] = normalizeSlotElem(e);});
-        delete attrs.slot;
-    }
-    if (attrs.ref) {
-        elem.r = attrs.ref;
-        delete attrs.ref;
+    if (attrs) {
+        elem.p = attrs;
+        if (attrs.key) {
+            elem.k = attrs.key;
+            delete attrs.key;
+        }
+        if (attrs.slot) {
+            elem.c = (Array.isArray(attrs.slot) ? attrs.slot : [attrs.slot]) as Elem[];
+            elem.c.forEach((e, i) => {elem.c![i] = normalizeSlotElem(e);});
+            delete attrs.slot;
+        }
+        if (attrs.ref) {
+            elem.r = attrs.ref;
+            delete attrs.ref;
+        }
     }
     return elem;
 }
