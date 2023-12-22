@@ -135,7 +135,7 @@ export let createDom = <T>(elem: Elem<T>, ns?: string | undefined): ChildNode =>
         elem.d = ns ? document.createElementNS(ns, elem.t) : document.createElement(elem.t);
         if (elem.r) elem.r.value = elem.d;
         for (let attr in elem.p) {
-            setAttr(elem.d as HTMLElement, attr, elem.p[attr]);
+            if (elem.p[attr]) setAttr(elem.d as HTMLElement, attr, elem.p[attr]);
         }
         elem.c?.forEach(c => elem.d!.appendChild(createDom(c, ns)));
     } else {
