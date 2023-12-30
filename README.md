@@ -30,18 +30,24 @@ npm start
 
 ## Basic Usage
 ```javascript
-import { mount, button, useState } from '@rendrjs/core';
+import {
+  mount,
+  text,
+  component,
+  element,
+  useState,
+} from '@rendrjs/core';
 
 const App = () => {
   const [count, setCount] = useState(0);
 
-  return button({
-    slot: `Count: ${count}`,
+  return element('button', {
+    slot: text(`Count: ${count}`),
     onclick: () => setCount(c => c + 1),
   });
 };
 
-mount(document.querySelector('#root')!, App);
+mount(document.querySelector('#root')!, component(App));
 ```
 
 ## Contributing
