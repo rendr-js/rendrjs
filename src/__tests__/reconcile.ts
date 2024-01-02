@@ -555,9 +555,9 @@ describe('attributes', () => {
         const Root = () => {
             const [listen, setListen] = useState(true);
             const [cnt, setCnt] = useState(0);
-            const onclick = listen ? () => setCnt(c => c + 1) : undefined;
+            const btn = listen ? element('button', { id: 'inc', slot: text('increment'), onclick: () => setCnt(c => c + 1) }) : element('button', { id: 'inc', slot: text('increment') });
             return element('div', { slot: [
-                element('button', { id: 'inc', slot: text('increment'), onclick }),
+                btn,
                 element('button', { id: 'toggle', slot: text('toggle listen'), onclick: () => setListen(l => !l) }),
                 element('p', { slot: text(`${cnt}`) }),
             ] });
@@ -570,9 +570,12 @@ describe('attributes', () => {
         inc.click();
         await waitFor(() => expect(para.textContent).toBe('1'));
         toggle.click();
+        await wait(10);
         inc.click();
+        await wait(10);
         await waitFor(() => expect(para.textContent).toBe('1'));
         toggle.click();
+        await wait(10);
         inc.click();
         await waitFor(() => expect(para.textContent).toBe('2'));
       });

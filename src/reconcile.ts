@@ -65,15 +65,10 @@ let reconcileComponents = (oldElem: ComponentElem, newElem: ComponentElem) => {
 }
 
 let reconcileAttributes = (oldElem: HTMLElementElem, newElem: HTMLElementElem) => {
-    for (let attr in newElem.p) {
+    for (let attr in { ...newElem.p, ...oldElem.p }) {
         let prop = newElem.p[attr];
         if (prop !== oldElem.p[attr]) {
             setAttr(oldElem.d, attr, prop);
-        }
-    }
-    for (let attr in oldElem.p) {
-        if (!newElem.p[attr]) {
-            oldElem.d.removeAttribute(attr);
         }
     }
 }
@@ -93,11 +88,11 @@ export let callComponentFuncAndReconcile = (oldElem: ComponentElem, newElem: Com
 };
 
 export let setAttr = (dom: HTMLElement, attr: string, prop: any) => {
-    if (!prop) {
-        dom.removeAttribute(attr);
-    } else if (!attr.indexOf('on')) {
+    if (!attr.indexOf('on')) {
         // @ts-expect-error
         dom[attr] = prop;
+    } else if (!prop) {
+        dom.removeAttribute(attr);
     } else {
         dom.setAttribute(attr, prop);
     }
