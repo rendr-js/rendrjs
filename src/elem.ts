@@ -97,30 +97,35 @@ export type SVGElementAttributes<Tag extends string & keyof SVGElementTagNameMap
     NarrowedSVGEventHandler<'click', Tag, 'currentTarget'>;
 
 export let element = <Tag extends keyof HTMLElementTagNameMap | keyof SVGElementTagNameMap, Attrs extends RendrAttributes = Tag extends keyof HTMLElementTagNameMap ? HTMLElementAttributes<Tag> : Tag extends keyof SVGElementTagNameMap ? SVGElementAttributes<Tag> : never>(ty: Tag, attrs?: Attrs): Elem<Tag> => {
-    let elem: Elem = { t: ty };
-    if (attrs) {
-        elem.p = attrs;
-        if (attrs.key) {
-            elem.k = attrs.key;
-            delete attrs.key;
+    if (!attrs) {
+        return {
+            t: ty,
+        };
+    }
+    let elem = {
+        t: ty,
+        p: {} as { [key: string]: any },
+        k: attrs.key,
+        c: attrs.slot,
+        r: attrs.ref,
+    };
+    let prop: string & keyof (typeof attrs);
+    for (prop in attrs) {
+        if (prop === 'key' || prop === 'slot' || prop === 'ref') {
+            continue;
         }
-        if (attrs.slot) {
-            if (Array.isArray(attrs.slot)) {
-                elem.c = attrs.slot as Elem[];
-                for (let i = elem.c.length - 1; i >= 0; i--) {
-                    elem.c[i] ||= { p: '' };
-                }
-            } else {
-                elem.c = [attrs.slot || { p: '' }];
+        elem.p[prop] = attrs[prop];
+    }
+    if ('slot' in attrs) {
+        if (Array.isArray(elem.c)) {
+            for (let i = elem.c!.length - 1; i >= 0; i--) {
+                elem.c[i] ||= { p: '' };
             }
-            delete attrs.slot;
-        }
-        if (attrs.ref) {
-            elem.r = attrs.ref;
-            delete attrs.ref;
+        } else {
+            elem.c = [elem.c || { p: '' }];
         }
     }
-    return elem;
+    return elem as Elem;
 }
 
 let namespacePrefix = 'http://www.w3.org/';
