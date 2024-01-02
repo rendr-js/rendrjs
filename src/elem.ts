@@ -4,7 +4,7 @@ import { setAttr } from './reconcile.js';
 export type Component<T> = (props: T) => SlotElem;
 export type ComponentElem<T = any> = Elem<T> & { t: Component<T> };
 export type ElemType<T = any> = string | Component<T>;
-export type SlotElem = null | undefined | boolean | Elem;
+export type SlotElem = null | undefined | false | Elem;
 export type Slot = SlotElem | SlotElem[];
 
 export interface Elem<T = any> {
@@ -46,7 +46,7 @@ export let callComponentFunc = <T>(elem: ComponentElem<T>): Elem => {
     elem.i = 0;
     let vd = elem.t(elem.p as T);
     current.e = prev;
-    return normalizeSlotElem(vd);
+    return vd || { p: '' };
 }
 
 type EventHandler<
@@ -105,8 +105,14 @@ export let element = <Tag extends keyof HTMLElementTagNameMap | keyof SVGElement
             delete attrs.key;
         }
         if (attrs.slot) {
-            elem.c = (Array.isArray(attrs.slot) ? attrs.slot : [attrs.slot]) as Elem[];
-            elem.c.forEach((e, i) => {elem.c![i] = normalizeSlotElem(e);});
+            if (Array.isArray(attrs.slot)) {
+                elem.c = attrs.slot as Elem[];
+                for (let i = elem.c.length - 1; i >= 0; i--) {
+                    elem.c[i] = elem.c[i] || { p: '' };
+                }
+            } else {
+                elem.c = [attrs.slot || { p: '' }];
+            }
             delete attrs.slot;
         }
         if (attrs.ref) {
@@ -117,28 +123,27 @@ export let element = <Tag extends keyof HTMLElementTagNameMap | keyof SVGElement
     return elem;
 }
 
-export let normalizeSlotElem = (elem: SlotElem): Elem => {
-    if (!elem || elem === true) return {};
-    return elem;
-};
-
 let namespacePrefix = 'http://www.w3.org/';
 let svgNamespace = namespacePrefix + '2000/svg';
 let mathNamespace = namespacePrefix + '1998/Math/MathML';
 export let createDom = <T>(elem: Elem<T>, ns?: string | undefined): ChildNode => {
-    if (!elem.t) {
-        elem.d = document.createTextNode(elem.p as string ?? '');
-    } else if (typeof elem.t === 'string') {
+    if (typeof elem.t === 'string') {
         ns = elem.t === 'svg' ? svgNamespace : elem.t === 'math' ? mathNamespace : ns;
         elem.d = ns ? document.createElementNS(ns, elem.t) : document.createElement(elem.t);
         if (elem.r) elem.r.value = elem.d;
         for (let attr in elem.p) {
             if (elem.p[attr]) setAttr(elem.d as HTMLElement, attr, elem.p[attr]);
         }
-        elem.c?.forEach(c => elem.d!.appendChild(createDom(c, ns)));
-    } else {
+        if (elem.c) {
+            for (let i = 0; i < elem.c.length; i++) {
+                elem.d.appendChild(createDom(elem.c[i], ns));
+            }
+        }
+    } else if (elem.t) {
         elem.v = callComponentFunc(elem as ComponentElem<T>);
         return createDom(elem.v, ns);
+    } else {
+        elem.d = document.createTextNode(elem.p as string);
     }
     return elem.d!;
 }
