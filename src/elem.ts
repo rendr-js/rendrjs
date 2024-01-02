@@ -108,7 +108,7 @@ export let element = <Tag extends keyof HTMLElementTagNameMap | keyof SVGElement
             if (Array.isArray(attrs.slot)) {
                 elem.c = attrs.slot as Elem[];
                 for (let i = elem.c.length - 1; i >= 0; i--) {
-                    elem.c[i] = elem.c[i] || { p: '' };
+                    elem.c[i] ||= { p: '' };
                 }
             } else {
                 elem.c = [attrs.slot || { p: '' }];
