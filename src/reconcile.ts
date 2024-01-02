@@ -23,38 +23,66 @@ let getDom = (elem: Elem): ChildNode => {
 
 export let reconcile = (oldElem: Elem, newElem: Elem): void => {
     newElem.u = false;
-    let oldDom = getDom(oldElem);
-    let newProps = newElem.p;
-    let oldProps = oldElem.p;
     if (oldElem.t !== newElem.t) {
         teardown(oldElem);
-        oldDom.replaceWith(createDom(newElem));
-    } else if (!oldElem.t) {
-        newElem.d = oldDom;
-        if (oldProps !== newProps) {
-            (oldDom as Text).data = newProps;
-        }
-    } else if (typeof oldElem.t === 'string') {
-        newElem.d = oldDom;
-        for (let attr in { ...newProps, ...oldProps }) {
-            if (newProps[attr] !== oldProps[attr]) {
-                setAttr(oldDom as HTMLElement, attr, newProps[attr]);
-            }
-        }
-        if (newElem.r) {
-            newElem.r.value = oldDom;
-        } else if (oldElem.r) {
-            oldElem.r.value = undefined;
-        }
-        reconcileChildren(oldElem as HTMLElementElem, newElem as HTMLElementElem, oldDom as Element);
+        getDom(oldElem).replaceWith(createDom(newElem));
+        return;
+    }
+    if (typeof oldElem.t === 'function') {
+        reconcileComponents(oldElem as ComponentElem, newElem as ComponentElem);
+        return;
+    }
+    newElem.d = oldElem.d;
+    if (oldElem.t) {
+        reconcileVdomElems(oldElem as HTMLElementElem, newElem as HTMLElementElem);
     } else {
-        newElem.h = oldElem.h;
-        if (oldElem.m && newElem.m && areDepsEqual(oldElem.m, newElem.m)) {
-            newElem.v = oldElem.v;
-        } else {
-            if (oldElem.q) oldElem.q.length = 0;
-            callComponentFuncAndReconcile(oldElem as ComponentElem, newElem as ComponentElem);
+        reconcileTextElems(oldElem, newElem);
+    }
+}
+
+let reconcileVdomElems = (oldElem: HTMLElementElem, newElem: HTMLElementElem) => {
+    reconcileAttributes(oldElem, newElem);
+    reconcileReference(oldElem, newElem);
+    reconcileChildren(oldElem, newElem, newElem.d);
+}
+
+let reconcileTextElems = (oldElem: Elem, newElem: Elem) => {
+    if (oldElem.p !== newElem.p) {
+        (oldElem.d as Text).data = newElem.p;
+    }
+};
+
+let reconcileComponents = (oldElem: ComponentElem, newElem: ComponentElem) => {
+    newElem.h = oldElem.h;
+    if (oldElem.m && newElem.m && areDepsEqual(oldElem.m, newElem.m)) {
+        newElem.v = oldElem.v;
+        return;
+    }
+    if (oldElem.q) {
+        oldElem.q.length = 0;
+    }
+    callComponentFuncAndReconcile(oldElem, newElem);
+}
+
+let reconcileAttributes = (oldElem: HTMLElementElem, newElem: HTMLElementElem) => {
+    for (let attr in newElem.p) {
+        let prop = newElem.p[attr];
+        if (prop !== oldElem.p[attr]) {
+            setAttr(oldElem.d, attr, prop);
         }
+    }
+    for (let attr in oldElem.p) {
+        if (!newElem.p[attr]) {
+            oldElem.d.removeAttribute(attr);
+        }
+    }
+}
+
+let reconcileReference = (oldElem: Elem, newElem: Elem) => {
+    if (newElem.r) {
+        newElem.r.value = oldElem.d;
+    } else if (oldElem.r) {
+        oldElem.r.value = undefined;
     }
 }
 
