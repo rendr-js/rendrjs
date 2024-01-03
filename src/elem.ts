@@ -111,10 +111,9 @@ export let element = <Tag extends keyof HTMLElementTagNameMap | keyof SVGElement
     };
     let prop: string & keyof (typeof attrs);
     for (prop in attrs) {
-        if (prop === 'key' || prop === 'slot' || prop === 'ref') {
-            continue;
+        if (prop !== 'key' && prop !== 'slot' && prop !== 'ref') {
+            elem.p[prop] = attrs[prop];
         }
-        elem.p[prop] = attrs[prop];
     }
     if ('slot' in attrs) {
         if (Array.isArray(elem.c)) {
@@ -132,7 +131,9 @@ let namespacePrefix = 'http://www.w3.org/';
 let svgNamespace = namespacePrefix + '2000/svg';
 let mathNamespace = namespacePrefix + '1998/Math/MathML';
 export let createDom = <T>(elem: Elem<T>, ns?: string | undefined): ChildNode => {
-    if (typeof elem.t === 'string') {
+    if (!elem.t) {
+        elem.d = document.createTextNode(elem.p as string);
+    } else if (typeof elem.t === 'string') {
         ns = elem.t === 'svg' ? svgNamespace : elem.t === 'math' ? mathNamespace : ns;
         elem.d = ns ? document.createElementNS(ns, elem.t) : document.createElement(elem.t);
         if (elem.r) elem.r.value = elem.d;
@@ -144,11 +145,9 @@ export let createDom = <T>(elem: Elem<T>, ns?: string | undefined): ChildNode =>
                 elem.d.appendChild(createDom(elem.c[i], ns));
             }
         }
-    } else if (elem.t) {
+    } else {
         elem.v = callComponentFunc(elem as ComponentElem<T>);
         return createDom(elem.v, ns);
-    } else {
-        elem.d = document.createTextNode(elem.p as string);
     }
     return elem.d!;
 }

@@ -28,7 +28,7 @@ export let reconcile = (oldElem: Elem, newElem: Elem): void => {
         getDom(oldElem).replaceWith(createDom(newElem));
         return;
     }
-    if (typeof oldElem.t === 'function') {
+    if (oldElem.v) {
         reconcileComponents(oldElem as ComponentElem, newElem as ComponentElem);
         return;
     }
