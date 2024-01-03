@@ -1,5 +1,4 @@
 import { ComponentElem, createDom, Elem, callComponentFunc } from './elem.js';
-import { Ref } from './hooks.js';
 import { areDepsEqual } from './utils.js';
 
 type HTMLElementElem = Elem & { d: HTMLElement };
@@ -42,9 +41,9 @@ export let reconcile = (oldElem: Elem, newElem: Elem): void => {
 }
 
 let reconcileVdomElems = (oldElem: HTMLElementElem, newElem: HTMLElementElem) => {
-    reconcileAttributes(oldElem.p, newElem.p, newElem.d);
-    reconcileReference(newElem.d, oldElem.r, newElem.r);
-    reconcileChildren(oldElem.c ?? [], newElem.c ?? [], newElem.d);
+    reconcileAttributes(oldElem, newElem);
+    reconcileReference(oldElem, newElem);
+    reconcileChildren(oldElem, newElem);
 }
 
 let reconcileTextElems = (oldElem: Elem, newElem: Elem) => {
@@ -65,19 +64,20 @@ let reconcileComponents = (oldElem: ComponentElem, newElem: ComponentElem) => {
     callComponentFuncAndReconcile(oldElem, newElem);
 }
 
-let reconcileAttributes = (oldProps: any, newProps: any, dom: HTMLElement) => {
-    for (let attr in { ...newProps, ...oldProps }) {
-        if (newProps[attr] !== oldProps[attr]) {
-            setAttr(dom, attr, newProps[attr]);
+let reconcileAttributes = (oldElem: HTMLElementElem, newElem: HTMLElementElem) => {
+    for (let attr in { ...newElem.p, ...oldElem.p }) {
+        let prop = newElem.p[attr];
+        if (prop !== oldElem.p[attr]) {
+            setAttr(oldElem.d, attr, prop);
         }
     }
 }
 
-let reconcileReference = (dom: Element, oldRef?: Ref<any>, newRef?: Ref<any>) => {
-    if (newRef) {
-        newRef.value = dom;
-    } else if (oldRef) {
-        oldRef.value = undefined;
+let reconcileReference = (oldElem: Elem, newElem: Elem) => {
+    if (newElem.r) {
+        newElem.r.value = oldElem.d;
+    } else if (oldElem.r) {
+        oldElem.r.value = undefined;
     }
 }
 
@@ -108,11 +108,13 @@ let moveBefore = (parent: ParentNode, newChn: Elem[], oldChn: Elem[], i: number,
 
 type ChilrenMap = { [key: string]: Elem<any> };
 
-let reconcileChildren = (oldChn: Elem[], newChn: Elem[], dom: Element) => {
+let reconcileChildren = (oldElem: HTMLElementElem, newElem: HTMLElementElem) => {
+    let newChn = newElem.c ?? [];
+    let oldChn = oldElem.c ?? [];
     let newLength = newChn.length;
     let oldLength = oldChn.length;
     if (!newLength && oldLength) {
-        dom.innerHTML = '';
+        newElem.d.innerHTML = '';
         oldChn.forEach(teardown);
         return;
     }
@@ -154,20 +156,20 @@ let reconcileChildren = (oldChn: Elem[], newChn: Elem[], dom: Element) => {
         let newChd = newChn[start];
         let newKey = newChd.k;
         let oldChd = oldChn[start];
-        let chdDom = dom.childNodes[start];
+        let chdDom = newElem.d.childNodes[start];
         let mappedOld = oldMap[newKey!];
         if (!oldChd) {
-            dom.appendChild(createDom(newChd));
+            newElem.d.appendChild(createDom(newChd));
         } else if (mappedOld) {
             if (chdDom !== mappedOld.d) {
-                moveBefore(dom, newChn, oldChn, start, chdDom, getDom(mappedOld));
+                moveBefore(newElem.d, newChn, oldChn, start, chdDom, getDom(mappedOld));
             }
             reconcile(mappedOld, newChd);
             delete oldMap[newKey!];
         } else if (oldChd.k === newKey) {
             reconcile(oldChd, newChd);
         } else {
-            moveBefore(dom, newChn, oldChn, start, chdDom, createDom(newChd));
+            moveBefore(newElem.d, newChn, oldChn, start, chdDom, createDom(newChd));
         }
         start++;
     }
