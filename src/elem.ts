@@ -102,28 +102,46 @@ export let element = <Tag extends keyof HTMLElementTagNameMap | keyof SVGElement
             t: ty,
         };
     }
-    let elem = {
+    let elem: Elem = {
         t: ty,
         p: {} as { [key: string]: any },
-        k: attrs.key,
-        c: attrs.slot,
-        r: attrs.ref,
+        // k: attrs.key,
+        // c: attrs.slot,
+        // r: attrs.ref,
     };
     let prop: string & keyof (typeof attrs);
     for (prop in attrs) {
-        if (prop !== 'key' && prop !== 'slot' && prop !== 'ref') {
-            elem.p[prop] = attrs[prop];
-        }
-    }
-    if ('slot' in attrs) {
-        if (Array.isArray(elem.c)) {
-            for (let i = elem.c.length - 1; i >= 0; i--) {
-                elem.c[i] ||= { p: '' };
+        if (prop === 'slot') {
+            if (Array.isArray(attrs.slot)) {
+                elem.c = attrs.slot as Elem[];
+                for (let i = elem.c.length - 1; i >= 0; i--) {
+                    elem.c[i] ||= { p: '' };
+                }
+            } else {
+                elem.c = [attrs.slot || { p: '' }];
             }
-        } else {
-            elem.c = [elem.c || { p: '' }];
+            continue;
         }
+        if (prop === 'key') {
+            elem.k = attrs.key;
+            continue;
+        }
+        if (prop === 'ref') {
+            elem.r = attrs.ref;
+            continue;
+        }
+        elem.p[prop] = attrs[prop];
     }
+    // if (attrs.slot) {
+    //     if (Array.isArray(attrs.slot)) {
+    //         elem.c = attrs.slot as Elem[];
+    //         for (let i = elem.c.length - 1; i >= 0; i--) {
+    //             elem.c[i] ||= { p: '' };
+    //         }
+    //     } else {
+    //         elem.c = [attrs.slot || { p: '' }];
+    //     }
+    // }
     return elem as Elem;
 }
 
