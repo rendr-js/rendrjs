@@ -44,9 +44,9 @@ export let callComponentFunc = <T>(elem: ComponentElem<T>): Elem => {
     let prev = current.e;
     current.e = elem;
     elem.i = 0;
-    let vd = elem.t(elem.p as T);
+    let vd = elem.t(elem.p as T) || { p: '' };
     current.e = prev;
-    return vd || { p: '' };
+    return vd;
 }
 
 type EventHandler<
@@ -97,18 +97,11 @@ export type SVGElementAttributes<Tag extends string & keyof SVGElementTagNameMap
     NarrowedSVGEventHandler<'click', Tag, 'currentTarget'>;
 
 export let element = <Tag extends keyof HTMLElementTagNameMap | keyof SVGElementTagNameMap, Attrs extends RendrAttributes = Tag extends keyof HTMLElementTagNameMap ? HTMLElementAttributes<Tag> : Tag extends keyof SVGElementTagNameMap ? SVGElementAttributes<Tag> : never>(ty: Tag, attrs?: Attrs): Elem<Tag> => {
+    let elem: Elem = { t: ty };
     if (!attrs) {
-        return {
-            t: ty,
-        };
+        return elem;
     }
-    let elem: Elem = {
-        t: ty,
-        p: {} as { [key: string]: any },
-        // k: attrs.key,
-        // c: attrs.slot,
-        // r: attrs.ref,
-    };
+    elem.p = {} as { [key: string]: any };
     let prop: string & keyof (typeof attrs);
     for (prop in attrs) {
         if (prop === 'slot') {
@@ -132,17 +125,7 @@ export let element = <Tag extends keyof HTMLElementTagNameMap | keyof SVGElement
         }
         elem.p[prop] = attrs[prop];
     }
-    // if (attrs.slot) {
-    //     if (Array.isArray(attrs.slot)) {
-    //         elem.c = attrs.slot as Elem[];
-    //         for (let i = elem.c.length - 1; i >= 0; i--) {
-    //             elem.c[i] ||= { p: '' };
-    //         }
-    //     } else {
-    //         elem.c = [attrs.slot || { p: '' }];
-    //     }
-    // }
-    return elem as Elem;
+    return elem;
 }
 
 let namespacePrefix = 'http://www.w3.org/';

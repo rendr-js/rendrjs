@@ -98,10 +98,11 @@ export let setAttr = (dom: HTMLElement, attr: string, prop: any) => {
     }
 };
 
-let moveBefore = (parent: ParentNode, newChn: Elem[], oldChn: Elem[], i: number, currDomNode: ChildNode, movingDomNode: ChildNode) => {
+let moveBefore = (parent: ParentNode, newChdNextKey: string | undefined, oldChdKey: string | undefined, currDomNode: ChildNode, movingDomNode: ChildNode) => {
     let oldPos = movingDomNode.nextSibling;
     parent.insertBefore(movingDomNode, currDomNode);
-    if (currDomNode !== parent.lastChild && newChn[i+1]?.k !== oldChn[i]?.k) {
+    currDomNode.before(movingDomNode);
+    if (currDomNode !== parent.lastChild && newChdNextKey !== oldChdKey) {
         parent.insertBefore(currDomNode, oldPos);
     }
 }
@@ -147,8 +148,10 @@ let reconcileChildren = (oldElem: HTMLElementElem, newElem: HTMLElementElem) => 
 
     let oldMap = {} as ChilrenMap;
     for (let i = start; i <= oldLength; i++) {
-        if (oldChn[i].k && (!newChn[i] || oldChn[i].k !== newChn[i].k)) {
-            oldMap[oldChn[i].k!] = oldChn[i];
+        let oldChd = oldChn[i];
+        let oldKey = oldChd.k;
+        if (oldKey && (!newChn[i] || oldKey !== newChn[i].k)) {
+            oldMap[oldKey] = oldChd;
         }
     }
     
@@ -161,15 +164,16 @@ let reconcileChildren = (oldElem: HTMLElementElem, newElem: HTMLElementElem) => 
         if (!oldChd) {
             newElem.d.appendChild(createDom(newChd));
         } else if (mappedOld) {
-            if (chdDom !== mappedOld.d) {
-                moveBefore(newElem.d, newChn, oldChn, start, chdDom, getDom(mappedOld));
+            let oldDom = getDom(mappedOld);
+            if (chdDom !== oldDom) {
+                moveBefore(newElem.d, newChn[start + 1]?.k, oldChd.k, chdDom, oldDom);
             }
             reconcile(mappedOld, newChd);
             delete oldMap[newKey!];
         } else if (oldChd.k === newKey) {
             reconcile(oldChd, newChd);
         } else {
-            moveBefore(newElem.d, newChn, oldChn, start, chdDom, createDom(newChd));
+            moveBefore(newElem.d, newChn[start + 1]?.k, oldChd.k, chdDom, createDom(newChd));
         }
         start++;
     }
