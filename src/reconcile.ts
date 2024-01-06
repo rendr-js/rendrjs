@@ -155,23 +155,30 @@ let reconcileChildren = (oldElem: HTMLElementElem, newElem: HTMLElementElem) => 
         }
     }
     
+    let chNodes = newElem.d.childNodes;
     while (start <= newLength) {
         let newChd = newChn[start];
-        let newKey = newChd.k;
         let oldChd = oldChn[start];
-        let chdDom = newElem.d.childNodes[start];
-        let mappedOld = oldMap[newKey!];
         if (!oldChd) {
             newElem.d.appendChild(createDom(newChd));
-        } else if (mappedOld) {
+            start++;
+            continue;
+        }
+        let newKey = newChd.k;
+        if (oldChd.k === newKey) {
+            reconcile(oldChd, newChd);
+            start++;
+            continue;
+        }
+        let mappedOld = oldMap[newKey!];
+        let chdDom = chNodes[start];
+        if (mappedOld) {
             let oldDom = getDom(mappedOld);
             if (chdDom !== oldDom) {
                 moveBefore(newElem.d, newChn[start + 1]?.k, oldChd.k, chdDom, oldDom);
             }
             reconcile(mappedOld, newChd);
             delete oldMap[newKey!];
-        } else if (oldChd.k === newKey) {
-            reconcile(oldChd, newChd);
         } else {
             moveBefore(newElem.d, newChn[start + 1]?.k, oldChd.k, chdDom, createDom(newChd));
         }
