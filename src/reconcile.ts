@@ -101,7 +101,6 @@ export let setAttr = (dom: HTMLElement, attr: string, prop: any) => {
 let moveBefore = (parent: ParentNode, newChdNextKey: string | undefined, oldChdKey: string | undefined, currDomNode: ChildNode, movingDomNode: ChildNode) => {
     let oldPos = movingDomNode.nextSibling;
     parent.insertBefore(movingDomNode, currDomNode);
-    currDomNode.before(movingDomNode);
     if (currDomNode !== parent.lastChild && newChdNextKey !== oldChdKey) {
         parent.insertBefore(currDomNode, oldPos);
     }
