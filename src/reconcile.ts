@@ -25,6 +25,7 @@ export let reconcile = (oldElem: Elem, newElem: Elem): void => {
     newElem.u = false;
     if (oldElem.t !== newElem.t) {
         teardown(oldElem);
+        // TODO: do we need to know namespace here?
         getDom(oldElem).replaceWith(createDom(newElem));
         return;
     }

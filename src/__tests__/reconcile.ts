@@ -548,6 +548,39 @@ describe('slot: keyed', () => {
         para.click();
         await waitFor(() => expect(para.textContent).toBe('12340'));
     });
+    
+    it('namespace change', async () => {
+        const Root = () => {
+            const [showRect, setShowRect] = useState(false);
+            const rect = element('rect', {
+                width: 50,
+                height: 50,
+                style: 'strokeWidth: 3',
+            });
+            const path = element('path', {
+                d: 'M150 0 L75 200 L225 200 Z',
+            });
+            return element('div', {
+                slot: [
+                    element('button', {
+                        onclick: () => setShowRect(s => !s),
+                        slot: text('toggle'),
+                    }),
+                    element('svg', {
+                        width: 100,
+                        height: 100,
+                        slot: showRect ? rect : path,
+                    }),
+                ],
+            });
+        };
+        const wrapper = mount(component(Root));
+        const toggle = wrapper.find('button')!;
+        await waitFor(() => expect(wrapper.find('rect')).toBe(null));
+        await waitFor(() => expect(wrapper.find('path')).not.toBe(null));
+        toggle.click();
+        await waitFor(() => expect(wrapper.find('rect')).not.toBe(null));
+    });
 });
 
 describe('attributes', () => {
