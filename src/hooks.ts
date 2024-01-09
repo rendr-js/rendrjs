@@ -26,12 +26,12 @@ let getHookData = <T extends EffectRecord[] | MemoRecord[] | any[]>(): [T, numbe
 };
 
 export let useState = <S>(initialValue: S): [S, Dispatch<SetStateAction<S>>] => {
-    let [states, cursor] = getHookData();
+    let [states, cursor, elem] = getHookData();
     if (states.length <= cursor) {
         states.push(initialValue);
     }
-    let ref = useRef(current.e!);
-    ref.value = current.e!;
+    let ref = useRef(elem);
+    ref.value = elem;
     let setState = useCallback((action: SetStateAction<S>) => {
         let elem = ref.value;
         if (elem.u) throw 'bad set state';
