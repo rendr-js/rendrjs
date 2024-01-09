@@ -5,13 +5,13 @@ type HTMLElementElem = Elem & { d: HTMLElement };
 
 let teardown = (elem: Elem, remove = 0) => {
     if (remove < 0) getDom(elem).remove();
-    if (elem.r) elem.r.value = undefined;
     if (elem.v) {
         elem.u = true;
         if (elem.q) elem.q.length = 0;
         elem.h?.forEach(h => h?.t?.());
         teardown(elem.v);
     } else {
+        if (elem.r) elem.r.value = undefined;
         elem.c?.forEach(teardown);
     }
 }
@@ -124,10 +124,20 @@ let reconcileChildren = (oldElem: HTMLElementElem, newElem: HTMLElementElem) => 
     // prefix
     while (
         start < newLength &&
-        start < oldLength &&
-        (newChn[start].k === undefined || newChn[start].k === oldChn[start].k)
-    ) {
-        reconcile(oldChn[start], newChn[start]);
+        start < oldLength) {// &&
+        // (newChn[start].k === undefined || newChn[start].k === oldChn[start].k)
+        // TODO: move to body?
+    //) 
+    // {
+        let newChd = newChn[start];
+        let oldChd = oldChn[start];
+        if (!newChd.k || newChd.k === oldChd.k) {
+
+            reconcile(oldChd, newChd);
+        } else {
+            break;
+        }
+
         start++;
     }
     if (start >= newLength) {
@@ -140,10 +150,18 @@ let reconcileChildren = (oldElem: HTMLElementElem, newElem: HTMLElementElem) => 
     newLength--;
     while (
         newLength > start &&
-        oldLength >= start &&
-        (!newChn[newLength].k || newChn[newLength].k === oldChn[oldLength].k)
-    ) {
-        reconcile(oldChn[oldLength--], newChn[newLength--]);
+        oldLength >= start) {// &&
+        // (!newChn[newLength].k || newChn[newLength].k === oldChn[oldLength].k)
+    // ) {
+        let newChd = newChn[newLength];
+        let oldChd = oldChn[oldLength];
+        if (!newChd.k || newChd.k === oldChd.k) {
+            reconcile(oldChd, newChd);
+        } else {
+            break;
+        }
+        newLength--;
+        oldLength--;
     }
 
     let oldMap = {} as ChilrenMap;
