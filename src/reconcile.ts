@@ -124,20 +124,10 @@ let reconcileChildren = (oldElem: HTMLElementElem, newElem: HTMLElementElem) => 
     // prefix
     while (
         start < newLength &&
-        start < oldLength) {// &&
-        // (newChn[start].k === undefined || newChn[start].k === oldChn[start].k)
-        // TODO: move to body?
-    //) 
-    // {
-        let newChd = newChn[start];
-        let oldChd = oldChn[start];
-        if (!newChd.k || newChd.k === oldChd.k) {
-
-            reconcile(oldChd, newChd);
-        } else {
-            break;
-        }
-
+        start < oldLength &&
+        (newChn[start].k === undefined || newChn[start].k === oldChn[start].k)
+    ) {
+        reconcile(oldChn[start], newChn[start]);
         start++;
     }
     if (start >= newLength) {
@@ -150,18 +140,10 @@ let reconcileChildren = (oldElem: HTMLElementElem, newElem: HTMLElementElem) => 
     newLength--;
     while (
         newLength > start &&
-        oldLength >= start) {// &&
-        // (!newChn[newLength].k || newChn[newLength].k === oldChn[oldLength].k)
-    // ) {
-        let newChd = newChn[newLength];
-        let oldChd = oldChn[oldLength];
-        if (!newChd.k || newChd.k === oldChd.k) {
-            reconcile(oldChd, newChd);
-        } else {
-            break;
-        }
-        newLength--;
-        oldLength--;
+        oldLength >= start &&
+        (!newChn[newLength].k || newChn[newLength].k === oldChn[oldLength].k)
+    ) {
+        reconcile(oldChn[oldLength--], newChn[newLength--]);
     }
 
     let oldMap = {} as ChilrenMap;
