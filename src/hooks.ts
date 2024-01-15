@@ -17,8 +17,6 @@ export interface MemoRecord {
     v: any
 }
 
-// export let isUpdater = <T>(value: SetStateAction<T>): value is UpdateStateAction<T> => typeof value === 'function';
-
 let getHookData = <T extends EffectRecord[] | MemoRecord[] | any[]>(): [T, number, ComponentElem] => {
     let elem = current.e!;
     elem.h ??= [];
@@ -30,12 +28,8 @@ export let useState = <S>(initialValue: S): [S, Dispatch<SetStateAction<S>>] => 
     if (states.length <= cursor) {
         states.push(initialValue);
     }
-    // let ref = useRef(elem);
-    // ref.value = elem;
-
-    let setState = (action: SetStateAction<S>) => {
-        // let elem = ref.value;
-        if (elem.u) throw 'bad set state';
+    return [states[cursor], (action: SetStateAction<S>) => {
+        if (elem.u) throw 'bad setState';
         let newValue: S = typeof action === 'function' ? (action as UpdateStateAction<S>)(states[cursor]) : action;
         if (states[cursor] !== newValue) {
             states[cursor] = newValue;
@@ -50,8 +44,7 @@ export let useState = <S>(initialValue: S): [S, Dispatch<SetStateAction<S>>] => 
                 }
             });
         }
-    };
-    return [states[cursor], setState];
+    }];
 };
 
 export let useEffect = (effect: () => (void | (() => void)), deps: any[]) => {
