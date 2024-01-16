@@ -30,55 +30,33 @@ export let reconcile = (oldElem: Elem, newElem: Elem): void => {
         return;
     }
     if (oldElem.v) {
-        reconcileComponents(oldElem as ComponentElem, newElem as ComponentElem);
+        newElem.h = oldElem.h;
+        if (oldElem.m && newElem.m && areDepsEqual(oldElem.m, newElem.m)) {
+            newElem.v = oldElem.v;
+            return;
+        }
+        if (oldElem.q) {
+            oldElem.q.length = 0;
+        }
+        callComponentFuncAndReconcile(oldElem as ComponentElem, newElem as ComponentElem);
         return;
     }
     newElem.d = oldElem.d;
     if (oldElem.t) {
-        reconcileVdomElems(oldElem as HTMLElementElem, newElem as HTMLElementElem);
-    } else {
-        reconcileTextElems(oldElem, newElem);
-    }
-}
-
-let reconcileVdomElems = (oldElem: HTMLElementElem, newElem: HTMLElementElem) => {
-    reconcileAttributes(oldElem, newElem);
-    reconcileReference(oldElem, newElem);
-    reconcileChildren(oldElem, newElem);
-}
-
-let reconcileTextElems = (oldElem: Elem, newElem: Elem) => {
-    if (oldElem.p !== newElem.p) {
-        (oldElem.d as Text).data = newElem.p;
-    }
-};
-
-let reconcileComponents = (oldElem: ComponentElem, newElem: ComponentElem) => {
-    newElem.h = oldElem.h;
-    if (oldElem.m && newElem.m && areDepsEqual(oldElem.m, newElem.m)) {
-        newElem.v = oldElem.v;
-        return;
-    }
-    if (oldElem.q) {
-        oldElem.q.length = 0;
-    }
-    callComponentFuncAndReconcile(oldElem, newElem);
-}
-
-let reconcileAttributes = (oldElem: HTMLElementElem, newElem: HTMLElementElem) => {
-    for (let attr in { ...newElem.p, ...oldElem.p }) {
-        let prop = newElem.p[attr];
-        if (prop !== oldElem.p[attr]) {
-            setAttr(oldElem.d, attr, prop);
+        for (let attr in { ...newElem.p, ...oldElem.p }) {
+            let prop = newElem.p[attr];
+            if (prop !== oldElem.p[attr]) {
+                setAttr(oldElem.d as HTMLElement, attr, prop);
+            }
         }
-    }
-}
-
-let reconcileReference = (oldElem: Elem, newElem: Elem) => {
-    if (newElem.r) {
-        newElem.r.value = oldElem.d;
-    } else if (oldElem.r) {
-        oldElem.r.value = undefined;
+        if (newElem.r) {
+            newElem.r.value = oldElem.d;
+        } else if (oldElem.r) {
+            oldElem.r.value = undefined;
+        }
+        reconcileChildren(oldElem as HTMLElementElem, newElem as HTMLElementElem);
+    } else if (oldElem.p !== newElem.p) {
+        (oldElem.d as Text).data = newElem.p;
     }
 }
 
@@ -161,26 +139,21 @@ let reconcileChildren = (oldElem: HTMLElementElem, newElem: HTMLElementElem) => 
         let oldChd = oldChn[start];
         if (!oldChd) {
             newElem.d.appendChild(createDom(newChd));
-            start++;
-            continue;
-        }
-        let newKey = newChd.k;
-        if (oldChd.k === newKey) {
+        } else if (oldChd.k === newChd.k) {
             reconcile(oldChd, newChd);
-            start++;
-            continue;
-        }
-        let mappedOld = oldMap[newKey!];
-        let chdDom = chNodes[start];
-        if (mappedOld) {
-            let oldDom = getDom(mappedOld);
-            if (chdDom !== oldDom) {
-                moveBefore(newElem.d, newChn[start + 1]?.k, oldChd.k, chdDom, oldDom);
-            }
-            reconcile(mappedOld, newChd);
-            delete oldMap[newKey!];
         } else {
-            moveBefore(newElem.d, newChn[start + 1]?.k, oldChd.k, chdDom, createDom(newChd));
+            let mappedOld = oldMap[newChd.k!];
+            let chdDom = chNodes[start];
+            if (mappedOld) {
+                let oldDom = getDom(mappedOld);
+                if (chdDom !== oldDom) {
+                    moveBefore(newElem.d, newChn[start + 1]?.k, oldChd.k, chdDom, oldDom);
+                }
+                reconcile(mappedOld, newChd);
+                delete oldMap[newChd.k!];
+            } else {
+                moveBefore(newElem.d, newChn[start + 1]?.k, oldChd.k, chdDom, createDom(newChd));
+            }
         }
         start++;
     }

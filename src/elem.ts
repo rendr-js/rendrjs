@@ -122,14 +122,11 @@ export let element = <Tag extends keyof HTMLElementTagNameMap | keyof SVGElement
     return elem;
 }
 
-let namespacePrefix = 'http://www.w3.org/';
-let svgNamespace = namespacePrefix + '2000/svg';
-let mathNamespace = namespacePrefix + '1998/Math/MathML';
 export let createDom = <T>(elem: Elem<T>, ns?: string | undefined): ChildNode => {
     if (!elem.t) {
         elem.d = document.createTextNode(elem.p  as string || '');
     } else if (typeof elem.t === 'string') {
-        ns = elem.t === 'svg' ? svgNamespace : elem.t === 'math' ? mathNamespace : ns;
+        ns = elem.t === 'svg' ? 'http://www.w3.org/2000/svg' : elem.t === 'math' ? 'http://www.w3.org/1998/Math/MathML' : ns;
         elem.d = ns ? document.createElementNS(ns, elem.t) : document.createElement(elem.t);
         if (elem.r) elem.r.value = elem.d;
         for (let attr in elem.p) {
@@ -138,7 +135,7 @@ export let createDom = <T>(elem: Elem<T>, ns?: string | undefined): ChildNode =>
         elem.c?.forEach(c => elem.d!.appendChild(createDom(c, ns)));
     } else {
         elem.v = callComponentFunc(elem as ComponentElem<T>);
-        return createDom(elem.v, ns);
+        elem.d = createDom(elem.v, ns);
     }
     return elem.d!;
 }
