@@ -1,9 +1,8 @@
 {
     "name": "@rendrjs/core",
-    "version": "0.2.32",
+    "version": "0.2.33",
     "scripts": {
         "pub": "npm version patch -f && npx tsc && npm -f publish",
-        "force-pub": "npm publish -f",
         "test": "vitest",
         "test-types": "vitest typecheck"
     },
