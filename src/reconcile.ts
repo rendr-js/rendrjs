@@ -43,10 +43,16 @@ export let reconcile = (oldElem: Elem, newElem: Elem): void => {
     }
     newElem.d = oldElem.d;
     if (oldElem.t) {
-        for (let attr in { ...newElem.p, ...oldElem.p }) {
+        for (let attr in newElem.p) {
             let prop = newElem.p[attr];
-            if (prop !== oldElem.p[attr]) {
+            if (prop && prop !== oldElem.p[attr]) {
                 setAttr(oldElem.d as HTMLElement, attr, prop);
+            }
+        }
+        for (let attr in oldElem.p) {
+            let prop = newElem.p[attr];
+            if (!prop && !setListenerAttr(oldElem.d as HTMLElement, attr, prop)) {
+                (oldElem.d as HTMLElement).removeAttribute(attr);
             }
         }
         if (newElem.r) {
@@ -66,13 +72,16 @@ export let callComponentFuncAndReconcile = (oldElem: ComponentElem, newElem: Com
     newElem.v = newElemVdom;
 };
 
-export let setAttr = (dom: HTMLElement, attr: string, prop: any) => {
+let setListenerAttr = (dom: HTMLElement, attr: string, prop: any) => {
     if (!attr.indexOf('on')) {
         // @ts-expect-error
         dom[attr] = prop;
-    } else if (!prop) {
-        dom.removeAttribute(attr);
-    } else {
+        return 1;
+    }
+}
+
+export let setAttr = (dom: HTMLElement, attr: string, prop: any) => {
+    if (!setListenerAttr(dom, attr, prop)) {
         dom.setAttribute(attr, prop);
     }
 };
@@ -104,7 +113,7 @@ let reconcileChildren = (oldElem: HTMLElementElem, newElem: HTMLElementElem) => 
     while (
         start < newLength &&
         start < oldLength &&
-        (newChn[start].k === undefined || newChn[start].k === oldChn[start].k)
+        (!newChn[start].k || newChn[start].k === oldChn[start].k)
     ) {
         reconcile(oldChn[start], newChn[start]);
         start++;
