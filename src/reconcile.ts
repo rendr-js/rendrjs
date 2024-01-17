@@ -25,8 +25,7 @@ export let reconcile = (oldElem: Elem, newElem: Elem): void => {
     newElem.u = false;
     if (oldElem.t !== newElem.t) {
         teardown(oldElem);
-        // TODO: do we need to know namespace here?
-        getDom(oldElem).replaceWith(createDom(newElem));
+        getDom(oldElem).replaceWith(createDom(newElem, oldElem.n));
         return;
     }
     if (oldElem.v) {
@@ -43,16 +42,11 @@ export let reconcile = (oldElem: Elem, newElem: Elem): void => {
     }
     newElem.d = oldElem.d;
     if (oldElem.t) {
-        for (let attr in newElem.p) {
+        newElem.n = oldElem.n;
+        for (let attr in { ...newElem.p, ...oldElem.p }) {
             let prop = newElem.p[attr];
-            if (prop && prop !== oldElem.p[attr]) {
+            if (prop !== oldElem.p[attr]) {
                 setAttr(oldElem.d as HTMLElement, attr, prop);
-            }
-        }
-        for (let attr in oldElem.p) {
-            let prop = newElem.p[attr];
-            if (!prop && !setListenerAttr(oldElem.d as HTMLElement, attr, prop)) {
-                (oldElem.d as HTMLElement).removeAttribute(attr);
             }
         }
         if (newElem.r) {
@@ -72,17 +66,14 @@ export let callComponentFuncAndReconcile = (oldElem: ComponentElem, newElem: Com
     newElem.v = newElemVdom;
 };
 
-let setListenerAttr = (dom: HTMLElement, attr: string, prop: any) => {
+export let setAttr = (dom: HTMLElement, attr: string, prop: any) => {
     if (!attr.indexOf('on')) {
         // @ts-expect-error
         dom[attr] = prop;
-        return 1;
-    }
-}
-
-export let setAttr = (dom: HTMLElement, attr: string, prop: any) => {
-    if (!setListenerAttr(dom, attr, prop)) {
+    } else if (prop) {
         dom.setAttribute(attr, prop);
+    } else {
+        dom.removeAttribute(attr);
     }
 };
 
@@ -148,7 +139,7 @@ let reconcileChildren = (oldElem: HTMLElementElem, newElem: HTMLElementElem) => 
         let newChd = newChn[start];
         let oldChd = oldChn[start];
         if (!oldChd) {
-            parentDom.appendChild(createDom(newChd));
+            parentDom.appendChild(createDom(newChd, newElem.n));
         } else if (oldChd.k === newChd.k) {
             reconcile(oldChd, newChd);
         } else {
@@ -162,7 +153,7 @@ let reconcileChildren = (oldElem: HTMLElementElem, newElem: HTMLElementElem) => 
                 reconcile(mappedOld, newChd);
                 delete oldMap[newChd.k!];
             } else {
-                moveBefore(parentDom, newChn[start + 1]?.k, oldChd.k, chdDom, createDom(newChd));
+                moveBefore(parentDom, newChn[start + 1]?.k, oldChd.k, chdDom, createDom(newChd, newElem.n));
             }
         }
         start++;

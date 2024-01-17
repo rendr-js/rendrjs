@@ -15,6 +15,7 @@ export interface Elem<T = any> {
     d?: ChildNode // dom
     c?: Elem[] // children
     u?: boolean // unmounted
+    n?: string // namespace
 
     // component data
     v?: Elem // virtual dom
@@ -98,25 +99,27 @@ export type SVGElementAttributes<Tag extends string & keyof SVGElementTagNameMap
 
 export let element = <Tag extends keyof HTMLElementTagNameMap | keyof SVGElementTagNameMap, Attrs extends RendrAttributes = Tag extends keyof HTMLElementTagNameMap ? HTMLElementAttributes<Tag> : Tag extends keyof SVGElementTagNameMap ? SVGElementAttributes<Tag> : never>(ty: Tag, attrs?: Attrs): Elem<Tag> => {
     let elem: Elem = { t: ty };
-    if (!attrs) return elem;
-    elem.p = {} as { [key: string]: any };
-    let prop: string & keyof (typeof attrs);
-    for (prop in attrs) {
-        if (prop === 'slot') {
-            if (Array.isArray(attrs.slot)) {
-                elem.c = attrs.slot as Elem[];
-                for (let i = elem.c.length - 1; i >= 0; i--) {
-                    elem.c[i] ||= {};
+    if (attrs) {
+        elem.p = {} as { [key: string]: any };
+        let prop: string & keyof (typeof attrs);
+        for (prop in attrs) {
+            let val = attrs[prop];
+            if (prop === 'slot') {
+                if (Array.isArray(val)) {
+                    elem.c = val as Elem[];
+                    for (let i = elem.c.length - 1; i >= 0; i--) {
+                        elem.c[i] ||= {};
+                    }
+                } else {
+                    elem.c = [val || {}];
                 }
-            } else {
-                elem.c = [attrs.slot || {}];
+            } else if (prop === 'key') {
+                elem.k = val as string;
+            } else if (prop === 'ref') {
+                elem.r = val as Ref;
+            } else if (val) {
+                elem.p[prop] = val;
             }
-        } else if (prop === 'key') {
-            elem.k = attrs.key;
-        } else if (prop === 'ref') {
-            elem.r = attrs.ref;
-        } else {
-            elem.p[prop] = attrs[prop];
         }
     }
     return elem;
@@ -126,13 +129,13 @@ export let createDom = <T>(elem: Elem<T>, ns?: string | undefined): ChildNode =>
     if (!elem.t) {
         elem.d = document.createTextNode(elem.p  as string || '');
     } else if (typeof elem.t === 'string') {
-        ns = elem.t === 'svg' ? 'http://www.w3.org/2000/svg' : elem.t === 'math' ? 'http://www.w3.org/1998/Math/MathML' : ns;
-        elem.d = ns ? document.createElementNS(ns, elem.t) : document.createElement(elem.t);
+        elem.n = elem.t === 'svg' ? 'http://www.w3.org/2000/svg' : elem.t === 'math' ? 'http://www.w3.org/1998/Math/MathML' : ns;
+        elem.d = elem.n ? document.createElementNS(elem.n, elem.t) : document.createElement(elem.t);
         if (elem.r) elem.r.value = elem.d;
         for (let attr in elem.p) {
-            if (elem.p[attr]) setAttr(elem.d as HTMLElement, attr, elem.p[attr]);
+            setAttr(elem.d as HTMLElement, attr, elem.p[attr]);
         }
-        elem.c?.forEach(c => elem.d!.appendChild(createDom(c, ns)));
+        elem.c?.forEach(c => elem.d!.appendChild(createDom(c, elem.n)));
     } else {
         elem.v = callComponentFunc(elem as ComponentElem<T>);
         elem.d = createDom(elem.v, ns);
