@@ -92,8 +92,9 @@ let reconcileChildren = (oldElem: HTMLElementElem, newElem: HTMLElementElem) => 
     let oldChn = oldElem.c ?? [];
     let newLength = newChn.length;
     let oldLength = oldChn.length;
+    let parentDom = newElem.d;
     if (!newLength && oldLength) {
-        newElem.d.textContent = '';
+        parentDom.textContent = '';
         oldChn.forEach(teardown);
         return;
     }
@@ -133,12 +134,12 @@ let reconcileChildren = (oldElem: HTMLElementElem, newElem: HTMLElementElem) => 
         }
     }
     
-    let chNodes = newElem.d.childNodes;
+    let chNodes = parentDom.childNodes;
     while (start <= newLength) {
         let newChd = newChn[start];
         let oldChd = oldChn[start];
         if (!oldChd) {
-            newElem.d.appendChild(createDom(newChd));
+            parentDom.appendChild(createDom(newChd));
         } else if (oldChd.k === newChd.k) {
             reconcile(oldChd, newChd);
         } else {
@@ -147,12 +148,12 @@ let reconcileChildren = (oldElem: HTMLElementElem, newElem: HTMLElementElem) => 
             if (mappedOld) {
                 let oldDom = getDom(mappedOld);
                 if (chdDom !== oldDom) {
-                    moveBefore(newElem.d, newChn[start + 1]?.k, oldChd.k, chdDom, oldDom);
+                    moveBefore(parentDom, newChn[start + 1]?.k, oldChd.k, chdDom, oldDom);
                 }
                 reconcile(mappedOld, newChd);
                 delete oldMap[newChd.k!];
             } else {
-                moveBefore(newElem.d, newChn[start + 1]?.k, oldChd.k, chdDom, createDom(newChd));
+                moveBefore(parentDom, newChn[start + 1]?.k, oldChd.k, chdDom, createDom(newChd));
             }
         }
         start++;
