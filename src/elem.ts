@@ -127,10 +127,10 @@ export let element = <Tag extends keyof HTMLElementTagNameMap | keyof SVGElement
 
 export let createDom = <T>(elem: Elem<T>, ns?: string | undefined): ChildNode => {
     if (!elem.t) {
-        elem.d = document.createTextNode(elem.p  as string || '');
+        elem.d = document.createTextNode(elem.p as string || '');
     } else if (typeof elem.t === 'string') {
-        elem.n = elem.t === 'svg' ? 'http://www.w3.org/2000/svg' : elem.t === 'math' ? 'http://www.w3.org/1998/Math/MathML' : ns;
-        elem.d = elem.n ? document.createElementNS(elem.n, elem.t) : document.createElement(elem.t);
+        elem.n = elem.t === 'svg' ? '2000/svg' : elem.t === 'math' ? '1998/Math/MathML' : ns;
+        elem.d = elem.n ? document.createElementNS('http://www.w3.org/' + elem.n, elem.t) : document.createElement(elem.t);
         if (elem.r) elem.r.value = elem.d;
         for (let attr in elem.p) {
             setAttr(elem.d as HTMLElement, attr, elem.p[attr]);
