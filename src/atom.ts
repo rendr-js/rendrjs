@@ -84,8 +84,8 @@ let updateAtomSubscribers = <T>(atom: Atom<T> | ReadonlyAtom<T>): void => {
     }
     atom.a.forEach(a => a.r());
     for (let [component, selects] of [...atom.f.entries()]) {
-        for (let i = selects.length - 1; i >= 0; i--) {
-            let [selected, selector] = selects[i];
+        for (let i = selects.length - 1; i >= 0;) {
+            let [selected, selector] = selects[i--];
             if (selected !== selector(atom.s)) {
                 callComponentFuncAndReconcile(component, component);
             }

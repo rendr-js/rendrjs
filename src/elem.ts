@@ -9,7 +9,7 @@ export type Slot = SlotElem | SlotElem[];
 
 export interface Elem<T = any> {
     t?: ElemType<T> // type
-    k?: string // key
+    k?: string | number // key
     p?: T // props
     r?: Ref // ref
     d?: ChildNode // dom
@@ -104,21 +104,22 @@ export let element = <Tag extends keyof HTMLElementTagNameMap | keyof SVGElement
         let prop: string & keyof (typeof attrs);
         for (prop in attrs) {
             let val = attrs[prop];
-            if (prop === 'slot') {
-                if (Array.isArray(val)) {
-                    elem.c = val as Elem[];
-                    for (let i = elem.c.length - 1; i >= 0; i--) {
-                        elem.c[i] ||= {};
+            if (val) {
+                if (prop === 'slot') {
+                    if (Array.isArray(val)) {
+                        for (let i = 0; i < val.length;) val[i++] ||= {};
+                    } else {
+                        // @ts-expect-error
+                        val = [val];
                     }
+                    elem.c = val as Elem[];
+                } else if (prop === 'key') {
+                    elem.k = val as string | number;
+                } else if (prop === 'ref') {
+                    elem.r = val as unknown as Ref;
                 } else {
-                    elem.c = [val || {}];
+                    elem.p[prop] = val;
                 }
-            } else if (prop === 'key') {
-                elem.k = val as string;
-            } else if (prop === 'ref') {
-                elem.r = val as Ref;
-            } else if (val) {
-                elem.p[prop] = val;
             }
         }
     }
@@ -126,11 +127,12 @@ export let element = <Tag extends keyof HTMLElementTagNameMap | keyof SVGElement
 }
 
 export let createDom = <T>(elem: Elem<T>, ns?: string | undefined): ChildNode => {
-    if (!elem.t) {
+    let ty = elem.t;
+    if (!ty) {
         elem.d = document.createTextNode(elem.p as string || '');
-    } else if (typeof elem.t === 'string') {
-        elem.n = elem.t === 'svg' ? '2000/svg' : elem.t === 'math' ? '1998/Math/MathML' : ns;
-        elem.d = elem.n ? document.createElementNS('http://www.w3.org/' + elem.n, elem.t) : document.createElement(elem.t);
+    } else if (typeof ty === 'string') {
+        elem.n = ty === 'svg' ? '2000/svg' : ty === 'math' ? '1998/Math/MathML' : ns;
+        elem.d = elem.n ? document.createElementNS('http://www.w3.org/' + elem.n, ty) : document.createElement(ty);
         if (elem.r) elem.r.value = elem.d;
         for (let attr in elem.p) {
             setAttr(elem.d as HTMLElement, attr, elem.p[attr]);
