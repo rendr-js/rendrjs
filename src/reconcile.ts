@@ -147,9 +147,9 @@ let reconcileChildren = (oldElem: HTMLElementElem, newElem: HTMLElementElem) => 
             let chdDom = chNodes[start];
             if (mappedOld) {
                 let oldDom = getDom(mappedOld);
-                if (chdDom !== oldDom) {
-                    moveBefore(parentDom, newChn[start + 1]?.k, oldChd.k, chdDom, oldDom);
-                }
+                // if (chdDom !== oldDom) {
+                moveBefore(parentDom, newChn[start + 1]?.k, oldChd.k, chdDom, oldDom);
+                // }
                 reconcile(mappedOld, newChd);
                 delete oldMap[newChd.k!];
             } else {
