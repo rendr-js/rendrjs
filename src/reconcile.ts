@@ -145,16 +145,12 @@ let reconcileChildren = (oldElem: HTMLElementElem, newElem: HTMLElementElem) => 
         } else {
             let mappedOld = oldMap[newChd.k!];
             let chdDom = chNodes[start];
+            let oldDom = mappedOld ? getDom(mappedOld) : createDom(newChd, newElem.n);
             if (mappedOld) {
-                let oldDom = getDom(mappedOld);
-                // if (chdDom !== oldDom) {
-                moveBefore(parentDom, newChn[start + 1]?.k, oldChd.k, chdDom, oldDom);
-                // }
                 reconcile(mappedOld, newChd);
                 delete oldMap[newChd.k!];
-            } else {
-                moveBefore(parentDom, newChn[start + 1]?.k, oldChd.k, chdDom, createDom(newChd, newElem.n));
             }
+            moveBefore(parentDom, newChn[start + 1]?.k, oldChd.k, chdDom, oldDom);
         }
         start++;
     }
