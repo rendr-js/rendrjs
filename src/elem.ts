@@ -127,6 +127,10 @@ export let element = <Tag extends keyof HTMLElementTagNameMap | keyof SVGElement
 }
 
 export let createDom = <T>(elem: Elem<T>, ns?: string | undefined): ChildNode => {
+    if (elem.d) {
+        elem.d = elem.d.cloneNode(true) as ChildNode;
+        return elem.d;
+    }
     let ty = elem.t;
     if (!ty) {
         elem.d = document.createTextNode(elem.p as string || '');

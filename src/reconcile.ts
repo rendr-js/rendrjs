@@ -24,8 +24,8 @@ let getDom = (elem: Elem): ChildNode => {
 export let reconcile = (oldElem: Elem, newElem: Elem): void => {
     newElem.u = false;
     if (oldElem.t !== newElem.t) {
-        teardown(oldElem);
         getDom(oldElem).replaceWith(createDom(newElem, oldElem.n));
+        teardown(oldElem);
         return;
     }
     if (oldElem.v) {
