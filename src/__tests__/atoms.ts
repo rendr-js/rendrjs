@@ -197,72 +197,6 @@ describe('standard', () => {
     });
 });
 
-describe('derived', () => {
-    it('basic use', async () => {
-        const foo = createAtom('foo');
-        const fooLength = createAtom(get => get(foo).length);
-        const Message = () => {
-            const msgLength = useAtomValue(fooLength);
-            return element('p', { slot: text(`${msgLength}`) });
-        };
-        const Button = () => {
-            const setMsg = useAtomSetter(foo);
-            return element('button', {
-                slot: text('bar'),
-                onclick: () => setMsg(s => s + '!'),
-            });
-        };
-        const Root = () => {
-            return element('div', { slot: [
-                component(Message),
-                component(Button),
-            ] });
-        };
-        const wrapper = mount(component(Root));
-        const para = wrapper.find('p')!;
-        const btn = wrapper.find('button')!;
-        expect(para.textContent).toBe('3');
-        btn.click();
-        await waitFor(() => expect(para.textContent).toBe('4'));
-        btn.click();
-        await waitFor(() => expect(para.textContent).toBe('5'));
-    });
-
-    it('does not re-render when used atom state changes but derived atom state does not change', async () => {
-        const foo = createAtom('foo');
-        const fooLength = createAtom(get => get(foo).length);
-        const msgRunner = vi.fn();
-        const Message = () => {
-            msgRunner();
-            const msgLength = useAtomValue(fooLength);
-            return element('p', { slot: text(`${msgLength}`) });
-        };
-        const Button = () => {
-            const setMsg = useAtomSetter(foo);
-            return element('button', {
-                slot: text('bar'),
-                onclick: () => setMsg(s => s === 'foo' ? 'bar' : 'foo'),
-            });
-        };
-        const Root = () => {
-            return element('div', { slot: [
-                component(Message),
-                component(Button),
-            ] });
-        };
-        const wrapper = mount(component(Root));
-        const para = wrapper.find('p')!;
-        const btn = wrapper.find('button')!;
-        expect(para.textContent).toBe('3');
-        btn.click();
-        await waitFor(() => expect(para.textContent).toBe('3'));
-        btn.click();
-        await waitFor(() => expect(para.textContent).toBe('3'));
-        await wait(10);
-        expect(msgRunner).toHaveBeenCalledOnce();
-    });
-});
-
 describe('selectors', () => {
     it('basic use', async () => {
         const foo = createAtom('foo');
@@ -316,6 +250,63 @@ describe('selectors', () => {
         expect(msgRunner).toHaveBeenCalledTimes(6);
         expect(msgLenRunner).toHaveBeenCalledTimes(4);
     });
+
+    it('doesn\'t update after selecting atom already updated', async () => {
+        const foo = createAtom('foo');
+        const msgRunner = vi.fn();
+        const msgLenRunner = vi.fn();
+        const MessageLength = () => {
+            msgLenRunner();
+            const msgLength = useAtomSelector(foo, f => f.length);
+            const msg = useAtomValue(foo);
+            if (msg.length != msgLength) {
+                throw new Error('message length not right');
+            }
+            return element('p', { slot: text(`${msgLength}`) });
+        };
+        const Message = () => {
+            msgRunner();
+            const msg = useAtomValue(foo);
+            return element('span', { slot: text(`${msg}`) });
+        };
+        const Button = () => {
+            const setMsg = useAtomSetter(foo);
+            return element('button', {
+                slot: text('bar'),
+                onclick: () => setMsg(s => s === 'foo' ? 'bar' : s === 'bar' ? 'foobar' : 'foo'),
+            });
+        };
+        const Root = () => {
+            return element('div', { slot: [
+                component(Message),
+                component(MessageLength),
+                component(Button),
+            ] });
+        };
+        const wrapper = mount(component(Root));
+        const para = wrapper.find('p')!;
+        const spn = wrapper.find('span')!;
+        const btn = wrapper.find('button')!;
+        expect(spn.textContent).toBe('foo');
+        expect(para.textContent).toBe('3');
+        btn.click();
+        await waitFor(() => expect(para.textContent).toBe('3'));
+        await waitFor(() => expect(spn.textContent).toBe('bar'));
+        btn.click();
+        await waitFor(() => expect(para.textContent).toBe('6'));
+        await waitFor(() => expect(spn.textContent).toBe('foobar'));
+        btn.click();
+        await waitFor(() => expect(para.textContent).toBe('3'));
+        await waitFor(() => expect(spn.textContent).toBe('foo'));
+        btn.click();
+        await waitFor(() => expect(para.textContent).toBe('3'));
+        await waitFor(() => expect(spn.textContent).toBe('bar'));
+        btn.click();
+        await waitFor(() => expect(para.textContent).toBe('6'));
+        await waitFor(() => expect(spn.textContent).toBe('foobar'));
+        expect(msgRunner).toHaveBeenCalledTimes(6);
+        expect(msgLenRunner).toHaveBeenCalledTimes(6);
+    });
 });
 
 describe('watch', () => {
@@ -340,30 +331,5 @@ describe('watch', () => {
         expect(watch).toHaveBeenCalledTimes(2);
         expect(watch).toHaveBeenNthCalledWith(1, 'foo', 'bar');
         expect(watch).toHaveBeenNthCalledWith(2, 'bar', 'foo');
-    });
-
-    it('derived atom', async () => {
-        const watch = vi.fn((prev, next) => {});
-        const msgAtom = createAtom('foo');
-        const msgLenAtom = createAtom(get => get(msgAtom).length, { watch: (prev, next) => watch(prev, next) });
-        const Root = () => {
-            const [msg, setMsg] = useAtom(msgAtom);
-            const msgLen = useAtomValue(msgLenAtom);
-            return element('div', { slot: [
-                element('span', { slot: text(`${msg}: ${msgLen}`) }),
-                element('button', {
-                    slot: text('bar'),
-                    onclick: () => setMsg(s => s === 'foo' ? 'foobar' : 'foobarbaz'),
-                }),
-            ] });
-        };
-        const wrapper = mount(component(Root));
-        const btn = wrapper.find('button')!;
-        btn.click();
-        await wait(10);
-        expect(watch).toHaveBeenNthCalledWith(1, 3, 6);
-        btn.click();
-        await wait(10);
-        expect(watch).toHaveBeenNthCalledWith(2, 6, 9);
     });
 });

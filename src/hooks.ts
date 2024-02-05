@@ -1,4 +1,4 @@
-import { Atom, ReadonlyAtom } from './atom.js';
+import { Atom } from './atom.js';
 import { ComponentElem, Elem, callComponentFunc } from './elem.js';
 import { reconcile } from './reconcile.js';
 import { areDepsEqual } from './utils.js';
@@ -111,7 +111,7 @@ export let current: { e: ComponentElem | undefined } = {
     e: undefined,
 };
 
-let useAtomSubscription = <T>(atom: Atom<T> | ReadonlyAtom<T>) => {
+let useAtomSubscription = <T>(atom: Atom<T>) => {
     let elem = current.e!;
     useImmediateEffect(() => {
         atom.c.add(elem);
@@ -121,27 +121,27 @@ let useAtomSubscription = <T>(atom: Atom<T> | ReadonlyAtom<T>) => {
 
 export let useAtom = <T>(atom: Atom<T>): [T, Dispatch<SetStateAction<T>>] => {
     useAtomSubscription(atom);
-    return [atom.s, atom.u];
+    return [atom.v, atom.u];
 };
 
 export let useAtomSetter = <T>(atom: Atom<T>): Dispatch<SetStateAction<T>> => atom.u;
 
-export let useAtomValue = <T>(atom: Atom<T> | ReadonlyAtom<T>): T => {
+export let useAtomValue = <T>(atom: Atom<T>): T => {
     useAtomSubscription(atom);
-    return atom.s;
+    return atom.v;
 };
 
-export let useAtomSelector = <T, R>(atom: Atom<T> | ReadonlyAtom<T>, selector: (state: T) => R): R => {
+export let useAtomSelector = <T, R>(atom: Atom<T>, selector: (state: T) => R): R => {
     let elem = current.e!;
+    let selected = selector(atom.v);
     useImmediateEffect(() => {
-        let selected = selector(atom.s);
-        let selects = atom.f.get(elem);
+        let selects = atom.s.get(elem);
         if (!selects) {
-            atom.f.set(elem, [[selected, selector]]);
+            atom.s.set(elem, [[selected, selector]]);
         } else {
             selects.push([selected, selector]);
         }
-        return () => atom.f.delete(elem);
-    }, [elem, selector]);
-    return selector(atom.s);
+        return () => atom.s.delete(elem);
+    }, [elem, selector, selected]);
+    return selected;
 };
