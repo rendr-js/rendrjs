@@ -14,6 +14,7 @@ export interface Atom<T> {
 
 export interface AtomOptions<T> {
     watch?: (prevState: T, newState: T) => void
+    equality?: (a: T, b: T) => boolean
 }
 
 export let createAtom = <T>(initialValue: T, options?: AtomOptions<T>): Atom<T> => {
@@ -22,7 +23,7 @@ export let createAtom = <T>(initialValue: T, options?: AtomOptions<T>): Atom<T> 
         u: action => {
             let oldState = atom.v;
             atom.v = typeof action === 'function' ? (action as UpdateStateAction<T>)(oldState) : action;
-            if (oldState !== atom.v) {
+            if (options?.equality ? !options.equality(oldState, atom.v) : oldState !== atom.v) {
                 options?.watch?.(oldState, atom.v);
                 queueMicrotask(atom.r);
             }
