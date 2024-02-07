@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { useState, component, useEffect, Slot, element, text } from '..';
+import { useState, component, useEffect, Slot, element, text, useRef, createAtom, useAtom } from '..';
 import { waitFor, mount, wait } from './utils';
 
 describe('slot: non-keyed', () => {

@@ -9,6 +9,7 @@ let teardown = (elem: Elem, remove = 0) => {
         elem.u = true;
         if (elem.q) elem.q.length = 0;
         elem.h?.forEach(h => h?.t?.());
+        elem.h = undefined;
         teardown(elem.v);
     } else {
         if (elem.r) elem.r.value = undefined;
