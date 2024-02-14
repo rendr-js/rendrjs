@@ -2,14 +2,17 @@ import { ComponentElem, createDom, Elem, callComponentFunc } from './elem.js';
 import { areDepsEqual } from './utils.js';
 
 type HTMLElementElem = Elem & { d: HTMLElement };
+let teardownComponent = (elem: Elem) => {
+    elem.u = true;
+    if (elem.q) elem.q.length = 0;
+    elem.h?.forEach(h => h?.t?.());
+    elem.h = undefined;
+};
 
 let teardown = (elem: Elem, remove = 0) => {
     if (remove < 0) getDom(elem).remove();
     if (elem.v) {
-        elem.u = true;
-        if (elem.q) elem.q.length = 0;
-        elem.h?.forEach(h => h?.t?.());
-        elem.h = undefined;
+        teardownComponent(elem);
         teardown(elem.v);
     } else {
         if (elem.r) elem.r.value = undefined;
@@ -24,22 +27,26 @@ let getDom = (elem: Elem): ChildNode => {
 
 export let reconcile = (oldElem: Elem, newElem: Elem): void => {
     newElem.u = false;
-    if (oldElem.t !== newElem.t) {
-        getDom(oldElem).replaceWith(createDom(newElem, oldElem.n));
-        teardown(oldElem);
-        return;
-    }
-    if (oldElem.v) {
-        newElem.h = oldElem.h;
-        if (!newElem.p && ! oldElem.p) return;
-        if (oldElem.m && newElem.m && areDepsEqual(oldElem.m, newElem.m)) {
-            newElem.v = oldElem.v;
-            return;
+    let sameTy = oldElem.t === newElem.t;
+    if (typeof oldElem.t === 'function' && typeof newElem.t === 'function') {
+        if (sameTy) {
+            newElem.h = oldElem.h;
+            if ((!newElem.p && !oldElem.p) || (oldElem.m && newElem.m && areDepsEqual(oldElem.m, newElem.m))) {
+                newElem.v = oldElem.v;
+                return;
+            }
+        } else {
+            teardownComponent(oldElem);
         }
         if (oldElem.q) {
             oldElem.q.length = 0;
         }
         callComponentFuncAndReconcile(oldElem as ComponentElem, newElem as ComponentElem);
+        return;
+    }
+    if (!sameTy) {
+        getDom(oldElem).replaceWith(createDom(newElem, oldElem.n));
+        teardown(oldElem);
         return;
     }
     newElem.d = oldElem.d;
