@@ -31,8 +31,7 @@ export let reconcile = (oldElem: Elem, newElem: Elem): void => {
     }
     if (oldElem.v) {
         newElem.h = oldElem.h;
-        if (!newElem.p && ! oldElem.p) return;
-        if (oldElem.m && newElem.m && areDepsEqual(oldElem.m, newElem.m)) {
+        if ((!newElem.p && ! oldElem.p) || (oldElem.m && newElem.m && areDepsEqual(oldElem.m, newElem.m))) {
             newElem.v = oldElem.v;
             return;
         }
