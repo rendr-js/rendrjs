@@ -140,7 +140,7 @@ export let createDom = <T>(elem: Elem<T>, ns?: string | undefined): ChildNode =>
         elem.c?.forEach(c => elem.d!.appendChild(createDom(c, elem.n)));
     } else {
         elem.v = callComponentFunc(elem as ComponentElem<T>);
-        elem.d = createDom(elem.v, ns);
+        return createDom(elem.v, ns);
     }
     return elem.d!;
 }

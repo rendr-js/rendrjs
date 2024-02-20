@@ -28,8 +28,11 @@ export let useState = <S>(initialValue: S): [S, Dispatch<SetStateAction<S>>] => 
     if (states.length <= cursor) {
         states.push(initialValue);
     }
-    return [states[cursor], (action: SetStateAction<S>) => {
-        if (elem.u) throw 'bad setState';
+    let ref = useRef(elem);
+    ref.value = elem;
+    let setState = (action: SetStateAction<S>) => {
+        let elem = ref.value;
+        if (elem.u) throw 'bad set state';
         let newValue: S = typeof action === 'function' ? (action as UpdateStateAction<S>)(states[cursor]) : action;
         if (states[cursor] !== newValue) {
             states[cursor] = newValue;
@@ -44,7 +47,8 @@ export let useState = <S>(initialValue: S): [S, Dispatch<SetStateAction<S>>] => 
                 }
             });
         }
-    }];
+    };
+    return [states[cursor], setState];
 };
 
 export let useEffect = (effect: () => (void | (() => void)), deps: any[]) => {

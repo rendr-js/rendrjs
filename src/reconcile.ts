@@ -5,6 +5,7 @@ type HTMLElementElem = Elem & { d: HTMLElement };
 
 let teardown = (elem: Elem, remove = 0) => {
     if (remove < 0) getDom(elem).remove();
+    if (elem.r) elem.r.value = undefined;
     if (elem.v) {
         elem.u = true;
         if (elem.q) elem.q.length = 0;
@@ -12,7 +13,6 @@ let teardown = (elem: Elem, remove = 0) => {
         elem.h = undefined;
         teardown(elem.v);
     } else {
-        if (elem.r) elem.r.value = undefined;
         elem.c?.forEach(teardown);
     }
 }
@@ -24,26 +24,19 @@ let getDom = (elem: Elem): ChildNode => {
 
 export let reconcile = (oldElem: Elem, newElem: Elem): void => {
     newElem.u = false;
+    let oldDom = getDom(oldElem);
+    let newProps = newElem.p;
+    let oldProps = oldElem.p;
     if (oldElem.t !== newElem.t) {
-        getDom(oldElem).replaceWith(createDom(newElem, oldElem.n));
         teardown(oldElem);
-        return;
-    }
-    if (oldElem.v) {
-        newElem.h = oldElem.h;
-        if ((!newElem.p && ! oldElem.p) || (oldElem.m && newElem.m && areDepsEqual(oldElem.m, newElem.m))) {
-            newElem.v = oldElem.v;
-            return;
+        oldDom.replaceWith(createDom(newElem));
+    } else if (!oldElem.t) {
+        newElem.d = oldDom;
+        if (oldProps !== newProps) {
+            (oldDom as Text).data = newProps;
         }
-        if (oldElem.q) {
-            oldElem.q.length = 0;
-        }
-        callComponentFuncAndReconcile(oldElem as ComponentElem, newElem as ComponentElem);
-        return;
-    }
-    newElem.d = oldElem.d;
-    if (oldElem.t) {
-        newElem.n = oldElem.n;
+    } else if (typeof oldElem.t === 'string') {
+        newElem.d = oldDom;
         for (let attr in { ...newElem.p, ...oldElem.p }) {
             let prop = newElem.p[attr];
             if (prop !== oldElem.p[attr]) {
@@ -51,13 +44,19 @@ export let reconcile = (oldElem: Elem, newElem: Elem): void => {
             }
         }
         if (newElem.r) {
-            newElem.r.value = oldElem.d;
+            newElem.r.value = oldDom;
         } else if (oldElem.r) {
             oldElem.r.value = undefined;
         }
-        reconcileChildren(oldElem as HTMLElementElem, newElem as HTMLElementElem);
-    } else if (oldElem.p !== newElem.p) {
-        (oldElem.d as Text).data = newElem.p;
+        reconcileChildren(oldElem as HTMLElementElem, newElem as HTMLElementElem, oldDom as Element);
+    } else {
+        newElem.h = oldElem.h;
+        if (oldElem.m && newElem.m && areDepsEqual(oldElem.m, newElem.m)) {
+            newElem.v = oldElem.v;
+        } else {
+            if (oldElem.q) oldElem.q.length = 0;
+            callComponentFuncAndReconcile(oldElem as ComponentElem, newElem as ComponentElem);
+        }
     }
 }
 
@@ -78,34 +77,33 @@ export let setAttr = (dom: HTMLElement, attr: string, prop: any) => {
     }
 };
 
-let moveBefore = (parent: ParentNode, newChdNextKey: string | number | undefined, oldChdKey: string | number | undefined, currDomNode: ChildNode, movingDomNode: ChildNode) => {
+let moveBefore = (parent: ParentNode, newChn: Elem[], oldChn: Elem[], i: number, currDomNode: ChildNode, movingDomNode: ChildNode) => {
     let oldPos = movingDomNode.nextSibling;
     parent.insertBefore(movingDomNode, currDomNode);
-    if (currDomNode !== parent.lastChild && newChdNextKey !== oldChdKey) {
+    if (currDomNode !== parent.lastChild && newChn[i+1]?.k !== oldChn[i]?.k) {
         parent.insertBefore(currDomNode, oldPos);
     }
 }
 
 type ChilrenMap = { [key: string]: Elem<any> };
 
-let reconcileChildren = (oldElem: HTMLElementElem, newElem: HTMLElementElem) => {
+let reconcileChildren = (oldElem: HTMLElementElem, newElem: HTMLElementElem, dom: Element) => {
     let newChn = newElem.c ?? [];
     let oldChn = oldElem.c ?? [];
     let newLength = newChn.length;
     let oldLength = oldChn.length;
-    let parentDom = newElem.d;
     if (!newLength && oldLength) {
-        parentDom.textContent = '';
+        (getDom(oldElem) as HTMLElement).innerHTML = '';
         oldChn.forEach(teardown);
         return;
     }
     let start = 0;
-    
+
     // prefix
     while (
         start < newLength &&
         start < oldLength &&
-        (!newChn[start].k || newChn[start].k === oldChn[start].k)
+        (newChn[start].k === undefined || newChn[start].k === oldChn[start].k)
     ) {
         reconcile(oldChn[start], newChn[start]);
         start++;
@@ -128,30 +126,29 @@ let reconcileChildren = (oldElem: HTMLElementElem, newElem: HTMLElementElem) => 
 
     let oldMap = {} as ChilrenMap;
     for (let i = start; i <= oldLength; i++) {
-        let oldChd = oldChn[i];
-        let oldKey = oldChd.k;
-        if (oldKey && (!newChn[i] || oldKey !== newChn[i].k)) {
-            oldMap[oldKey] = oldChd;
+        if (oldChn[i].k && (!newChn[i] || oldChn[i].k !== newChn[i].k)) {
+            oldMap[oldChn[i].k!] = oldChn[i];
         }
     }
-    
-    let chNodes = parentDom.childNodes;
+
     while (start <= newLength) {
         let newChd = newChn[start];
+        let newKey = newChd.k;
         let oldChd = oldChn[start];
+        let chdDom = dom.childNodes[start];
+        let mappedOld = oldMap[newKey!];
         if (!oldChd) {
-            parentDom.appendChild(createDom(newChd, newElem.n));
-        } else if (oldChd.k === newChd.k) {
+            dom.appendChild(createDom(newChd));
+        } else if (mappedOld) {
+            if (chdDom !== mappedOld.d) {
+                moveBefore(dom, newChn, oldChn, start, chdDom, getDom(mappedOld));
+            }
+            reconcile(mappedOld, newChd);
+            delete oldMap[newKey!];
+        } else if (oldChd.k === newKey) {
             reconcile(oldChd, newChd);
         } else {
-            let mappedOld = oldMap[newChd.k!];
-            let chdDom = chNodes[start];
-            let oldDom = mappedOld ? getDom(mappedOld) : createDom(newChd, newElem.n);
-            if (mappedOld) {
-                reconcile(mappedOld, newChd);
-                delete oldMap[newChd.k!];
-            }
-            moveBefore(parentDom, newChn[start + 1]?.k, oldChd.k, chdDom, oldDom);
+            moveBefore(dom, newChn, oldChn, start, chdDom, createDom(newChd));
         }
         start++;
     }
