@@ -1,6 +1,6 @@
 {
     "name": "@rendrjs/core",
-    "version": "0.2.68",
+    "version": "0.2.69",
     "scripts": {
         "pub": "npm version patch -f && npx tsc && npm -f publish",
         "test": "vitest",
