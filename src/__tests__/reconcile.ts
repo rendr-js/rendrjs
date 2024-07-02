@@ -548,7 +548,7 @@ describe('slot: keyed', () => {
         para.click();
         await waitFor(() => expect(para.textContent).toBe('12340'));
     });
-    
+
     it('namespace change', async () => {
         const Root = () => {
             const [showRect, setShowRect] = useState(false);
@@ -584,6 +584,52 @@ describe('slot: keyed', () => {
 });
 
 describe('attributes', () => {
+    it('input value change', async () => {
+        const Root = () => {
+            const [slot, setSlot] = useState('foo');
+            return element('div', {
+                slot: [
+                    element('p', {
+                        onclick: () => setSlot('bar'),
+                        slot: text(slot),
+                    }),
+                    element('input', {
+                        value: slot,
+                    }),
+                ],
+            });
+        };
+        const wrapper = mount(component(Root));
+        const para = wrapper.find('p')!;
+        const input = wrapper.find('input') as HTMLInputElement;
+        await waitFor(() => expect(input.value).toBe('foo'));
+        para.click();
+        await waitFor(() => expect(input.value).toBe('bar'));
+    });
+
+    it('textarea value change', async () => {
+        const Root = () => {
+            const [slot, setSlot] = useState('foo');
+            return element('div', {
+                slot: [
+                    element('p', {
+                        onclick: () => setSlot('bar'),
+                        slot: text(slot),
+                    }),
+                    element('textarea', {
+                        value: slot,
+                    }),
+                ],
+            });
+        };
+        const wrapper = mount(component(Root));
+        const para = wrapper.find('p')!;
+        const ta = wrapper.find('textarea') as HTMLTextAreaElement;
+        await waitFor(() => expect(ta.value).toBe('foo'));
+        para.click();
+        await waitFor(() => expect(ta.value).toBe('bar'));
+    });
+
     it('remove onclick from element', async () => {
         const Root = () => {
             const [listen, setListen] = useState(true);

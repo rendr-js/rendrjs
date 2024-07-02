@@ -65,7 +65,7 @@ describe('states', () => {
         close.click();
         await waitFor(() => expect(root.textContent).toBe('noneopen'));
     });
-   
+
     it('throws error when used outside of component render function', () => {
         const fail = vi.fn();
         try {
@@ -75,7 +75,7 @@ describe('states', () => {
         }
         expect(fail).toHaveBeenCalledOnce();
     });
-    
+
     it('throws error when set state called from unmounted component; doesnt when singleton remounted', async () => {
         const fail = vi.fn();
         const child = component(() => {

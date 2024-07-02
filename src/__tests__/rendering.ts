@@ -121,7 +121,7 @@ describe('rendering', () => {
         const para = wrapper.find('p')!;
         await waitFor(() => expect(para.textContent).toBe('foo'));
     });
-    
+
     it('svg', async () => {
         const Root = () => element('svg', {
             width: 100,
