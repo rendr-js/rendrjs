@@ -630,6 +630,29 @@ describe('attributes', () => {
         await waitFor(() => expect(ta.value).toBe('bar'));
     });
 
+    it('textarea value removed', async () => {
+        const Root = () => {
+            const [slot, setSlot] = useState('foo');
+            return element('div', {
+                slot: [
+                    element('p', {
+                        onclick: () => setSlot(''),
+                        slot: text(slot),
+                    }),
+                    element('textarea', {
+                        value: slot,
+                    }),
+                ],
+            });
+        };
+        const wrapper = mount(component(Root));
+        const para = wrapper.find('p')!;
+        const ta = wrapper.find('textarea') as HTMLTextAreaElement;
+        await waitFor(() => expect(ta.value).toBe('foo'));
+        para.click();
+        await waitFor(() => expect(ta.value).toBe(''));
+    });
+
     it('remove onclick from element', async () => {
         const Root = () => {
             const [listen, setListen] = useState(true);

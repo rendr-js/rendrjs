@@ -69,7 +69,7 @@ export let callComponentFuncAndReconcile = (oldElem: ComponentElem, newElem: Com
 export let setAttr = (dom: HTMLElement, attr: string, prop: any) => {
     if (!attr.indexOf('on') || attr === 'value') {
         // @ts-expect-error
-        dom[attr] = prop;
+        dom[attr] = prop ?? '';
     } else if (prop) {
         dom.setAttribute(attr, prop);
     } else {
