@@ -12,6 +12,7 @@ export {
 } from './elem.js';
 export {
     mount,
+    unmount,
 } from './mount.js';
 export {
     useAtom,

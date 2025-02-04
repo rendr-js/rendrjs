@@ -3,7 +3,7 @@ import { areDepsEqual } from './utils.js';
 
 type HTMLElementElem = Elem & { d: HTMLElement };
 
-let teardown = (elem: Elem, remove = 0) => {
+export let teardown = (elem: Elem, remove = 0) => {
     if (remove < 0) getDom(elem).remove();
     if (elem.r) elem.r.value = undefined;
     if (elem.v) {
